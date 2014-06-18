@@ -9,3 +9,10 @@ A better name, TBD
 - [ ] Release WordPress plugin
 - [ ] Integrate on a site (dailyorange.com)
 - [ ] Repeat.
+
+
+### Requirements
+- [ ] Modeled after existing feed manager for general UI and UX
+- [ ] Can handle multipile "streams"
+- [ ] Built upon normal WordPress post_type architecture
+- [ ] JavaScript / Ajax provides _enhancements_ as opposed to core UX
