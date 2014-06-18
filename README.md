@@ -18,3 +18,4 @@ A better name, TBD
 - [ ] Can handle multipile "streams"
 - [ ] Built upon normal WordPress post_type architecture
 - [ ] JavaScript / Ajax provides _enhancements_ as opposed to core UX
+_Jared and Chris to add other things here. Will meet to plan tech spec on Tuesday 6/24_
