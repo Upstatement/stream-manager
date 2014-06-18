@@ -12,7 +12,9 @@ A better name, TBD
 
 
 ### Requirements
-- [ ] Modeled after existing feed manager for general UI and UX
+- [ ] Modeled after existing [feed manager](https://github.com/Upstatement/chainsaw-feed) for general UI and UX
+- [ ] Matches general WordPress UI
+- [ ] Contains Upstatement mention/branding
 - [ ] Can handle multipile "streams"
 - [ ] Built upon normal WordPress post_type architecture
 - [ ] JavaScript / Ajax provides _enhancements_ as opposed to core UX
