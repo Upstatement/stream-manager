@@ -10,6 +10,10 @@ A better name, TBD
 - [ ] Integrate on a site (dailyorange.com)
 - [ ] Repeat.
 
+### Goals
+- [ ] Gives editors an easy and intutive way to manage feeds of content on their site
+- [ ] Has ways Upstatement or other developers can extend/customize for particular implemenetation or site
+- [ ] Doesn't require an editor to set after every update (ie. auto-insertion of published posts)
 
 ### Requirements
 - [ ] Modeled after existing [feed manager](https://github.com/Upstatement/chainsaw-feed) for general UI and UX
