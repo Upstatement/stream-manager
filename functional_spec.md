@@ -1,18 +1,40 @@
 # Feed Manager Functional Specification
 
 - v0.1.0 - 2014-06-23 - initial outline and draft - cv
-- v0.1.1 - 2014-06-25 - cleaning up specification, starting glossary - cv
+- v0.1.1 - 2014-06-25 - cleaning up specification, starting glossary and use case scenarios - cv
 
 # Overview
 
+This document outlines the front-facing functionality for the upcoming Feed Manager (working title; also tentatively referred to as Stream Manager) WordPress plugin rewrite.
 
 ## Methodology
 
-### Use Case Examples
+This specification is intended to reflect the existing proprietary Feed Manager plugin built by Upstatement for use in client projects. One of the primary goals of this rewrite is to continue to target editorial end users, but remove complexity and reconsider the assumptions that caused the older plugin to miss its mark.
 
-#### Daily Orange
+The scope of this document is focused on the end user and the actions that he or she will take while using this plugin. It does not contain any implementation or technical notes (e.g., interfacing with themes, etc.).
 
+### Use Case Scenarios
 
+These examples are intended to provide insight that will help direct the functionality of the plugin. While the Feed Manager cannot (and should not) be everything to everyone, it is important to consider how people will be using it in real-world scenarios.
+
+#### The Daily Orange (Syracuse University's student-run newspaper)
+
+On four nights a week throughout the school year, the Daily Orange publishes thirty to forty stories. At the end of each night, Lara, the editor in chief, organizes these stories into several buckets:
+
+- 1 Top Story
+- 2 Secondary Top Stories
+- 6 Featured Stories
+- Stories for the daily email newsletter
+
+Due to the limitations of the existing system, the curation options available to Lara do not meet the needs of the newspaper for several reasons:
+
+1. The Zoninator curation plugin is too slow to handle a large number of articles. It also does not handle many feeds well, leaving many sections of the site without any curation whatsoever.
+2. Feeds need to be updated manually whenever the site is updated
+3. Curated posts cannot be mixed with latest posts
+4. Custom layouts and other additional layers of functionality must be handled separately
+5. Any other feeds must be hardcoded into the theme, like sorting recent articles by number of comments.
+
+A plugin that overcomes these obstacles would need to automate the process of generating feeds, while also making it incredibly simple for editors to make adjustments.
 
 #### Upstatement
 
@@ -20,12 +42,11 @@
 
 # Glossary
 
-- **Functional Specification**
-- **Technical Specification**
-- **Feed**
-- **Stickied Post** - a post that will permanently be displayed in a particular position in a feed until a user unstickies it. This is a working title that will likely be changed to avoid confusion with WordPress' own built-in stickied posts.
-- **Timber**
-- **WP**
+- A **functional specification** (this document) describes the features and functionality of a product.
+- A **technical specification** details the technical implementation of the product, including data structures, programming languages, dependencies, APIs, and more.
+- **Feeds** are collections of posts that are automatically populated using user-defined criteria, and are then displayed using a template. For example, a news site may have a feed containing the latest posts.
+- A **stickied post** (working title) is a post that will permanently be displayed in a particular position in a feed.
+
 
 
 # URL Structure
@@ -77,7 +98,18 @@ Sends feed to trash, making it unavailable for use in the front end
 
 Determine where posts come from (e.g., all latest posts, posts from one category, based on a custom field). Stickied posts can come from anywhere regardless of this setting.
 
-Base this on Advanced Custom Fields' Location rules, with additional filters for post metadata like date ranges.
+Base this on Advanced Custom Fields' Location rules. The following filters will be required:
+
+- post_type
+- post_author
+- post_date
+- taxonomies
+    - category
+    - tag
+    - custom taxonomies
+- post_format
+- post_status (?)
+- custom fields (implementation TBD)
 
 When a user changes these settings, the site will respond by repopulating the list of articles.
 
@@ -106,26 +138,17 @@ A user clicks an "Unsticky All" button, and the site responds by resetting the f
 
 ### 4.4 High-level Feed Actions
 
+These will all use WordPress' existing post management actions.
+
 #### 4.4.1 Publish Changes
 
 #### 4.4.2 Discard Changes
 
-When the user leaves the page without publishing changes, confirm and then discard the changes.
-
 #### 4.4.3 Revert to Older Configuration
 
-Uses WordPress' existing post revision system.
-
-#### 4.4.4 Theme Integration Helper
+#### 4.5 Theme Integration Helper
 
 Provides code snippets for easily integrating the feed into a theme.
-
-### Todo:
-
-- Add stickied post from post edit page
-- Hide a post from a feed altogether
-- Save draft of feed?
-- Preview feed?
 
 
 
@@ -134,9 +157,27 @@ Provides code snippets for easily integrating the feed into a theme.
 Upon deactivating or uninstalling the plugin, the posts should remain in the database?
 
 
-# Very early implementation notes
+# Implementation Notes
 
-These are NOT final, just based on early discussions.
+These are NOT final, just based on early discussions, and will eventually be moved to the technical specification.
 
 - Use existing WP post functionality for building out admin interface (similar to ACF). No Feed Manager interface; just a heavily customized wordpress post type.
 - Build on top of Timber. Assume that this will be primarily used internally at Upstatement.
+
+
+## Other things to add here and to the technical spec
+
+On the roadmap for v1:
+
+- Add stickied post from post edit page
+- **Hide a post** from a feed altogether
+- **Zones.** Apply labels to specific slots.
+- For the technical specification:
+    - Advanced Custom Fields support. This _should_ be available right out of the box without any kind of coding on our end.
+    - Theme hooks. Allow themes to add custom functionality to feeds, without being dependent on ACF.
+
+Under consideration:
+
+- **Feed preview.** From a UX perspective, it makes sense to have this, but technically is difficult to implement since the feed manager doesn't know where the feeds are implemented on the site.
+- **Export** feed configurations
+- **RSS** feeds?
