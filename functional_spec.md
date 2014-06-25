@@ -94,25 +94,29 @@ From the list of articles already populating a feed, select one to sticky. This 
 1. The user drags the post to a new position
 2. The user clicks a "Sticky" button next to the post, which will permanently locate it in that slot
 
-### 4.3 Unsticky Post
+### 4.3 Unsticky Post(s)
+
+#### 4.3.1 Unsticky Single Post
 
 A user clicks the "Unsticky" button on a stickied post, and it will move to its normal location in the feed.
 
-### 4.4 Unsticky All Posts
+#### 4.3.2 Unsticky All Posts
 
 A user clicks an "Unsticky All" button, and the site responds by resetting the feed to its normal state without any stickied posts.
 
-### 4.5 Publish Changes
+### 4.4 High-level Feed Actions
 
-### 4.6 Discard Changes
+#### 4.4.1 Publish Changes
+
+#### 4.4.2 Discard Changes
 
 When the user leaves the page without publishing changes, confirm and then discard the changes.
 
-### 4.7 Revert to Older Configuration
+#### 4.4.3 Revert to Older Configuration
 
 Uses WordPress' existing post revision system.
 
-### 4.8 Theme Integration Helper
+#### 4.4.4 Theme Integration Helper
 
 Provides code snippets for easily integrating the feed into a theme.
 
@@ -120,6 +124,8 @@ Provides code snippets for easily integrating the feed into a theme.
 
 - Add stickied post from post edit page
 - Hide a post from a feed altogether
+- Save draft of feed?
+- Preview feed?
 
 
 
