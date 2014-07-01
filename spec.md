@@ -12,7 +12,7 @@ This document outlines the front-facing functionality for the upcoming Feed Mana
 
 #### 1.2 Methodology
 
-This specification is intended to reflect the existing proprietary Feed Manager plugin built by Upstatement for use in client projects. One of the primary goals of this rewrite is to continue to target editorial end users, but remove complexity and reconsider the assumptions that caused the older plugin to miss its mark.
+This specification is intended to reflect the existing proprietary Feed Manager plugin built by Upstatement for use in client projects. One of the primary goals of this rewrite is to continue to target editorial end-users, but remove complexity and reconsider the assumptions that caused the older plugin to miss its mark.
 
 #### 1.3 Example Use Cases
 
@@ -39,6 +39,7 @@ A plugin that overcomes these obstacles would need to automate the process of ge
 
 **Upstatement**
 
+Upstatement publishes about 1 story/week to its blog. The landing page for the blog features a number of recent and featured stories. An editor will want to ocasionaly "pin" some stories ("How to approach a responsive design"), while allowing others to cycle in-and-out (job postings, intern welcomes, etc.)
 
 
 ## 2. Glossary
@@ -68,6 +69,8 @@ A plugin that overcomes these obstacles would need to automate the process of ge
 #### 2.3 Feed Manager
 
 - **Feeds** are collections of posts that are automatically populated using user-defined criteria, and are then displayed using a template. For example, a news site may have a feed containing the latest posts.
+
+- A **stub** is the visual representation of a post that can be moved and arranged within the Feed Manager interface.
 
 - A **stickied post** (working title) is a post that will permanently be displayed in a particular position in a feed.
 
@@ -107,7 +110,7 @@ Provides a high-level overview of feeds.
 
 ##### 4.3.1.1 Feed Overview
 
-Name, top item (maybe), others TBD
+Name, top item (maybe), others TBD (count? sub-zones?)
 
 ##### 4.3.1.2 Edit Feed
 
@@ -124,7 +127,7 @@ Sends feed to trash, making it unavailable for use in the front end
 
 Determine where posts come from (e.g., all latest posts, posts from one category, based on a custom field). Stickied posts can come from anywhere regardless of this setting.
 
-Base this on Advanced Custom Fields' Location rules. The following filters will be required:
+Possibly base this on Advanced Custom Fields' Location rules. The following filters will be required:
 
 - post_type
 - post_author
@@ -176,6 +179,9 @@ These will all use WordPress' existing post management actions.
 
 Provides code snippets for easily integrating the feed into a theme.
 
+- Inclusion of filter to modify display and input for post "stubs"
+- Method to add information to feed?
+
 ### 4.5 Offboarding
 
 Upon deactivating or uninstalling the plugin, the posts should remain in the database to avoid any data loss. Manually deleting all of the feeds would essentially erase all of the data that the feed manager is storing in the database.
@@ -196,7 +202,7 @@ Feeds will be implemented as a custom post type, and will require the following 
 > feed_posts_list
 
 * Description: Map of stickied post IDs and their position in the feed
-* Notes: Position starts at 0. This will be a serialized array, not json.
+* Notes: Position starts at 0. This will be a **serialized array**, not json.
 * Example:
 
 ```json
@@ -286,13 +292,14 @@ This will output a feed with in the following order:
 ```
 
 ### 5.3 Browser Support
-
-
+- This will work in the most recent versions of Google Chrome and Mozilla Firefox. It should be built with progressive enhancement principles to make it most likely to function in lower-grade browers. However, that support is not required for this version.
 
 
 ---
 
 # Implementation Notes
+
+Think about the api to fetch a feed. Simple-enough to make it work.
 
 These are NOT final, just based on early discussions, and will eventually be moved to the technical specification.
 
@@ -309,11 +316,11 @@ On the roadmap for v1:
 - **Zones.** Apply labels to specific slots.
 - For the technical specification:
     - Advanced Custom Fields support. This _should_ be available right out of the box without any kind of coding on our end.
-    - Theme hooks. Allow themes to add custom functionality to feeds, without being dependent on ACF.
+    - Theme hooks/filters. Allow themes to add custom functionality to feeds, without being dependent on ACF.
 
-Under consideration:
+#### Under consideration for future:
 
-- **Feed preview.** From a UX perspective, it makes sense to have this, but technically is difficult to implement since the feed manager doesn't know where the feeds are implemented on the site.
+- **Feed preview.** From a UX perspective, it makes sense to have this, but technically is difficult to implement since the feed manager doesn't know where the feeds are implemented on the site. 
 - **Export** feed configurations
 - **RSS** feeds?
 
@@ -328,7 +335,7 @@ So broad feature outline:
     - Feeds can be manually curated. Posts can be stickied to any position, or can be hidden from the feed altogether.
     - Themes can hook into the feed UI to add...
         - Labels.
-        - Custom fields. Maybe just allow themes to surface the posts' custom fields?
+        - Custom fields. Maybe just allow themes to surface the posts' custom fields? (yes).
 
 - Theme integration
     - Feeds can be implemented anywhere, but do not replace the normal wordpress posts loop. They have to be manually inserted through the view controller (e.g., get_stream(1234) would return a collection of TimberPost objects)
