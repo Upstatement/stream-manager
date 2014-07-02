@@ -37,7 +37,7 @@ if ( ! defined( 'WPINC' ) ) {
 
 
 require_once( plugin_dir_path( __FILE__ ) . 'includes/post-types.php' );
-require_once( plugin_dir_path( __FILE__ ) . 'public/class-feed-manager.php' );
+require_once( plugin_dir_path( __FILE__ ) . 'includes/class-feed-manager.php' );
 
 /*
  * Register hooks that are fired when the plugin is activated or deactivated.
@@ -50,6 +50,9 @@ add_action( 'plugins_loaded', array( 'Feed_Manager', 'get_instance' ) );
 
 /*----------------------------------------------------------------------------*
  * Dashboard and Administrative Functionality
+ *
+ * Ultimately, this won't be needed for the Feed Manager, but I'll keep it in
+ * for now in the unlikely event that there's a use case for a settings page.
  *----------------------------------------------------------------------------*/
 
 /*
@@ -64,7 +67,7 @@ add_action( 'plugins_loaded', array( 'Feed_Manager', 'get_instance' ) );
  */
 if ( is_admin() && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
 
-	require_once( plugin_dir_path( __FILE__ ) . 'admin/class-feed-manager-admin.php' );
+	require_once( plugin_dir_path( __FILE__ ) . 'includes/class-feed-manager-admin.php' );
 	add_action( 'plugins_loaded', array( 'Feed_Manager_Admin', 'get_instance' ) );
 
 }
