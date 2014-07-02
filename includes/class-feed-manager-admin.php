@@ -60,6 +60,9 @@ class Feed_Manager_Admin {
 		// Add the options page and menu item.
 		add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
 
+		// Feed edit page metaboxes
+		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes') );
+
 		// Add an action link pointing to the options page.
 		$plugin_basename = plugin_basename( plugin_dir_path( realpath( dirname( __FILE__ ) ) ) . $this->plugin_slug . '.php' );
 		add_filter( 'plugin_action_links_' . $plugin_basename, array( $this, 'add_action_links' ) );
@@ -107,7 +110,7 @@ class Feed_Manager_Admin {
 
 		$screen = get_current_screen();
 		if ( $this->plugin_screen_hook_suffix == $screen->id ) {
-			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'assets/css/admin.css', __FILE__ ), array(), Feed_Manager::VERSION );
+			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'assets/css/style.css', __FILE__ ), array(), Feed_Manager::VERSION );
 		}
 
 	}
@@ -127,7 +130,7 @@ class Feed_Manager_Admin {
 
 		$screen = get_current_screen();
 		if ( $this->plugin_screen_hook_suffix == $screen->id ) {
-			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), Feed_Manager::VERSION );
+			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/script.js', __FILE__ ), array( 'jquery' ), Feed_Manager::VERSION );
 		}
 
 	}
@@ -169,7 +172,7 @@ class Feed_Manager_Admin {
 	 * @since    1.0.0
 	 */
 	public function display_plugin_admin_page() {
-		include_once( 'views/admin.php' );
+		//include_once( 'views/admin.php' );
 	}
 
 	/**
@@ -187,6 +190,28 @@ class Feed_Manager_Admin {
 		);
 
 	}
+
+
+	public function add_meta_boxes() {
+		add_meta_box('feed_box', 'Feed', array( $this, 'meta_box_feed' ), 'fm_feed');
+	}
+
+	public function meta_box_feed() {
+		$context = Timber::get_context();
+		Timber::render('views/feed.twig', $context);
+	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 	/**
 	 * NOTE:     Actions are points in the execution of a page or process

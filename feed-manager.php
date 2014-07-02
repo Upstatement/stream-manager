@@ -50,9 +50,6 @@ add_action( 'plugins_loaded', array( 'Feed_Manager', 'get_instance' ) );
 
 /*----------------------------------------------------------------------------*
  * Dashboard and Administrative Functionality
- *
- * Ultimately, this won't be needed for the Feed Manager, but I'll keep it in
- * for now in the unlikely event that there's a use case for a settings page.
  *----------------------------------------------------------------------------*/
 
 /*
