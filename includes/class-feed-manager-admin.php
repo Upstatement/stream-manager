@@ -198,6 +198,12 @@ class Feed_Manager_Admin {
 
 	public function meta_box_feed() {
 		$context = Timber::get_context();
+
+		// Get recent posts
+		$context['posts'] = Timber::get_posts(array(
+			'posts_per_page' => 10
+		));
+
 		Timber::render('views/feed.twig', $context);
 	}
 

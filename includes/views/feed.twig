@@ -1,1 +1,55 @@
-meta boxin'
+<table class="wp-list-table widefat fixed posts">
+
+  <thead>
+    <tr>
+      <th scope="col" id="cb" class="manage-column column-cb check-column" style=""><label class="screen-reader-text" for="cb-select-all-1">Select All</label><input id="cb-select-all-1" type="checkbox"></th>
+
+      <th scope="col" id="title" class="manage-column column-title sortable desc" style=""><a href="http://feed.dev/wp-admin/edit.php?orderby=title&amp;order=asc"><span>Title</span><span class="sorting-indicator"></span></a></th>
+
+      <th scope="col" id="date" class="manage-column column-date sortable asc" style=""><a href="http://feed.dev/wp-admin/edit.php?orderby=date&amp;order=desc"><span>Date</span><span class="sorting-indicator"></span></a></th> 
+    </tr>
+  </thead>
+
+  <tfoot>
+    <tr>
+      <th scope="col" class="manage-column column-cb check-column" style=""><label class="screen-reader-text" for="cb-select-all-2">Select All</label><input id="cb-select-all-2" type="checkbox"></th>
+
+      <th scope="col" class="manage-column column-title sortable desc" style=""><a href="http://feed.dev/wp-admin/edit.php?orderby=title&amp;order=asc"><span>Title</span><span class="sorting-indicator"></span></a></th>
+
+      <th scope="col" class="manage-column column-date sortable asc" style=""><a href="http://feed.dev/wp-admin/edit.php?orderby=date&amp;order=desc"><span>Date</span><span class="sorting-indicator"></span></a></th>
+    </tr>
+  </tfoot>
+
+  <tbody id="the-list">
+
+    {% for post in posts %}
+
+      <tr id="post-{{ post.ID }}" class="post-{{ post.ID }} hentry alternate">
+        <th scope="row" class="check-column">
+          <label class="screen-reader-text" for="cb-select-{{ post.ID }}">Select {{ post.title }}</label>
+          <input id="cb-select-{{ post.ID }}" type="checkbox" name="post[]" value="{{ post.ID }}">
+        </th>
+
+        <td class="post-title page-title column-title">
+          <strong><a class="row-title" href="{{ post.edit_link }}" title="Edit Post">{{ post.title }}</a></strong>
+
+          <div class="row-actions">
+            <span class="edit">
+              <a href="{{ post.edit_link }}" title="Edit this item">Edit</a> | 
+            </span>
+
+            <span class="view">
+              <a href="{{ post.url }}" title="View Post" rel="permalink">View</a>
+            </span>
+          </div>
+
+        </td>
+
+        <td class="date column-date"><abbr title="2014/07/02 9:31:06 PM">1 min ago</abbr><br>Published</td>
+
+      </tr>
+
+    {% endfor %}
+
+  </tbody>
+</table>
