@@ -1,5 +1,5 @@
 
-      <tr id="post-{{ post.ID }}" class="post-{{ post.ID }} hentry stub{{ i is divisibleby(2) ? ' alternate' }}{{ post.pinned ? ' fm-pinned' }}{{ post.hidden ? ' fm-hidden' }}">
+      <tr id="post-{{ post.ID }}" class="post-{{ post.ID }} hentry stub{{ post.pinned ? ' fm-pinned' }}{{ post.hidden ? ' fm-hidden' }}" data-id="{{ post.ID }}">
         <th scope="row" class="check-column">
           <label class="screen-reader-text" for="cb-select-{{ post.ID }}">Select {{ post.title }}</label>
 

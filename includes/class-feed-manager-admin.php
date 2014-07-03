@@ -202,8 +202,18 @@ class Feed_Manager_Admin {
 
 		$context = Timber::get_context();
 
-		// Get recent posts
+		// Get the full feed
 		$context['posts'] = $this->build_feed( $feed );
+
+		// Get what the feed would be without stickied posts
+		$unaltered_posts = Timber::get_posts(array(
+			'posts_per_page' => 10
+		));
+		$unaltered_post_ids = array();
+		foreach ($unaltered_posts as $post) {
+			$unaltered_post_ids[] = $post->ID;
+		}
+		$context['unaltered_posts'] = implode(",", $unaltered_post_ids);
 
 		Timber::render('views/feed.twig', $context);
 	}
