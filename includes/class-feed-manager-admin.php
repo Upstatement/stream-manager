@@ -245,7 +245,7 @@ class Feed_Manager_Admin {
 
 	    foreach($_POST['fm_sort'] as $i => $item) {
 	    	if (isset($_POST['fm_pin'][$item])) {
-	    		$pinned[$item] = $i;
+	    		$pinned[$i] = $item;
 	    	}
 	    	if (isset($_POST['fm_hide'][$item])) {
 	    		$hidden[] = $item;
@@ -267,11 +267,12 @@ class Feed_Manager_Admin {
 		if ( isset($feed['cached'] ) ) {
 
 			$posts = Timber::get_posts(array(
-				'post__in' => $feed['cached']
+				'post__in' => $feed['cached'],
+				'orderby' => 'post__in'
 			));
 
 			foreach ($posts as &$post) {
-				if ( isset( $feed['pinned'][$post->ID] ) ) {
+				if ( in_array( $post->ID, $feed['pinned'] ) ) {
 					$post->pinned = true;
 				}
 				if ( in_array( $post->ID, $feed['hidden'] ) ) {

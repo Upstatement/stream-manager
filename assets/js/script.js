@@ -32,4 +32,14 @@ jQuery(function($) {
     }
   });
 
+  $('.fm-feed-rows').sortable({
+    update: function(event, ui) {
+      console.log(this, event, ui);
+      $(ui.item)
+        .addClass('fm-pinned')
+        .find('.fm-pin-checkbox').prop('checked', true);
+      $(ui.item).find('.pin-unpin a').text('Unpin');
+    }
+  });
+
 });

@@ -1,9 +1,29 @@
 /* line 1, ../scss/style.scss */
+.stub {
+  cursor: move;
+}
+
+/* line 5, ../scss/style.scss */
 .stub.fm-pinned {
   background: #e7ffd0;
 }
+/* line 8, ../scss/style.scss */
+.stub.fm-pinned .row-title:after {
+  content: " (Pinned)";
+  font-weight: normal;
+}
 
-/* line 4, ../scss/style.scss */
+/* line 13, ../scss/style.scss */
 .stub.fm-hidden {
   opacity: .5;
+}
+/* line 16, ../scss/style.scss */
+.stub.fm-hidden .row-title:after {
+  content: " (Hidden)";
+  font-weight: normal;
+}
+
+/* line 22, ../scss/style.scss */
+.fm-feed-rows .ui-sortable-placeholder {
+  height: 59px;
 }

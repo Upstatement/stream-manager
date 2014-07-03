@@ -1,6 +1,24 @@
+.stub {
+  cursor: move;
+}
+
 .stub.fm-pinned {
   background: #e7ffd0;
+
+  .row-title:after {
+    content: " (Pinned)";
+    font-weight: normal;
+  }
 }
 .stub.fm-hidden {
   opacity: .5;
+
+  .row-title:after {
+    content: " (Hidden)";
+    font-weight: normal;
+  }
+}
+
+.fm-feed-rows .ui-sortable-placeholder {
+  height: 59px;
 }
