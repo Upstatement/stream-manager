@@ -196,9 +196,9 @@ class Feed_Manager_Admin {
 
 	public function meta_box_feed($post) {
 		$feed = get_post_meta( $post->ID, 'fm_feed' )[0];
-		echo("<pre>");
-		print_r($feed);
-		echo("</pre>");
+		//echo("<pre>");
+		//print_r($feed);
+		//echo("</pre>");
 
 		$context = Timber::get_context();
 
@@ -207,7 +207,7 @@ class Feed_Manager_Admin {
 
 		// Get what the feed would be without stickied posts
 		$unaltered_posts = Timber::get_posts(array(
-			'posts_per_page' => 10
+			'posts_per_page' => 20
 		));
 		$unaltered_post_ids = array();
 		foreach ($unaltered_posts as $post) {
@@ -278,7 +278,8 @@ class Feed_Manager_Admin {
 
 			$posts = Timber::get_posts(array(
 				'post__in' => $feed['cached'],
-				'orderby' => 'post__in'
+				'orderby' => 'post__in',
+				'posts_per_page' => 20
 			));
 
 			foreach ($posts as &$post) {
@@ -292,7 +293,7 @@ class Feed_Manager_Admin {
 		} else {
 
 			$posts = Timber::get_posts(array(
-				'posts_per_page' => 10
+				'posts_per_page' => 20
 			));
 
 		}

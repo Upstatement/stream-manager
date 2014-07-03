@@ -69,6 +69,9 @@ jQuery(function($) {
     });
 
     // Properly sort unpinned items
+    // If anything is unpinned and doesn't belong (i.e., posts are
+    // refreshed when Rules are updated), then this is where they
+    // disappear forever
     for (i in ids) {
       if (unpinned[ids[i]]) sorted.push(unpinned[ids[i]]);
     }
