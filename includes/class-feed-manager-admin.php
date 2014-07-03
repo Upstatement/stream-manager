@@ -61,7 +61,10 @@ class Feed_Manager_Admin {
 		add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
 
 		// Feed edit page metaboxes
-		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes') );
+		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
+
+		// Saving Feeds
+		add_action( 'save_post', array( $this, 'save_feed' ) );
 
 		// Add an action link pointing to the options page.
 		$plugin_basename = plugin_basename( plugin_dir_path( realpath( dirname( __FILE__ ) ) ) . $this->plugin_slug . '.php' );
@@ -187,20 +190,103 @@ class Feed_Manager_Admin {
 
 
 	public function add_meta_boxes() {
-		add_meta_box('feed_box', 'Feed', array( $this, 'meta_box_feed' ), 'fm_feed');
+		add_meta_box('feed_box_feed',  'Feed',  array( $this, 'meta_box_feed'  ), 'fm_feed');
+		add_meta_box('feed_box_rules', 'Rules', array( $this, 'meta_box_rules' ), 'fm_feed');
 	}
 
-	public function meta_box_feed() {
+	public function meta_box_feed($post) {
+		$feed = get_post_meta( $post->ID, 'fm_feed' )[0];
+		echo("<pre>");
+		print_r($feed);
+		echo("</pre>");
+
 		$context = Timber::get_context();
 
 		// Get recent posts
-		$context['posts'] = Timber::get_posts(array(
-			'posts_per_page' => 10
-		));
-
-		$context['posts'][1]->pinned = true;
+		$context['posts'] = $this->build_feed( $feed );
 
 		Timber::render('views/feed.twig', $context);
+	}
+
+	public function meta_box_rules($post) {
+		$fields = get_post_custom( $post->ID );
+		$rules = isset( $fields['fm_feed_rules'] ) ? esc_attr( $fields['fm_feed_rules'][0] ) : '';
+
+		$context = Timber::get_context();
+		$context['fm_feed_rules'] = $rules;
+		$context['nonce'] = wp_nonce_field('fm_feed_nonce', 'fm_feed_meta_box_nonce', true, false);
+		Timber::render('views/rules.twig', $context);
+	}
+
+
+	public function save_feed( $post_id ) {
+    // Bail if we're doing an auto save
+    if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+     
+    // if our nonce isn't there, or we can't verify it, bail
+    if( !isset( $_POST['fm_feed_meta_box_nonce'] ) || !wp_verify_nonce( $_POST['fm_feed_meta_box_nonce'], 'fm_feed_nonce' ) ) return;
+     
+    // if our current user can't edit this post, bail
+    if( !current_user_can( 'edit_post' ) ) return;
+
+    if ( isset( $_POST['fm_feed_pinned'] ) ) {
+    	update_post_meta( $post_id, 'fm_feed_pinned', $_POST['fm_feed_pinned'] );
+    }
+
+    if ( isset( $_POST['fm_feed_rules'] ) ) {
+    	update_post_meta( $post_id, 'fm_feed_rules', $_POST['fm_feed_rules'] );
+    }
+
+    if (isset( $_POST['fm_sort'] ) ) {
+
+	    $pinned = array();
+	    $hidden = array();
+	    $cached = array();
+
+	    foreach($_POST['fm_sort'] as $i => $item) {
+	    	if (isset($_POST['fm_pin'][$item])) {
+	    		$pinned[$item] = $i;
+	    	}
+	    	if (isset($_POST['fm_hide'][$item])) {
+	    		$hidden[] = $item;
+	    	}
+		    $cached[] = $item;
+	    }
+
+	    $feed = array(
+	    	'pinned' => $pinned,
+	    	'hidden' => $hidden,
+	    	'cached' => $cached
+	    );
+
+	    update_post_meta( $post_id, 'fm_feed', $feed );
+	  }
+	}
+
+	public function build_feed( $feed ) {
+		if ( isset($feed['cached'] ) ) {
+
+			$posts = Timber::get_posts(array(
+				'post__in' => $feed['cached']
+			));
+
+			foreach ($posts as &$post) {
+				if ( isset( $feed['pinned'][$post->ID] ) ) {
+					$post->pinned = true;
+				}
+				if ( in_array( $post->ID, $feed['hidden'] ) ) {
+					$post->hidden = true;
+				}
+			}
+		} else {
+
+			$posts = Timber::get_posts(array(
+				'posts_per_page' => 10
+			));
+
+		}
+
+		return $posts;
 	}
 
 

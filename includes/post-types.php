@@ -24,7 +24,7 @@ function feed_manager_post_types() {
     'labels'              => $labels,
     'supports'            => array( 'title', 'revisions', ),
     'hierarchical'        => false,
-    'public'              => true,
+    'public'              => false,
     'show_ui'             => true,
     'show_in_menu'        => true,
     'show_in_nav_menus'   => false,
@@ -41,5 +41,4 @@ function feed_manager_post_types() {
 
 }
 
-// Hook into the 'init' action
 add_action( 'init', 'feed_manager_post_types', 0 );

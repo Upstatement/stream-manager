@@ -1,26 +1,30 @@
 
-      <tr id="post-{{ post.ID }}" class="post-{{ post.ID }} hentry stub{{ i is divisibleby(2) ? ' alternate' }}{{ post.pinned ? ' pinned' }}">
+      <tr id="post-{{ post.ID }}" class="post-{{ post.ID }} hentry stub{{ i is divisibleby(2) ? ' alternate' }}{{ post.pinned ? ' fm-pinned' }}{{ post.hidden ? ' fm-hidden' }}">
         <th scope="row" class="check-column">
           <label class="screen-reader-text" for="cb-select-{{ post.ID }}">Select {{ post.title }}</label>
+
+          <!-- Select for Bulk Actions -->
           <input id="cb-select-{{ post.ID }}" type="checkbox" name="post[]" value="{{ post.ID }}">
         </th>
 
         <td class="post-title page-title column-title">
-          <strong><a class="row-title" href="{{ post.edit_link }}" title="Edit Post">{{ post.title }} {{ post.pinned ? '(pinned)' }}</a></strong>
+          <strong><a class="row-title" href="{{ post.edit_link }}" title="Edit Post">{{ post.title }}</a></strong>
 
           <div class="row-actions">
-            {% if post.pinned %}
-              <span class="pin-unpin unpin">
+            <span class="pin-unpin">
+              {% if post.pinned %}
                 <a href="#" title="Unpin this item">Unpin</a> | 
-              </span>
-            {% else %}
-              <span class="pin-unpin pin">
+              {% else %}
                 <a href="#" title="Pin this item">Pin</a> | 
-              </span>
-            {% endif %}
+              {% endif %}
+            </span>
 
             <span class="hide">
-              <a href="#" title="Hide this item from the feed">Hide</a> | 
+              {% if post.hidden %}
+                <a href="#" title="Hide this item from the feed">Unhide</a> | 
+              {% else %}
+                <a href="#" title="Hide this item from the feed">Hide</a> | 
+              {% endif %}
             </span>
 
             <span class="edit">
@@ -29,6 +33,14 @@
 
             <span class="view">
               <a href="{{ post.url }}" title="View Post" rel="permalink">View</a>
+            </span>
+
+
+            <!-- Hidden Fields -->
+            <span class="hidden">
+              <input id="fm-sort-{{ post.ID }}" type="hidden" name="fm_sort[]" value="{{ post.ID }}">
+              <input id="fm-pin-{{ post.ID }}"  class="fm-pin-checkbox" type="checkbox" name="fm_pin[{{ post.ID }}]" {{ post.pinned ? 'checked="checked"' }}>
+              <input id="fm-hide-{{ post.ID }}" class="fm-hide-checkbox" type="checkbox" name="fm_hide[{{ post.ID }}]" {{ post.hidden ? 'checked="checked"' }}>
             </span>
           </div>
 
