@@ -78,6 +78,10 @@ class Feed_Manager_Admin {
 
 	}
 
+	public static function is_active() {
+		return get_current_screen()->id == "fm_feed";
+	}
+
 	/**
 	 * Return an instance of this class.
 	 *
@@ -104,14 +108,9 @@ class Feed_Manager_Admin {
 	 */
 	public function enqueue_admin_styles() {
 
-		if ( ! isset( $this->plugin_screen_hook_suffix ) ) {
-			return;
-		}
+		if ( !$this->is_active() ) return;
 
-		$screen = get_current_screen();
-		if ( $this->plugin_screen_hook_suffix == $screen->id ) {
-			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'assets/css/style.css', __FILE__ ), array(), Feed_Manager::VERSION );
-		}
+		wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( '../assets/css/style.css', __FILE__ ), array(), Feed_Manager::VERSION );
 
 	}
 
@@ -124,14 +123,9 @@ class Feed_Manager_Admin {
 	 */
 	public function enqueue_admin_scripts() {
 
-		if ( ! isset( $this->plugin_screen_hook_suffix ) ) {
-			return;
-		}
+		if ( !$this->is_active() ) return;
 
-		$screen = get_current_screen();
-		if ( $this->plugin_screen_hook_suffix == $screen->id ) {
-			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/script.js', __FILE__ ), array( 'jquery' ), Feed_Manager::VERSION );
-		}
+		wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( '../assets/js/script.js', __FILE__ ), array( 'jquery' ), Feed_Manager::VERSION );
 
 	}
 
@@ -203,6 +197,8 @@ class Feed_Manager_Admin {
 		$context['posts'] = Timber::get_posts(array(
 			'posts_per_page' => 10
 		));
+
+		$context['posts'][1]->pinned = true;
 
 		Timber::render('views/feed.twig', $context);
 	}
