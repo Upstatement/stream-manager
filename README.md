@@ -6,30 +6,17 @@ Feed Manager
 Install and activate Timber, then install and activate this plugin. Create your first feed in the admin, and then use this in your template file, replacing the ID with the feed ID:
 
 ```php
-<?php
-    # for index.php:
-
-    $context = Timber::get_context();
-    $context['feed'] = new TimberFeed(5);
-
-    $templates = array('index.twig');
-    if (is_home()){
-        array_unshift($templates, 'home.twig');
-    }
-    Timber::render($templates, $context);
-?>
+$context['feed'] = new TimberFeed(5);
 ```
 
 And add this to your twig file:
 
 ```twig
-
 {% for post in feed.get_posts %}
 
-    <h2>{{ post.title }}</h2>
+    {{ post.title }}
 
 {% endfor %}
-
 ```
 
 
