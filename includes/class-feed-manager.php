@@ -2,7 +2,7 @@
 /**
  * Feed Manager.
  *
- * @package   Feed_Manager
+ * @package   FeedManager
  * @author    Chris Voll + Upstatement
  * @license   GPL-2.0+
  * @link      http://upstatement.com
@@ -16,10 +16,10 @@
  * If you're interested in introducing administrative or dashboard
  * functionality, then refer to `class-plugin-name-admin.php`
  *
- * @package Feed_Manager
+ * @package FeedManager
  * @author  Chris Voll + Upstatement
  */
-class Feed_Manager {
+class FeedManager {
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -44,6 +44,18 @@ class Feed_Manager {
 	 */
 	protected $plugin_slug = 'feed-manager';
 
+
+	/**
+	 * Unique identifier for the feed post type.
+	 *
+	 * This needs to avoid conflicting with other plugins.
+	 *
+	 * @since    1.0.0
+	 *
+	 * @var      string
+	 */
+	protected $post_type_slug = 'fm_feed';
+
 	/**
 	 * Instance of this class.
 	 *
@@ -54,22 +66,19 @@ class Feed_Manager {
 	protected static $instance = null;
 
 	/**
-	 * Initialize the plugin by setting localization and loading public scripts
-	 * and styles.
+	 * Initialize the plugin
 	 *
 	 * @since     1.0.0
 	 */
 	private function __construct() {
 
-		// Activate plugin when new blog is added
-		add_action( 'wpmu_new_blog', array( $this, 'activate_new_site' ) );
+		// Ensure that Timber is loaded
+		if ( !self::check_dependencies() ) return;
 
-		/* Define custom functionality.
-		 * Refer To http://codex.wordpress.org/Plugin_API#Hooks.2C_Actions_and_Filters
-		 */
-		//add_action( '@TODO', array( $this, 'action_method_name' ) );
-		//add_filter( '@TODO', array( $this, 'filter_method_name' ) );
+		require_once( plugin_dir_path( __FILE__ ) . 'timber-feed.php' );
+		add_action( 'init', array( $this, 'define_post_types' ), 0 );
 
+		
 	}
 
 	/**
@@ -81,6 +90,17 @@ class Feed_Manager {
 	 */
 	public function get_plugin_slug() {
 		return $this->plugin_slug;
+	}
+
+	/**
+	 * Return the post type slug.
+	 *
+	 * @since    1.0.0
+	 *
+	 * @return    Post type slug variable.
+	 */
+	public function get_post_type_slug() {
+		return $this->post_type_slug;
 	}
 
 	/**
@@ -101,174 +121,59 @@ class Feed_Manager {
 	}
 
 	/**
-	 * Fired when the plugin is activated.
+	 * Ensure that Timber is loaded. Depending on the order that the
+	 * plugins are activated, Timber may be loaded after the Feed
+	 * Manager and needs to be loaded manually.
 	 *
-	 * @since    1.0.0
+	 * @since     1.0.0
 	 *
-	 * @param    boolean    $network_wide    True if WPMU superadmin uses
-	 *                                       "Network Activate" action, false if
-	 *                                       WPMU is disabled or plugin is
-	 *                                       activated on an individual blog.
+	 * @return    boolean    True if dependencies are met, false if not
 	 */
-	public static function activate( $network_wide ) {
-
-		if ( function_exists( 'is_multisite' ) && is_multisite() ) {
-
-			if ( $network_wide  ) {
-
-				// Get all blog ids
-				$blog_ids = self::get_blog_ids();
-
-				foreach ( $blog_ids as $blog_id ) {
-
-					switch_to_blog( $blog_id );
-					self::single_activate();
-
-					restore_current_blog();
-				}
-
-			} else {
-				self::single_activate();
-			}
-
-		} else {
-			self::single_activate();
-		}
-
+	public function check_dependencies() {
+		return class_exists('Timber');
 	}
 
 	/**
-	 * Fired when the plugin is deactivated.
+	 * Create the Feed post type, add to admin
 	 *
-	 * @since    1.0.0
-	 *
-	 * @param    boolean    $network_wide    True if WPMU superadmin uses
-	 *                                       "Network Deactivate" action, false if
-	 *                                       WPMU is disabled or plugin is
-	 *                                       deactivated on an individual blog.
+	 * @since     1.0.0
 	 */
-	public static function deactivate( $network_wide ) {
-
-		if ( function_exists( 'is_multisite' ) && is_multisite() ) {
-
-			if ( $network_wide ) {
-
-				// Get all blog ids
-				$blog_ids = self::get_blog_ids();
-
-				foreach ( $blog_ids as $blog_id ) {
-
-					switch_to_blog( $blog_id );
-					self::single_deactivate();
-
-					restore_current_blog();
-
-				}
-
-			} else {
-				self::single_deactivate();
-			}
-
-		} else {
-			self::single_deactivate();
-		}
-
-	}
-
-	/**
-	 * Fired when a new site is activated with a WPMU environment.
-	 *
-	 * @since    1.0.0
-	 *
-	 * @param    int    $blog_id    ID of the new blog.
-	 */
-	public function activate_new_site( $blog_id ) {
-
-		if ( 1 !== did_action( 'wpmu_new_blog' ) ) {
-			return;
-		}
-
-		switch_to_blog( $blog_id );
-		self::single_activate();
-		restore_current_blog();
-
-	}
-
-	/**
-	 * Get all blog ids of blogs in the current network that are:
-	 * - not archived
-	 * - not spam
-	 * - not deleted
-	 *
-	 * @since    1.0.0
-	 *
-	 * @return   array|false    The blog ids, false if no matches.
-	 */
-	private static function get_blog_ids() {
-
-		global $wpdb;
-
-		// get an array of blog ids
-		$sql = "SELECT blog_id FROM $wpdb->blogs
-			WHERE archived = '0' AND spam = '0'
-			AND deleted = '0'";
-
-		return $wpdb->get_col( $sql );
-
-	}
-
-	/**
-	 * Fired for each blog when the plugin is activated.
-	 *
-	 * @since    1.0.0
-	 */
-	private static function single_activate() {
-		// @TODO: Define activation functionality here
-	}
-
-	/**
-	 * Fired for each blog when the plugin is deactivated.
-	 *
-	 * @since    1.0.0
-	 */
-	private static function single_deactivate() {
-		// @TODO: Define deactivation functionality here
-	}
-
-
-
-
-
-
-
-
-
-
-
-	/**
-	 * NOTE:  Actions are points in the execution of a page or process
-	 *        lifecycle that WordPress fires.
-	 *
-	 *        Actions:    http://codex.wordpress.org/Plugin_API#Actions
-	 *        Reference:  http://codex.wordpress.org/Plugin_API/Action_Reference
-	 *
-	 * @since    1.0.0
-	 */
-	public function action_method_name() {
-		// @TODO: Define your action hook callback here
-	}
-
-	/**
-	 * NOTE:  Filters are points of execution in which WordPress modifies data
-	 *        before saving it or sending it to the browser.
-	 *
-	 *        Filters: http://codex.wordpress.org/Plugin_API#Filters
-	 *        Reference:  http://codex.wordpress.org/Plugin_API/Filter_Reference
-	 *
-	 * @since    1.0.0
-	 */
-	public function filter_method_name() {
-		// @TODO: Define your filter hook callback here
+	public function define_post_types() {
+	  $labels = array(
+	    'name'                => 'Feeds',
+	    'singular_name'       => 'Feed',
+	    'menu_name'           => 'Feeds',
+	    'parent_item_colon'   => 'Parent Feed',
+	    'all_items'           => 'Feeds',
+	    'view_item'           => 'View Feed',
+	    'add_new_item'        => 'Add New Feed',
+	    'add_new'             => 'Add New',
+	    'edit_item'           => 'Edit Feed',
+	    'update_item'         => 'Update Feed',
+	    'search_items'        => 'Search Feed',
+	    'not_found'           => 'Not found',
+	    'not_found_in_trash'  => 'Not found in Trash',
+	  );
+	  $args = array(
+	    'label'               => $this->post_type_slug,
+	    'description'         => 'Feed',
+	    'labels'              => $labels,
+	    'supports'            => array( 'title', 'revisions', ),
+	    'hierarchical'        => false,
+	    'public'              => false,
+	    'show_ui'             => true,
+	    'show_in_menu'        => true,
+	    'show_in_nav_menus'   => false,
+	    'show_in_admin_bar'   => false,
+	    'menu_position'       => 5,
+	    'menu_icon'           => 'dashicons-list-view',
+	    'can_export'          => true,
+	    'has_archive'         => false,
+	    'exclude_from_search' => true,
+	    'publicly_queryable'  => true,
+	    'capability_type'     => 'post',
+	  );
+	  register_post_type( $this->post_type_slug, $args );
 	}
 
 }

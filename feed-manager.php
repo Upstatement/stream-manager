@@ -5,7 +5,7 @@
  * A foundation off of which to build well-documented WordPress plugins that
  * also follow WordPress Coding Standards and PHP best practices.
  *
- * @package   Feed_Manager
+ * @package   FeedManager
  * @author    Chris Voll + Upstatement
  * @license   GPL-2.0+
  * @link      http://upstatement.com
@@ -31,40 +31,36 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+// Check if Timber is installed, and include it before any feed manager
+// things are initiated. This is needed for the TimberFeed class.
+if ( !class_exists('Timber') ) {
+  if ( !is_dir( ABSPATH . 'wp-content/plugins/timber-library' ) ) {
+    add_action('admin_notices', function() {
+      echo('<div class="error"><p>Please install <a href="http://upstatement.com/timber/">Timber</a> to use Feed Manager.</p></div>');
+    });
+  } else {
+    include_once( ABSPATH . 'wp-content/plugins/timber-library/timber.php' );
+  }
+}
+
+
 /*----------------------------------------------------------------------------*
  * Public-Facing Functionality
  *----------------------------------------------------------------------------*/
 
-
-require_once( plugin_dir_path( __FILE__ ) . 'includes/post-types.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'includes/class-feed-manager.php' );
+require_once( plugin_dir_path( __FILE__ ) . 'includes/timber-feed.php' );
 
-/*
- * Register hooks that are fired when the plugin is activated or deactivated.
- * When the plugin is deleted, the uninstall.php file is loaded.
- */
-register_activation_hook( __FILE__, array( 'Feed_Manager', 'activate' ) );
-register_deactivation_hook( __FILE__, array( 'Feed_Manager', 'deactivate' ) );
+add_action( 'plugins_loaded', array( 'FeedManager', 'get_instance' ) );
 
-add_action( 'plugins_loaded', array( 'Feed_Manager', 'get_instance' ) );
 
 /*----------------------------------------------------------------------------*
  * Dashboard and Administrative Functionality
  *----------------------------------------------------------------------------*/
 
-/*
- * If you want to include Ajax within the dashboard, change the following
- * conditional to:
- *
- * if ( is_admin() ) {
- *   ...
- * }
- *
- * The code below is intended to to give the lightest footprint possible.
- */
 if ( is_admin() && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
 
 	require_once( plugin_dir_path( __FILE__ ) . 'includes/class-feed-manager-admin.php' );
-	add_action( 'plugins_loaded', array( 'Feed_Manager_Admin', 'get_instance' ) );
+	add_action( 'plugins_loaded', array( 'FeedManagerAdmin', 'get_instance' ) );
 
 }
