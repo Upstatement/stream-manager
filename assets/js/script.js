@@ -34,12 +34,19 @@ jQuery(function($) {
   });
 
   $('.fm-feed-rows').sortable({
-    update: function(event, ui) {
-      console.log(this, event, ui);
+    start: function(event, ui) {
+      $(document).trigger('fm/sortable_start', ui.item);
+    },
+    stop: function(event, ui) {
+      $(document).trigger('fm/sortable_stop', ui.item);
+
       $(ui.item)
         .addClass('fm-pinned')
-        .find('.fm-pin-checkbox').prop('checked', true);
-      $(ui.item).find('.pin-unpin a').text('Unpin');
+        .find('.fm-pin-checkbox')
+          .prop('checked', true);
+      $(ui.item)
+        .find('.pin-unpin a')
+          .text('Unpin');
     }
   });
 

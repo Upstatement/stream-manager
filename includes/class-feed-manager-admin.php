@@ -123,7 +123,12 @@ class FeedManagerAdmin {
 
 		if ( !$this->is_active() ) return;
 
-		wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( '../assets/js/script.js', __FILE__ ), array( 'jquery' ), FeedManager::VERSION );
+		wp_enqueue_script(
+			$this->plugin_slug . '-admin-script',
+			plugins_url( '../assets/js/script.js', __FILE__ ),
+			array( 'jquery', 'backbone', 'underscore' ),
+			FeedManager::VERSION
+		);
 
 	}
 
