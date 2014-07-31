@@ -39,61 +39,66 @@ jQuery(function($) {
     },
     stop: function(event, ui) {
       $(document).trigger('fm/sortable_stop', ui.item);
+    },
+    axis: 'y',
+    connectWith: '.fm-feed-hide'
+  });
 
-      $(ui.item)
-        .addClass('fm-pinned')
-        .find('.fm-pin-checkbox')
-          .prop('checked', true);
-      $(ui.item)
-        .find('.pin-unpin a')
-          .text('Unpin');
-    }
+  $('.fm-feed-hide').sortable({
+    // start: function(event, ui) {
+    //   $(document).trigger('fm/sortable_start', ui.item);
+    // },
+    // stop: function(event, ui) {
+    //   $(document).trigger('fm/sortable_stop', ui.item);
+    // },
+    axis: 'y',
+    connectWith: '.fm-feed-rows'
   });
 
 
 
 
-  function reflow() {
-    var stubs = $('.stub');
+  // @todo: better take reordered items into account
+  // this might not even be needed anymore
+  // var reflow = function() {
+  //   var stubs = $('.stub');
 
-    // Default ID sorting
-    var ids = $('.fm-posts').attr('data-ids').split(",");
+  //   // Default ID sorting
+  //   var ids = $('.fm-posts').attr('data-ids').split(",");
 
-    var pinned = [];
-    var unpinned = {};
-    var sorted = [];
+  //   var pinned = [];
+  //   var unpinned = {};
+  //   var sorted = [];
 
-    stubs.each(function(i) {
-      if ($(this).hasClass('fm-pinned')) {
-        pinned.push({
-          id: $(this).attr('data-id'),
-          obj: this,
-          pos: i
-        });
-      } else {
-        unpinned[$(this).attr('data-id')] = this;
-      }
-    });
+  //   stubs.each(function(i) {
+  //     if ($(this).hasClass('fm-pinned') || $(this).hasClass('fm-reordered')) {
+  //       pinned.push({
+  //         id: $(this).attr('data-id'),
+  //         obj: this,
+  //         pos: i
+  //       });
+  //     } else {
+  //       unpinned[$(this).attr('data-id')] = this;
+  //     }
+  //   });
 
-    // Properly sort unpinned items
-    // If anything is unpinned and doesn't belong (i.e., posts are
-    // refreshed when Rules are updated), then this is where they
-    // disappear forever
-    for (i in ids) {
-      if (unpinned[ids[i]]) sorted.push(unpinned[ids[i]]);
-    }
+  //   // Properly sort unpinned items
+  //   // If anything is unpinned and doesn't belong (i.e., posts are
+  //   // refreshed when Rules are updated), then this is where they
+  //   // disappear forever
+  //   for (i in ids) {
+  //     if (unpinned[ids[i]]) sorted.push(unpinned[ids[i]]);
+  //   }
 
-    // Put the pinned items back in
-    for (i in pinned) {
-      sorted.splice(pinned[i].pos, 0, pinned[i].obj);
-    }
+  //   // Put the pinned items back in
+  //   for (i in pinned) {
+  //     sorted.splice(pinned[i].pos, 0, pinned[i].obj);
+  //   }
 
-    $('.fm-feed-rows').empty().append(sorted);
+  //   $('.fm-feed-rows').empty().append(sorted);
 
-  }
+  // }
 
-  $('.fm-posts').on('reflow', function() {
-    reflow();
-  });
+  //$('.fm-posts').on('reflow', reflow);
 
 });

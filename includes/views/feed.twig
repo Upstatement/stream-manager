@@ -2,23 +2,13 @@
 
   <thead>
     <tr>
-      <th scope="col" id="cb" class="manage-column column-cb check-column" style=""><label class="screen-reader-text" for="cb-select-all-1">Select All</label><input id="cb-select-all-1" type="checkbox"></th>
+      <th scope="col" id="title" class="manage-column column-title"><span>Title</span></th>
 
-      <th scope="col" id="title" class="manage-column column-title sortable desc" style=""><span>Title</span></th>
+      <th scope="col" id="date" class="manage-column column-rel-date"><span>Date</span></th> 
 
-      <th scope="col" id="date" class="manage-column column-date sortable asc" style=""><span>Date</span></th> 
+      <th scope="col" id="thumb" class="manage-column column-thumbnail"><span>Photo</span></th>
     </tr>
   </thead>
-
-  <tfoot>
-    <tr>
-      <th scope="col" class="manage-column column-cb check-column" style=""><label class="screen-reader-text" for="cb-select-all-2">Select All</label><input id="cb-select-all-2" type="checkbox"></th>
-
-      <th scope="col" class="manage-column column-title sortable desc" style=""><span>Title</span></th>
-
-      <th scope="col" class="manage-column column-date sortable asc" style=""><span>Date</span></th>
-    </tr>
-  </tfoot>
 
   <tbody id="the-list" class="fm-feed-rows">
 
@@ -28,5 +18,28 @@
 
     {% endfor %}
 
+  </tbody>
+</table>
+
+<h3>Hidden</h3>
+
+<table class="wp-list-table widefat fixed posts fm-posts" data-ids="{{ unaltered_posts }}">
+
+  <thead>
+    <tr>
+      <th scope="col" id="title" class="manage-column column-title"><span>Title</span></th>
+
+      <th scope="col" id="date" class="manage-column column-rel-date"><span>Date</span></th> 
+
+      <th scope="col" id="thumb" class="manage-column column-thumbnail"><span>Photo</span></th>
+    </tr>
+  </thead>
+
+  <tbody id="the-list" class="fm-feed-hide" style="min-height: 100px; width: 100%;">
+    {% for i, post in hidden %}
+
+      {% include "stub.twig" %}
+
+    {% endfor %}
   </tbody>
 </table>

@@ -1,5 +1,15 @@
 .stub {
   cursor: move;
+
+  // .column-title {
+  //   width: auto !important;
+
+  // }
+
+  // .column-date {
+  //   width: auto !important;
+  // }
+
 }
 
 .stub.fm-pinned {
@@ -16,6 +26,18 @@
   .row-title:after {
     content: " (Hidden)";
     font-weight: normal;
+  }
+}
+
+.fm-posts,
+.stub {
+
+  .column-rel-date {
+    width: 100px;
+  }
+
+  .column-thumbnail {
+    width: 144px;
   }
 }
 

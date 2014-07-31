@@ -10,12 +10,6 @@
  */
 
 /**
- * Plugin class. This class should ideally be used to work with the
- * administrative side of the WordPress site.
- *
- * If you're interested in introducing public-facing
- * functionality, then refer to `class-plugin-name.php`
- *
  * @package FeedManagerAdmin
  * @author  Chris Voll + Upstatement
  */
@@ -157,7 +151,7 @@ class FeedManagerAdmin {
 	 */
 	public function add_meta_boxes() {
 		add_meta_box('feed_box_feed',  'Feed',  array( $this, 'meta_box_feed'  ), $this->post_type_slug);
-		add_meta_box('feed_box_rules', 'Rules', array( $this, 'meta_box_rules' ), $this->post_type_slug);
+		add_meta_box('feed_box_rules', 'Rules', array( $this, 'meta_box_rules' ), $this->post_type_slug, 'side');
 	}
 
 
@@ -210,7 +204,7 @@ class FeedManagerAdmin {
 	 *
 	 * @todo      Move this to TimberFeed
 	 */
-	public function save_feed( $post_id ) {
+	public function save_feed( $feed_id ) {
     // Bail if we're doing an auto save
     if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
      
@@ -220,37 +214,32 @@ class FeedManagerAdmin {
     // if our current user can't edit this post, bail
     if( !current_user_can( 'edit_post' ) ) return;
 
-    if ( isset( $_POST['fm_feed_pinned'] ) ) {
-    	update_post_meta( $post_id, 'fm_feed_pinned', $_POST['fm_feed_pinned'] );
-    }
-
     if ( isset( $_POST['fm_feed_rules'] ) ) {
-    	update_post_meta( $post_id, 'fm_feed_rules', $_POST['fm_feed_rules'] );
+    	update_post_meta( $feed_id, 'fm_feed_rules', $_POST['fm_feed_rules'] );
     }
 
-    if (isset( $_POST['fm_sort'] ) ) {
-
-	    $pinned = array();
+    if ( isset( $_POST['fm_sort'] ) ) {
+	    $data   = array();
 	    $hidden = array();
-	    $cached = array();
 
-	    foreach($_POST['fm_sort'] as $i => $item) {
-	    	if (isset($_POST['fm_pin'][$item])) {
-	    		$pinned[$i] = $item;
-	    	}
-	    	if (isset($_POST['fm_hide'][$item])) {
-	    		$hidden[] = $item;
-	    	}
-		    $cached[] = $item;
+	    foreach ( $_POST['fm_sort'] as $i => $post_id ) {
+	    	if ( isset($_POST['fm_hide'][$post_id]) ) {
+	    		$hidden[] = $post_id;
+	    	} else {
+		    	$data[] = array(
+		    		'id' => $post_id,
+		    		'pinned' => isset($_POST['fm_pin'][$post_id])
+		    	);
+		    }
 	    }
 
+
 	    $feed = array(
-	    	'pinned' => $pinned,
-	    	'hidden' => $hidden,
-	    	'cached' => $cached
+	    	'data'   => $data,
+	    	'hidden' => $hidden
 	    );
 
-	    update_post_meta( $post_id, 'fm_feed', $feed );
+	    update_post_meta( $feed_id, 'fm_feed', $feed );
 	  }
 	}
 

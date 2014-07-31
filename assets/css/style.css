@@ -3,27 +3,38 @@
   cursor: move;
 }
 
-/* line 5, ../scss/style.scss */
+/* line 15, ../scss/style.scss */
 .stub.fm-pinned {
   background: #e7ffd0;
 }
-/* line 8, ../scss/style.scss */
+/* line 18, ../scss/style.scss */
 .stub.fm-pinned .row-title:after {
   content: " (Pinned)";
   font-weight: normal;
 }
 
-/* line 13, ../scss/style.scss */
+/* line 23, ../scss/style.scss */
 .stub.fm-hidden {
   opacity: .5;
 }
-/* line 16, ../scss/style.scss */
+/* line 26, ../scss/style.scss */
 .stub.fm-hidden .row-title:after {
   content: " (Hidden)";
   font-weight: normal;
 }
 
-/* line 22, ../scss/style.scss */
+/* line 35, ../scss/style.scss */
+.fm-posts .column-rel-date,
+.stub .column-rel-date {
+  width: 100px;
+}
+/* line 39, ../scss/style.scss */
+.fm-posts .column-thumbnail,
+.stub .column-thumbnail {
+  width: 144px;
+}
+
+/* line 44, ../scss/style.scss */
 .fm-feed-rows .ui-sortable-placeholder {
   height: 59px;
 }
