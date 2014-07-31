@@ -25,38 +25,27 @@ class FeedManagerAdmin {
 	protected static $instance = null;
 
 	/**
-	 * Slug of the plugin screen.
+	 * Instance of FeedManager.
 	 *
 	 * @since    1.0.0
 	 *
-	 * @var      string
+	 * @var      object
 	 */
-	protected $plugin_screen_hook_suffix = null;
+	public $plugin = null;
 
 	/**
-	 * Initialize the plugin by loading admin scripts & styles and adding a
-	 * settings page and menu.
+	 * Initialize the plugin
 	 *
 	 * @since     1.0.0
 	 */
 	private function __construct() {
+		$this->plugin = FeedManager::get_instance();
+		$this->plugin_slug    = $this->plugin->get_plugin_slug();
+		$this->post_type_slug = $this->plugin->get_post_type_slug();
 
-		/*
-		 * Call $plugin_slug from public plugin class.
-		 */
-		$plugin = FeedManager::get_instance();
-		$this->plugin_slug = $plugin->get_plugin_slug();
-		$this->post_type_slug = $plugin->get_post_type_slug();
-
-		// Create post type
-
-
-		// Load admin style sheet and JavaScript.
+		// Load admin styles and scripts
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
-
-		// Add the options page and menu item.
-		//add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
 
 		// Feed edit page metaboxes
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
@@ -64,10 +53,8 @@ class FeedManagerAdmin {
 		// Saving Feeds
 		add_action( 'save_post', array( $this, 'save_feed' ) );
 
-		// Add an action link pointing to the options page.
-		$plugin_basename = plugin_basename( plugin_dir_path( realpath( dirname( __FILE__ ) ) ) . $this->plugin_slug . '.php' );
-		add_filter( 'plugin_action_links_' . $plugin_basename, array( $this, 'add_action_links' ) );
-
+		// Saving Posts (= updating feeds)
+		add_action( 'transition_post_status',  array( $this, 'on_save_post' ), 10, 3 );
 	}
 
 	public static function is_active() {
@@ -99,11 +86,14 @@ class FeedManagerAdmin {
 	 * @return    null    Return early if no settings page is registered.
 	 */
 	public function enqueue_admin_styles() {
-
 		if ( !$this->is_active() ) return;
 
-		wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( '../assets/css/style.css', __FILE__ ), array(), FeedManager::VERSION );
-
+		wp_enqueue_style(
+			$this->plugin_slug .'-admin-styles',
+			plugins_url( '../assets/css/style.css', __FILE__ ),
+			array(),
+			FeedManager::VERSION
+		);
 	}
 
 	/**
@@ -114,7 +104,6 @@ class FeedManagerAdmin {
 	 * @return    null    Return early if no settings page is registered.
 	 */
 	public function enqueue_admin_scripts() {
-
 		if ( !$this->is_active() ) return;
 
 		wp_enqueue_script(
@@ -123,24 +112,6 @@ class FeedManagerAdmin {
 			array( 'jquery', 'backbone', 'underscore' ),
 			FeedManager::VERSION
 		);
-
-	}
-
-
-	/**
-	 * Add settings action link to the plugins page.
-	 *
-	 * @since    1.0.0
-	 */
-	public function add_action_links( $links ) {
-
-		return array_merge(
-			array(
-				'manage' => '<a href="' . admin_url( 'edit.php?post_type=' . $this->post_type_slug ) . '">' . __( 'Manage Feeds', $this->plugin_slug ) . '</a>'
-			),
-			$links
-		);
-
 	}
 
 
@@ -156,44 +127,31 @@ class FeedManagerAdmin {
 
 
 	/**
-	 * Render feed list metabox
+	 * Render Feed metabox
 	 *
 	 * @since     1.0.0
 	 */
 	public function meta_box_feed( $post ) {
 		$feed_post = new TimberFeed( $post->ID );
-		$context = array();
 
-		// Get the full feed
-		$context['posts'] = $feed_post->get_posts( array( 'show_hidden' => true ) );
-
-		// Get what the feed would be without stickied posts
-		$unaltered_posts = $feed_post->get_unfiltered_posts( array( 'show_hidden' => true ) );
-		$unaltered_post_ids = array();
-		foreach ($unaltered_posts as $post) {
-			$unaltered_post_ids[] = $post->ID;
-		}
-		$context['unaltered_posts'] = implode(",", $unaltered_post_ids);
-
-		Timber::render('views/feed.twig', $context);
+		Timber::render('views/feed.twig', array(
+			'posts' => $feed_post->get_posts( array( 'show_hidden' => true ) )
+		));
 	}
 
 
 	/**
-	 * Render feed rules metabox
+	 * Render Rules metabox
 	 *
 	 * @since     1.0.0
-	 *
-	 * @todo      Use TimberFeed here
 	 */
 	public function meta_box_rules( $post ) {
-		$fields = get_post_custom( $post->ID );
-		$rules = isset( $fields['fm_feed_rules'] ) ? esc_attr( $fields['fm_feed_rules'][0] ) : '';
+		$feed_post = new TimberFeed( $post->ID );
 
-		$context = Timber::get_context();
-		$context['fm_feed_rules'] = $rules;
-		$context['nonce'] = wp_nonce_field('fm_feed_nonce', 'fm_feed_meta_box_nonce', true, false);
-		Timber::render('views/rules.twig', $context);
+		Timber::render('views/rules.twig', array(
+			'fm_feed_rules' => $feed_post->fm_feed_rules,
+			'nonce' => wp_nonce_field('fm_feed_nonce', 'fm_feed_meta_box_nonce', true, false)
+		));
 	}
 
 
@@ -202,7 +160,7 @@ class FeedManagerAdmin {
 	 *
 	 * @since     1.0.0
 	 *
-	 * @todo      Move this to TimberFeed
+	 * @todo      Move Rules update to TimberFeed::save_feed
 	 */
 	public function save_feed( $feed_id ) {
     // Bail if we're doing an auto save
@@ -219,6 +177,7 @@ class FeedManagerAdmin {
     }
 
     if ( isset( $_POST['fm_sort'] ) ) {
+    	$feed = new TimberFeed( $feed_id );
 	    $data   = array();
 	    $hidden = array();
 
@@ -233,14 +192,39 @@ class FeedManagerAdmin {
 		    }
 	    }
 
-
-	    $feed = array(
-	    	'data'   => $data,
+	    $feed->fm_feed = array(
+	    	'data' => $data,
 	    	'hidden' => $hidden
 	    );
 
-	    update_post_meta( $feed_id, 'fm_feed', $feed );
+	    $feed->save_feed();
 	  }
+	}
+
+
+	/**
+	 * Update feeds whenever any post status is changed
+	 *
+	 * @since     1.0.0
+	 */
+	public function on_save_post( $new, $old, $post ) {
+		if ( $post->post_type == 'fm_feed' ) return;
+
+		if ( $old == 'publish' && $new != 'publish' ) {
+			// Remove from feeds
+			$feeds = $this->plugin->get_feeds();
+			foreach ( $feeds as $feed ) {
+				$feed->remove_post( $post->ID );
+			}
+		}
+
+		if ( $old != 'publish' && $new == 'publish' ) {
+			// Add to feeds
+			$feeds = $this->plugin->get_feeds();
+			foreach ( $feeds as $feed ) {
+				$feed->insert_post( $post->ID );
+			}
+		}
 	}
 
 }

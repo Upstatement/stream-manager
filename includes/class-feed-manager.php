@@ -65,6 +65,8 @@ class FeedManager {
 	 */
 	protected static $instance = null;
 
+	public $feeds = null;
+
 	/**
 	 * Initialize the plugin
 	 *
@@ -174,6 +176,22 @@ class FeedManager {
 	    'capability_type'     => 'post',
 	  );
 	  register_post_type( $this->post_type_slug, $args );
+	}
+
+	/**
+	 * Retrieve all feeds from the database
+	 *
+	 * @since     1.0.0
+	 *
+	 * @return    array     Collection of TimberFeed objects
+	 */
+	public function get_feeds( $query = array(), $PostClass = 'TimberFeed' ) {
+		if ($this->feeds) return $this->feeds;
+		$query = array_merge( $query, array(
+			'post_type' => $this->post_type_slug,
+			'nopaging'  => true
+		));
+		return $this->feeds = Timber::get_posts( $query, $PostClass );
 	}
 
 }

@@ -1,9 +1,6 @@
 <?php
 /**
- * The WordPress Plugin Boilerplate.
- *
- * A foundation off of which to build well-documented WordPress plugins that
- * also follow WordPress Coding Standards and PHP best practices.
+ * Feed Manager
  *
  * @package   FeedManager
  * @author    Chris Voll + Upstatement
@@ -14,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Feed Manager
  * Plugin URI:        http://upstatement.com/feed-manager
- * Description:       Manager of Feeds.
+ * Description:       Conquerer of Feeds.
  * Version:           1.0.0
  * Author:            Chris Voll + Upstatement
  * Author URI:        http://upstatement.com
@@ -27,9 +24,12 @@
  */
 
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
-	die;
-}
+if ( ! defined( 'WPINC' ) ) die;
+
+
+/*----------------------------------------------------------------------------*
+ * Dependencies
+ *----------------------------------------------------------------------------*/
 
 // Check if Timber is installed, and include it before any feed manager
 // things are initiated. This is needed for the TimberFeed class.
