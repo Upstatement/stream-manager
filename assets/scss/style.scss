@@ -1,9 +1,16 @@
 .stub {
   cursor: move;
+  -webkit-transition: .2s background;
+     -moz-transition: .2s background;
+          transition: .2s background;
+}
+
+.stub:hover {
+  background: #FAFAFA;
 }
 
 .stub.fm-pinned {
-  background: #e7ffd0;
+  background: #D4F5FF;
 
   .row-title:after {
     content: " (Pinned)";
@@ -33,4 +40,20 @@
 
 .fm-feed-rows .ui-sortable-placeholder {
   height: 59px;
+}
+
+#feed_box_feed {
+  > .handlediv,
+  > .hndle {
+    display: none;
+  }
+
+  > .inside {
+    margin: 0;
+    padding: 0;
+
+    > .fm-posts {
+      border: 0;
+    }
+  }
 }

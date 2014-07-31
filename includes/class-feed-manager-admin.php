@@ -121,8 +121,27 @@ class FeedManagerAdmin {
 	 * @since     1.0.0
 	 */
 	public function add_meta_boxes() {
-		add_meta_box('feed_box_feed',  'Feed',  array( $this, 'meta_box_feed'  ), $this->post_type_slug);
-		add_meta_box('feed_box_rules', 'Rules', array( $this, 'meta_box_rules' ), $this->post_type_slug, 'side');
+		add_meta_box(
+			'feed_box_feed',
+			'Feed',
+			array( $this, 'meta_box_feed'  ),
+			$this->post_type_slug,
+			'normal'
+		);
+		add_meta_box(
+			'feed_box_add',
+			'Add Post',
+			array( $this, 'meta_box_add' ),
+			$this->post_type_slug,
+			'side'
+		);
+		add_meta_box(
+			'feed_box_rules',
+			'Rules',
+			array( $this, 'meta_box_rules' ),
+			$this->post_type_slug,
+			'side'
+		);
 	}
 
 
@@ -137,6 +156,20 @@ class FeedManagerAdmin {
 		Timber::render('views/feed.twig', array(
 			'posts' => $feed_post->get_posts( array( 'show_hidden' => true ) ),
 			'nonce' => wp_nonce_field('fm_feed_nonce', 'fm_feed_meta_box_nonce', true, false)
+		));
+	}
+
+
+	/**
+	 * Render Post Add metabox
+	 *
+	 * @since     1.0.0
+	 */
+	public function meta_box_add( $post ) {
+		$feed_post = new TimberFeed( $post->ID );
+
+		Timber::render('views/add.twig', array(
+			//'posts' => $feed_post->get_posts( array( 'show_hidden' => true ) ),
 		));
 	}
 
