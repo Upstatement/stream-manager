@@ -1,3 +1,5 @@
+
+
 jQuery(function($) {
 
   $('.fm-posts').on('click', '.pin-unpin a', function(e) {
@@ -16,6 +18,19 @@ jQuery(function($) {
       $(this).text('Unpin');
     }
   });
+
+
+
+  $('.fm-posts').on('click', '.remove a', function(e) {
+    e.preventDefault();
+    var object = $(this).closest('.stub');
+    undo_cache.push({
+      position: object.index(),
+      object: object
+    });
+    $(object).remove();
+    console.log(undo_cache);
+  })
 
   $('.fm-feed-rows').sortable({
     start: function(event, ui) {
@@ -40,3 +55,17 @@ jQuery(function($) {
   });
 
 });
+
+var undo_cache = [];
+
+var undo_remove = function() {
+  var object = undo_cache.pop();
+  if (!object) return;
+  var container = jQuery('.fm-feed-rows');
+
+  if (object.position == 0) {
+    container.prepend(object.object);
+  } else {
+    container.find('.stub:nth-child(' + object.position + ')').after(object.object);
+  }
+}
