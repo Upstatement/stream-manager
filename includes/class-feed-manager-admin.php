@@ -55,6 +55,9 @@ class FeedManagerAdmin {
 
 		// Saving Posts (= updating feeds)
 		add_action( 'transition_post_status',  array( $this, 'on_save_post' ), 10, 3 );
+
+		// Help text
+		add_action( 'admin_head', array( $this, 'add_help_text' ), 10, 3 );
 	}
 
 	public static function is_active() {
@@ -257,6 +260,41 @@ class FeedManagerAdmin {
 			foreach ( $feeds as $feed ) {
 				$feed->insert_post( $post->ID );
 			}
+		}
+	}
+
+
+
+
+	function add_help_text() {
+	  $screen = get_current_screen();
+
+	  // Return early if we're not on the book post type.
+	  if ( 'fm_feed' != $screen->post_type )
+	    return;
+
+	  // Setup help tab args.
+	  $tabs = array(
+	  	array(
+		    'id'      => 'fm_feed_1', //unique id for the tab
+		    'title'   => 'Arranging Posts', //unique visible title for the tab
+		    'content' => '<h3>Arranging Posts</h3><p>Help content</p>',  //actual help text
+		  ),
+	  	array(
+		    'id'      => 'fm_feed_2', //unique id for the tab
+		    'title'   => 'Adding Posts', //unique visible title for the tab
+		    'content' => '<h3>Adding &amp; Removing Posts</h3><p>Help content</p>',  //actual help text
+		  ),
+	  	array(
+		    'id'      => 'fm_feed_3', //unique id for the tab
+		    'title'   => 'Whatever Else', //unique visible title for the tab
+		    'content' => '<h3>Whatever Else</h3><p>Help content</p>',  //actual help text
+		  )
+		);
+	  
+	  // Add the help tab.
+	  foreach ( $tabs as $tab ) {
+		  $screen->add_help_tab( $tab );
 		}
 	}
 
