@@ -20,9 +20,21 @@ jQuery(function($) {
   $('.fm-feed-rows').sortable({
     start: function(event, ui) {
       $(document).trigger('fm/sortable_start', ui.item);
+      console.log(ui);
+      $(ui.placeholder).height($(ui.item).height());
     },
     stop: function(event, ui) {
       $(document).trigger('fm/sortable_stop', ui.item);
+    },
+    helper: function(e, tr) {
+      var $originals = tr.children();
+      var $helper = tr.clone();
+      $helper.children().each(function(index)
+      {
+        // Set helper cell sizes to match the original sizes
+        $(this).width($originals.eq(index).width());
+      });
+      return $helper;
     },
     axis: 'y'
   });

@@ -1,63 +1,98 @@
-/* line 1, ../scss/style.scss */
+/* line 5, ../scss/style.scss */
 .stub {
   cursor: move;
+  background: #FFF;
   -webkit-transition: .2s background;
   -moz-transition: .2s background;
   transition: .2s background;
 }
 
-/* line 8, ../scss/style.scss */
+/* line 13, ../scss/style.scss */
+.stub.ui-sortable-helper {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  opacity: .9;
+}
+
+/* line 18, ../scss/style.scss */
 .stub:hover {
-  background: #FAFAFA;
+  background: #fafafa;
 }
 
-/* line 12, ../scss/style.scss */
+/* line 22, ../scss/style.scss */
 .stub.fm-pinned {
-  background: #D4F5FF;
+  background: #d4f5ff;
 }
-/* line 15, ../scss/style.scss */
-.stub.fm-pinned .row-title:after {
-  content: " (Pinned)";
-  font-weight: normal;
+/* line 25, ../scss/style.scss */
+.stub.fm-pinned .row-title::before {
+  content: "\f109";
+  display: inline-block;
+  width: 16px;
+  height: 14px;
+  font-size: 16px;
+  line-height: 1;
+  font-family: dashicons;
+  text-decoration: inherit;
+  font-weight: 400;
+  font-style: normal;
+  vertical-align: top;
+  text-align: center;
+  -webkit-transition: color .1s ease-in 0;
+  transition: color .1s ease-in 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  opacity: .5;
+  margin-right: 5px;
+  position: relative;
+  top: 1px;
+}
+/* line 48, ../scss/style.scss */
+.stub.fm-pinned:hover {
+  background: #c5f1ff;
 }
 
-/* line 20, ../scss/style.scss */
+/* line 52, ../scss/style.scss */
 .stub.fm-hidden {
   opacity: .5;
 }
-/* line 23, ../scss/style.scss */
+/* line 55, ../scss/style.scss */
 .stub.fm-hidden .row-title:after {
   content: " (Hidden)";
   font-weight: normal;
 }
 
-/* line 32, ../scss/style.scss */
+/* line 64, ../scss/style.scss */
 .fm-posts .column-rel-date,
 .stub .column-rel-date {
   width: 100px;
 }
-/* line 36, ../scss/style.scss */
+/* line 68, ../scss/style.scss */
 .fm-posts .column-thumbnail,
 .stub .column-thumbnail {
-  width: 144px;
+  width: 72px;
 }
 
-/* line 41, ../scss/style.scss */
+/* line 73, ../scss/style.scss */
 .fm-feed-rows .ui-sortable-placeholder {
   height: 59px;
 }
 
-/* line 47, ../scss/style.scss */
+/* line 79, ../scss/style.scss */
 #feed_box_feed > .handlediv,
 #feed_box_feed > .hndle {
   display: none;
 }
-/* line 51, ../scss/style.scss */
+/* line 83, ../scss/style.scss */
 #feed_box_feed > .inside {
   margin: 0;
   padding: 0;
 }
-/* line 55, ../scss/style.scss */
+/* line 87, ../scss/style.scss */
 #feed_box_feed > .inside > .fm-posts {
   border: 0;
+}
+
+/* line 94, ../scss/style.scss */
+.post-type-fm_feed #title {
+  position: relative;
+  z-index: 1;
 }

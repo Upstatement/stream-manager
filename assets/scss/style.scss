@@ -1,20 +1,52 @@
+$stub-hover: #FAFAFA;
+$stub-pinned: #D4F5FF;
+
+
 .stub {
   cursor: move;
+  background: #FFF;
   -webkit-transition: .2s background;
      -moz-transition: .2s background;
           transition: .2s background;
 }
 
+.stub.ui-sortable-helper {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
+  opacity: .9;
+}
+
 .stub:hover {
-  background: #FAFAFA;
+  background: $stub-hover;
 }
 
 .stub.fm-pinned {
-  background: #D4F5FF;
+  background: $stub-pinned;
 
-  .row-title:after {
-    content: " (Pinned)";
-    font-weight: normal;
+  .row-title::before {
+    content: "\f109";
+    display: inline-block;
+    width: 16px;
+    height: 14px;
+    font-size: 16px;
+    line-height: 1;
+    font-family: dashicons;
+    text-decoration: inherit;
+    font-weight: 400;
+    font-style: normal;
+    vertical-align: top;
+    text-align: center;
+    -webkit-transition: color .1s ease-in 0;
+    transition: color .1s ease-in 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    opacity: .5;
+    margin-right: 5px;
+    position: relative;
+    top: 1px;
+  }
+
+  &:hover {
+    background: darken($stub-pinned, 3%);
   }
 }
 .stub.fm-hidden {
@@ -34,7 +66,7 @@
   }
 
   .column-thumbnail {
-    width: 144px;
+    width: 72px;
   }
 }
 
@@ -55,5 +87,12 @@
     > .fm-posts {
       border: 0;
     }
+  }
+}
+
+.post-type-fm_feed {
+  #title {
+    position: relative;
+    z-index: 1;
   }
 }

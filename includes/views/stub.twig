@@ -35,7 +35,7 @@
         <td class="date column-rel-date"><abbr title="{{ post.post_date }}">{{ function('human_time_diff', function('strtotime', post.post_date)) }} ago</abbr></td>
 
         <td class="post-thumbnail column-thumbnail">
-          <img src="{{ post.thumbnail.src|resize(144) }}" class="post-thumb" alt=""/>
+          <img src="{{ post.thumbnail.src|resize(72, 72) }}" class="post-thumb" alt=""/>
         </td>
 
       </tr>
