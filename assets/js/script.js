@@ -17,22 +17,6 @@ jQuery(function($) {
     }
   });
 
-  $('.fm-posts').on('click', '.hide a', function(e) {
-    e.preventDefault();
-
-    var stub = $(this).closest('.stub');
-
-    if ( stub.hasClass('fm-hidden') ) {
-      stub.removeClass('fm-hidden');
-      stub.find('.fm-hide-checkbox').prop('checked', false);
-      $(this).text('Hide');
-    } else {
-      stub.addClass('fm-hidden');
-      stub.find('.fm-hide-checkbox').prop('checked', true);
-      $(this).text('Unhide');
-    }
-  });
-
   $('.fm-feed-rows').sortable({
     start: function(event, ui) {
       $(document).trigger('fm/sortable_start', ui.item);
@@ -40,65 +24,7 @@ jQuery(function($) {
     stop: function(event, ui) {
       $(document).trigger('fm/sortable_stop', ui.item);
     },
-    axis: 'y',
-    connectWith: '.fm-feed-hide'
+    axis: 'y'
   });
-
-  $('.fm-feed-hide').sortable({
-    // start: function(event, ui) {
-    //   $(document).trigger('fm/sortable_start', ui.item);
-    // },
-    // stop: function(event, ui) {
-    //   $(document).trigger('fm/sortable_stop', ui.item);
-    // },
-    axis: 'y',
-    connectWith: '.fm-feed-rows'
-  });
-
-
-
-
-  // @todo: better take reordered items into account
-  // this might not even be needed anymore
-  // var reflow = function() {
-  //   var stubs = $('.stub');
-
-  //   // Default ID sorting
-  //   var ids = $('.fm-posts').attr('data-ids').split(",");
-
-  //   var pinned = [];
-  //   var unpinned = {};
-  //   var sorted = [];
-
-  //   stubs.each(function(i) {
-  //     if ($(this).hasClass('fm-pinned') || $(this).hasClass('fm-reordered')) {
-  //       pinned.push({
-  //         id: $(this).attr('data-id'),
-  //         obj: this,
-  //         pos: i
-  //       });
-  //     } else {
-  //       unpinned[$(this).attr('data-id')] = this;
-  //     }
-  //   });
-
-  //   // Properly sort unpinned items
-  //   // If anything is unpinned and doesn't belong (i.e., posts are
-  //   // refreshed when Rules are updated), then this is where they
-  //   // disappear forever
-  //   for (i in ids) {
-  //     if (unpinned[ids[i]]) sorted.push(unpinned[ids[i]]);
-  //   }
-
-  //   // Put the pinned items back in
-  //   for (i in pinned) {
-  //     sorted.splice(pinned[i].pos, 0, pinned[i].obj);
-  //   }
-
-  //   $('.fm-feed-rows').empty().append(sorted);
-
-  // }
-
-  //$('.fm-posts').on('reflow', reflow);
 
 });

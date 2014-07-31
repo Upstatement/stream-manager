@@ -1,5 +1,4 @@
-
-      <tr id="post-{{ post.ID }}" class="post-{{ post.ID }} hentry stub{{ post.pinned ? ' fm-pinned' }}{{ post.reordered ? ' fm-reordered' }}{{ post.hidden ? ' fm-hidden' }}" data-id="{{ post.ID }}">
+      <tr id="post-{{ post.ID }}" class="post-{{ post.ID }} hentry stub{{ post.pinned ? ' fm-pinned' }}" data-id="{{ post.ID }}">
 
         <td class="post-title page-title column-title">
           <strong><a class="row-title" href="{{ post.edit_link }}" title="Edit Post">{{ post.title }}</a></strong>
@@ -10,14 +9,6 @@
                 <a href="#" title="Unpin this item">Unpin</a> | 
               {% else %}
                 <a href="#" title="Pin this item">Pin</a> | 
-              {% endif %}
-            </span>
-
-            <span class="hide">
-              {% if post.hidden %}
-                <a href="#" title="Hide this item from the feed">Unhide</a> | 
-              {% else %}
-                <a href="#" title="Hide this item from the feed">Hide</a> | 
               {% endif %}
             </span>
 

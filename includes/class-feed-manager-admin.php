@@ -135,7 +135,8 @@ class FeedManagerAdmin {
 		$feed_post = new TimberFeed( $post->ID );
 
 		Timber::render('views/feed.twig', array(
-			'posts' => $feed_post->get_posts( array( 'show_hidden' => true ) )
+			'posts' => $feed_post->get_posts( array( 'show_hidden' => true ) ),
+			'nonce' => wp_nonce_field('fm_feed_nonce', 'fm_feed_meta_box_nonce', true, false)
 		));
 	}
 
@@ -149,8 +150,7 @@ class FeedManagerAdmin {
 		$feed_post = new TimberFeed( $post->ID );
 
 		Timber::render('views/rules.twig', array(
-			'fm_feed_rules' => $feed_post->fm_feed_rules,
-			'nonce' => wp_nonce_field('fm_feed_nonce', 'fm_feed_meta_box_nonce', true, false)
+			'fm_feed_rules' => $feed_post->fm_feed_rules
 		));
 	}
 

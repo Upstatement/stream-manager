@@ -38,13 +38,7 @@ class TimberFeed extends TimberPost {
   public function get_posts($query = array(), $PostClass = 'TimberPost') {
     if ( isset($this->posts) ) return $this->posts;
 
-    // @debug
-    // echo("<pre>");
-    // print_r($this->fm_feed);
-    // echo("</pre>");
-
-    // Create an array of just post IDs, and identify
-    // which items are pinned.
+    // Create an array of just post IDs
     $query = array_merge( $query, $this->query );
     $query['post__in'] = array();
     foreach ( $this->fm_feed['data'] as $item ) {
@@ -53,7 +47,7 @@ class TimberFeed extends TimberPost {
 
     $posts = Timber::get_posts($query, $PostClass);
 
-    $pinned = array_keys($this->get_pinned());
+    $pinned = array_keys($this->filter_feed('pinned', true));
 
     foreach ($posts as &$post) {
       $post->pinned = in_array( $post->ID, $pinned );
@@ -62,45 +56,40 @@ class TimberFeed extends TimberPost {
     return $this->posts = $posts;
   }
 
-  // @todo: this may be better off as a more generalized method,
-  // like filter_feed($attribute)
-  public function get_pinned() {
-    $pinned = array();
+  /**
+   * Filter posts in the feed, returning only the filtered
+   * posts (including their position).
+   *
+   * @since     1.0.0
+   *
+   * @return    array
+   */
+  public function filter_feed($attribute, $value) {
+    $items = array();
 
     foreach ( $this->fm_feed['data'] as $position => $item ) {
       $item['position'] = $position;
-      if ( $item['pinned'] ) $pinned[$item['id']] = $item;
+      if ( $item[$attribute] == $value ) $items[$item['id']] = $item;
     }
 
-    return $pinned;
-  }
-
-
-  // call this whenever a post is saved
-  // when a post is added, insert it in the same slot it would
-  // be in from the original query without any reordering. eventually,
-  // we can try to make this smarter by looking at the posts around it.
-  public function repopulate_feed() {
-
+    return $items;
   }
 
 
   /**
-   * When a post is updated, run the feed query to determine
-   * if the feed will be affected by the post.
+   * Enforce the feed length.
+   *
+   * If there are fewer posts than allowed, add some from the base query.
+   * If there are more, remove them.
    *
    * @since     1.0.0
    *
-   * @return    array    collection of TimberPost objects
+   * @todo      do this
    */
-  public function on_post_before_changed ($post) {
-    // Check if the post exists somewhere in the feed
-
-    // 1. Is it in relative?
-    // 2. If no, is it in absolute?
-    // 3. If no, does it appear elsewhere in the feed?
+  public function repopulate_feed() {
 
   }
+
 
   /**
    * Checks if a post exists in a feed
@@ -149,7 +138,7 @@ class TimberFeed extends TimberPost {
     // Determine where it is in the original query (if at all),
     // minus any pinned items
     $query = array_merge( $this->query, array(
-      'post__not_in' => array_keys($this->get_pinned())
+      'post__not_in' => array_keys($this->filter_feed('pinned', true))
     ));
     $posts = Timber::get_posts( $query );
     $in_feed = false;
@@ -183,7 +172,7 @@ class TimberFeed extends TimberPost {
    * @since     1.0.0
    */
   public function remove_pinned() {
-    $this->pinned = $this->get_pinned();
+    $this->pinned = $this->filter_feed('pinned', true);
     foreach ( $this->pinned as $pin ) {
       unset ( $this->fm_feed['data'][$pin['position']] );
     }
@@ -202,54 +191,6 @@ class TimberFeed extends TimberPost {
       array_splice( $this->fm_feed['data'], $position, 0, array( $pin ) );
     }
   }
-
-
-  /**
-   * Get the list of feed posts without accounting for
-   * any hidden or pinned items.
-   *
-   * @todo      replace this with a function that returns
-   *            a raw collection of posts from the original
-   *            query
-   *
-   * @since     1.0.0
-   *
-   * @return    array    collection of TimberPost objects
-   */
-  // public function get_unfiltered_posts($query = array(), $PostClass = 'TimberPost') {
-
-  //   if ( isset($this->unfiltered_posts) ) {
-  //     return $this->unfiltered_posts;
-  //   }
-
-  //   $feed = $this->fm_feed;
-
-  //   $query = array_merge( $this->query, $query );
-
-  //   if ( $query['show_hidden'] === false && !$query['post__not_in'] ) {
-  //     $query['post__not_in'] = $feed['hidden'];
-  //   }
-
-  //   // Get the posts list
-  //   $posts = Timber::get_posts($query);
-
-  //   // Set some defaults
-  //   foreach ( $posts as &$post ) {
-  //     $post->hidden = false;
-  //     $post->pinned = false;
-  //   }
-
-  //   // If we're showing hidden, mark them as such for the admin
-  //   if ( $query['show_hidden'] === true ) {
-  //     foreach ( $posts as &$post ) {
-  //       if ( in_array( $post->ID, $feed['hidden'] ) ) {
-  //         $post->hidden = true;
-  //       }
-  //     }
-  //   }
-
-  //   return $this->unfiltered_posts = $posts;
-  // }
 
 
   /**

@@ -1,4 +1,4 @@
-<table class="wp-list-table widefat fixed posts fm-posts" data-ids="{{ unaltered_posts }}">
+<table class="wp-list-table widefat fixed posts fm-posts">
 
   <thead>
     <tr>
@@ -21,25 +21,4 @@
   </tbody>
 </table>
 
-<h3>Hidden</h3>
-
-<table class="wp-list-table widefat fixed posts fm-posts" data-ids="{{ unaltered_posts }}">
-
-  <thead>
-    <tr>
-      <th scope="col" id="title" class="manage-column column-title"><span>Title</span></th>
-
-      <th scope="col" id="date" class="manage-column column-rel-date"><span>Date</span></th> 
-
-      <th scope="col" id="thumb" class="manage-column column-thumbnail"><span>Photo</span></th>
-    </tr>
-  </thead>
-
-  <tbody id="the-list" class="fm-feed-hide" style="min-height: 100px; width: 100%;">
-    {% for i, post in hidden %}
-
-      {% include "stub.twig" %}
-
-    {% endfor %}
-  </tbody>
-</table>
+{{ nonce }}
