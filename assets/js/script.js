@@ -11,7 +11,7 @@ jQuery(function($) {
 
   // Hook into the heartbeat-send
   $(document).on('heartbeat-send', function(e, data) {
-    data['edd_heartbeat'] = 'dashboard_summary';
+    
   });
 
   // Listen for the custom event "heartbeat-tick" on $(document).
@@ -35,11 +35,9 @@ jQuery(function($) {
     if ( stub.hasClass('fm-pinned') ) {
       stub.removeClass('fm-pinned');
       stub.find('.fm-pin-checkbox').prop('checked', false);
-      $(this).text('Pin');
     } else {
       stub.addClass('fm-pinned');
       stub.find('.fm-pin-checkbox').prop('checked', true);
-      $(this).text('Unpin');
     }
   });
 

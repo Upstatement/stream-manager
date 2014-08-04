@@ -22,29 +22,6 @@ $stub-pinned: #D4F5FF;
 .stub.fm-pinned {
   background: $stub-pinned;
 
-  .row-title::before {
-    content: "\f109";
-    display: inline-block;
-    width: 16px;
-    height: 14px;
-    font-size: 16px;
-    line-height: 1;
-    font-family: dashicons;
-    text-decoration: inherit;
-    font-weight: 400;
-    font-style: normal;
-    vertical-align: top;
-    text-align: center;
-    -webkit-transition: color .1s ease-in 0;
-    transition: color .1s ease-in 0;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    opacity: .5;
-    margin-right: 5px;
-    position: relative;
-    top: 1px;
-  }
-
   &:hover {
     background: darken($stub-pinned, 3%);
   }
@@ -58,8 +35,11 @@ $stub-pinned: #D4F5FF;
   }
 }
 
-.fm-posts,
 .stub {
+
+  td {
+    vertical-align: middle;
+  }
 
   .column-rel-date {
     width: 100px;
@@ -67,6 +47,31 @@ $stub-pinned: #D4F5FF;
 
   .column-thumbnail {
     width: 72px;
+  }
+
+  .column-action {
+    width: 20px;
+
+    .stub-action {
+      display: inline-block;
+      padding: 5px;
+      opacity: .1;
+      -webkit-transition: .2s opacity;
+         -moz-transition: .2s opacity;
+              transition: .2s opacity;
+    }
+
+    .remove .stub-action {
+      opacity: 0;
+    }
+  }
+
+  &:hover .column-action .stub-action {
+    opacity: .5;
+  }
+
+  &.fm-pinned .pin-unpin .stub-action {
+    opacity: 1;
   }
 }
 

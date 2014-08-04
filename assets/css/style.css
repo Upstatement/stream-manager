@@ -23,75 +23,79 @@
   background: #d4f5ff;
 }
 /* line 25, ../scss/style.scss */
-.stub.fm-pinned .row-title::before {
-  content: "\f109";
-  display: inline-block;
-  width: 16px;
-  height: 14px;
-  font-size: 16px;
-  line-height: 1;
-  font-family: dashicons;
-  text-decoration: inherit;
-  font-weight: 400;
-  font-style: normal;
-  vertical-align: top;
-  text-align: center;
-  -webkit-transition: color .1s ease-in 0;
-  transition: color .1s ease-in 0;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  opacity: .5;
-  margin-right: 5px;
-  position: relative;
-  top: 1px;
-}
-/* line 48, ../scss/style.scss */
 .stub.fm-pinned:hover {
   background: #c5f1ff;
 }
 
-/* line 52, ../scss/style.scss */
+/* line 29, ../scss/style.scss */
 .stub.fm-hidden {
   opacity: .5;
 }
-/* line 55, ../scss/style.scss */
+/* line 32, ../scss/style.scss */
 .stub.fm-hidden .row-title:after {
   content: " (Hidden)";
   font-weight: normal;
 }
 
-/* line 64, ../scss/style.scss */
-.fm-posts .column-rel-date,
+/* line 40, ../scss/style.scss */
+.stub td {
+  vertical-align: middle;
+}
+/* line 44, ../scss/style.scss */
 .stub .column-rel-date {
   width: 100px;
 }
-/* line 68, ../scss/style.scss */
-.fm-posts .column-thumbnail,
+/* line 48, ../scss/style.scss */
 .stub .column-thumbnail {
   width: 72px;
 }
-
+/* line 52, ../scss/style.scss */
+.stub .column-action {
+  width: 20px;
+}
+/* line 55, ../scss/style.scss */
+.stub .column-action .stub-action {
+  display: inline-block;
+  padding: 5px;
+  opacity: .1;
+  -webkit-transition: .2s opacity;
+  -moz-transition: .2s opacity;
+  transition: .2s opacity;
+}
+/* line 64, ../scss/style.scss */
+.stub .column-action .remove .stub-action {
+  opacity: 0;
+}
+/* line 69, ../scss/style.scss */
+.stub:hover .column-action .stub-action {
+  opacity: .5;
+}
 /* line 73, ../scss/style.scss */
+.stub.fm-pinned .pin-unpin .stub-action {
+  opacity: 1;
+}
+
+/* line 78, ../scss/style.scss */
 .fm-feed-rows .ui-sortable-placeholder {
   height: 59px;
 }
 
-/* line 79, ../scss/style.scss */
+/* line 84, ../scss/style.scss */
 #feed_box_feed > .handlediv,
 #feed_box_feed > .hndle {
   display: none;
 }
-/* line 83, ../scss/style.scss */
+/* line 88, ../scss/style.scss */
 #feed_box_feed > .inside {
   margin: 0;
   padding: 0;
 }
-/* line 87, ../scss/style.scss */
+/* line 92, ../scss/style.scss */
 #feed_box_feed > .inside > .fm-posts {
   border: 0;
 }
 
-/* line 94, ../scss/style.scss */
+/* line 99, ../scss/style.scss */
 .post-type-fm_feed #title {
   position: relative;
   z-index: 1;
