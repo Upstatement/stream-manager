@@ -1,7 +1,32 @@
-
-
 jQuery(function($) {
 
+
+  ////////////////////////////////////////////
+  // 
+  // Heartbeat - avoid feed collisions by
+  //             loading feed updates from
+  //             the database
+  // 
+  ////////////////////////////////////////////
+
+  // Hook into the heartbeat-send
+  $(document).on('heartbeat-send', function(e, data) {
+    data['edd_heartbeat'] = 'dashboard_summary';
+  });
+
+  // Listen for the custom event "heartbeat-tick" on $(document).
+  $(document).on( 'heartbeat-tick', function(e, data) {
+    console.log( data );
+  });
+
+
+  ////////////////////////////////////////////
+  // 
+  // Post Manipulation
+  // 
+  ////////////////////////////////////////////
+
+  // Pin Post
   $('.fm-posts').on('click', '.pin-unpin a', function(e) {
     e.preventDefault();
 
@@ -11,7 +36,6 @@ jQuery(function($) {
       stub.removeClass('fm-pinned');
       stub.find('.fm-pin-checkbox').prop('checked', false);
       $(this).text('Pin');
-      $('.fm-posts').trigger('reflow');
     } else {
       stub.addClass('fm-pinned');
       stub.find('.fm-pin-checkbox').prop('checked', true);
@@ -20,7 +44,7 @@ jQuery(function($) {
   });
 
 
-
+  // Remove Post
   $('.fm-posts').on('click', '.remove a', function(e) {
     e.preventDefault();
     var object = $(this).closest('.stub');
@@ -29,24 +53,22 @@ jQuery(function($) {
       object: object
     });
     $(object).remove();
-    console.log(undo_cache);
   })
 
+
+  // Reorder Post
   $('.fm-feed-rows').sortable({
     start: function(event, ui) {
       $(document).trigger('fm/sortable_start', ui.item);
-      console.log(ui);
       $(ui.placeholder).height($(ui.item).height());
     },
     stop: function(event, ui) {
       $(document).trigger('fm/sortable_stop', ui.item);
     },
     helper: function(e, tr) {
-      var $originals = tr.children();
-      var $helper = tr.clone();
-      $helper.children().each(function(index)
-      {
-        // Set helper cell sizes to match the original sizes
+      var $originals = tr.children(),
+          $helper    = tr.clone();
+      $helper.children().each(function(index) {
         $(this).width($originals.eq(index).width());
       });
       return $helper;
@@ -56,6 +78,8 @@ jQuery(function($) {
 
 });
 
+// Remove undo
+// @TODO: move this somewhere else
 var undo_cache = [];
 
 var undo_remove = function() {

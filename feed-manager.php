@@ -58,7 +58,7 @@ add_action( 'plugins_loaded', array( 'FeedManager', 'get_instance' ) );
  * Dashboard and Administrative Functionality
  *----------------------------------------------------------------------------*/
 
-if ( is_admin() && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
+if ( is_admin() ) {
 
 	require_once( plugin_dir_path( __FILE__ ) . 'includes/class-feed-manager-admin.php' );
 	add_action( 'plugins_loaded', array( 'FeedManagerAdmin', 'get_instance' ) );

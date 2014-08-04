@@ -10,9 +10,12 @@ class TimberFeed extends TimberPost {
   // also eventually configurable
   public $query = array(
     'post_type' => 'post',
+    'post_status' => 'publish',
+    'has_password' => false,
+    'ignore_sticky_posts' => true,
+
     'posts_per_page' => 100,
-    'orderby' => 'post__in',
-    'ignore_sticky_posts' => true
+    'orderby' => 'post__in'
   );
 
   public $fm_feed = array(
@@ -141,6 +144,7 @@ class TimberFeed extends TimberPost {
       'post__not_in' => array_keys($this->filter_feed('pinned', true))
     ));
     $posts = Timber::get_posts( $query );
+
     $in_feed = false;
 
     foreach ( $posts as $i => $post ) {
@@ -200,6 +204,20 @@ class TimberFeed extends TimberPost {
    */
   public function save_feed() {
     update_post_meta( $this->ID, 'fm_feed', $this->fm_feed );
+  }
+
+
+  /**
+   * Retrieve post IDs from the feed
+   *
+   * @since     1.0.0
+   */
+  public function get_ids() {
+    $post_ids = array();
+    foreach ( $this->fm_feed['data'] as $post ) {
+      $post_ids[] = $post['id'];
+    }
+    return $post_ids;
   }
 
 }

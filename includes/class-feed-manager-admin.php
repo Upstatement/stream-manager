@@ -58,6 +58,9 @@ class FeedManagerAdmin {
 
 		// Help text
 		add_action( 'admin_head', array( $this, 'add_help_text' ), 10, 3 );
+
+		// Heartbeat
+		add_filter( 'heartbeat_received', array( $this, 'heartbeat' ), 10, 3 );
 	}
 
 	public static function is_active() {
@@ -158,6 +161,7 @@ class FeedManagerAdmin {
 
 		Timber::render('views/feed.twig', array(
 			'posts' => $feed_post->get_posts( array( 'show_hidden' => true ) ),
+			'post_ids' => implode( $feed_post->get_ids(), ',' ),
 			'nonce' => wp_nonce_field('fm_feed_nonce', 'fm_feed_meta_box_nonce', true, false)
 		));
 	}
@@ -297,5 +301,18 @@ class FeedManagerAdmin {
 		  $screen->add_help_tab( $tab );
 		}
 	}
+
+
+
+	public function heartbeat( $response, $data, $screen_id ) {
+		if( $screen_id == 'fm_feed' && isset( $data['wp-refresh-post-lock'] ) ) {
+
+		  $feed_post = new TimberFeed( $data['wp-refresh-post-lock']['post_id'] );
+		  $response['fm_feed_ids'] = implode( ',', $feed_post->get_ids() );
+
+		}
+		return $response;
+	}
+
 
 }
