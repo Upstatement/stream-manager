@@ -3,11 +3,7 @@ $stub-pinned: #D4F5FF;
 
 
 .stub {
-  cursor: move;
-  background: #FFF;
-  -webkit-transition: .2s background;
-     -moz-transition: .2s background;
-          transition: .2s background;
+
 }
 
 .stub.ui-sortable-helper {
@@ -36,25 +32,34 @@ $stub-pinned: #D4F5FF;
 }
 
 .stub {
+  cursor: move;
+  padding: 10px;
+  background: #FFF;
+  -webkit-transition: .2s background;
+     -moz-transition: .2s background;
+          transition: .2s background;
 
-  td {
-    vertical-align: middle;
+  &::after {
+    clear: both;
+    content: "";
+    display: table;
   }
 
-  .column-rel-date {
-    width: 100px;
+  a {
+    text-decoration: none;
   }
 
-  .column-thumbnail {
-    width: 72px;
+  .post-thumb {
+    float: left;
+    margin-right: 10px;
   }
 
   .column-action {
-    width: 20px;
+    width: 35px;
 
     .stub-action {
       display: inline-block;
-      padding: 5px;
+      padding: 10px 10px 10px 5px;
       opacity: .1;
       -webkit-transition: .2s opacity;
          -moz-transition: .2s opacity;
@@ -66,12 +71,25 @@ $stub-pinned: #D4F5FF;
     }
   }
 
-  &:hover .column-action .stub-action {
-    opacity: .5;
+  &:hover {
+    .row-actions {
+      display: inline;
+      visibility: visible;
+    }
+    .column-action .stub-action {
+      opacity: .5;
+    }
   }
 
   &.fm-pinned .pin-unpin .stub-action {
     opacity: 1;
+  }
+
+  .column-pin {
+    float: left;
+  }
+  .column-remove {
+    float: right;
   }
 }
 

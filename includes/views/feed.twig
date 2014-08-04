@@ -1,14 +1,4 @@
-<table class="wp-list-table widefat fixed posts fm-posts" data-ids="{{ post_ids }}">
-
-  <!--<thead>
-    <tr>
-      <th scope="col" id="title" class="manage-column column-title" colspan="2"><span>Title</span></th>
-
-      <th scope="col" id="thumb" class="manage-column column-actions"><span>Actions</span></th>
-    </tr>
-  </thead>-->
-
-  <tbody id="the-list" class="fm-feed-rows">
+<div class="fm-posts fm-feed-rows" data-ids="{{ post_ids }}">
 
     {% for i, post in posts %}
 
@@ -16,7 +6,6 @@
 
     {% endfor %}
 
-  </tbody>
-</table>
+</div>
 
 {{ nonce }}
