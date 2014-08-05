@@ -95,12 +95,16 @@ jQuery(function($) {
 
   // Reorder Post
   $('.fm-posts').sortable({
-    start: function(event, ui) {
+    start: function (event, ui) {
+      if (ui.item.hasClass('fm-pinned')) return;
       $(document).trigger('fm/sortable_start', ui.item);
       $(ui.placeholder).height($(ui.item).height());
+      post_queue.sort_inventory_pinned();
     },
-    stop: function(event, ui) {
-      $(document).trigger('fm/sortable_stop', ui.item);
+    change: function (event, ui) {
+      if (ui.item.hasClass('fm-pinned')) return;
+      post_queue.sort_remove_pinned();
+      post_queue.sort_insert_pinned();
     },
     axis: 'y'
   });
@@ -284,7 +288,41 @@ jQuery(function($) {
         );
       }
       this.pinned_cache = [];
-    }
+    },
+
+
+    /**
+     * Helpers for keeping pinned stubs in place while
+     * sorting items manually.
+     */
+    pinned_inventory: [],
+    sort_inventory_pinned: function () {
+      var that = this;
+      this.pinned_inventory = [];
+      $feed.find('.stub').each( function (i) {
+        if ( $(this).hasClass('fm-pinned') ) {
+          var id = $(this).attr('data-id');
+          that.pinned_inventory.push({
+            id: id,
+            obj: this,
+            position: i
+          });
+        }
+      });
+    },
+    sort_remove_pinned: function () {
+      for (i in this.pinned_inventory) {
+        this.pinned_inventory[i].obj.remove();
+      }
+    },
+    sort_insert_pinned: function () {
+      for (i in this.pinned_inventory) {
+        this.inject(
+          this.pinned_inventory[i].position,
+          this.pinned_inventory[i].obj
+        );
+      }
+    },
 
   };
 
@@ -430,7 +468,7 @@ jQuery(function($) {
     $results.hide();
   });
 
-  $('body').on('click', function(e) {
+  $('body').on('mousedown', function(e) {
     if ( !$(e.target).closest('.fm-search-container').length ) {
       $results.hide();
     }
