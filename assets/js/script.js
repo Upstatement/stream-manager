@@ -43,9 +43,7 @@ jQuery(function($) {
       var front = $feed.attr('data-ids').split(',');
       var back  = data.fm_feed_ids.split(',');
 
-      var published_posts = [];
-      // var deleted_posts   = [];
-
+      // Published posts
       for (i in back) {
         if ( $.inArray(back[i], front) < 0 ) {
           console.log('new: ' + back[i]);
@@ -53,10 +51,13 @@ jQuery(function($) {
         }
       }
 
-      // @TODO: reenable this
-      // for (i in front) {
-      //   if ( ! $.inArray(front[i], back) ) deleted_posts.push(front[i]);
-      // }
+      // Deleted posts
+      for (i in front) {
+        if ( $.inArray(front[i], back) < 0 ) {
+          console.log('deleted: ' + front[i]);
+          post_queue.remove(front[i]);
+        }
+      }
 
     } else {
       console.log('no discrepency');
@@ -176,28 +177,29 @@ jQuery(function($) {
      *          Set to false to not remove posts.
      */
     retrieve_posts: function (queue, remove_queue) {
-      if (!queue) queue = this.queue;
-      if (queue.length < 1) return;
-
       $(document).trigger('fm/post_queue_updating');
 
-      if ( !remove_queue && remove_queue !== false ) {
-        remove_queue = this.remove_queue;
+      if ( !queue ) queue = this.queue;
+      if ( remove_queue === null ) remove_queue = this.remove_queue;
+
+      if ( _.keys(queue).length > 0 ) {
+        var request = {
+          action: 'fm_feed_request',
+          queue: queue
+        };
+
+        var that = this;
+
+        $.post(ajaxurl, request, function (response) {
+          var data = JSON.parse(response);
+          if ( data.status && data.status == 'error' ) return;
+          that.update_feed.call( that, data.data, remove_queue );
+          $(document).trigger('fm/post_queue_update', [ that.queue, that.remove_queue ] );
+        });
+      } else {
+        this.update_feed.call( this, false, remove_queue );
+        $(document).trigger('fm/post_queue_update', [ this.queue, this.remove_queue ] );
       }
-
-      var request = {
-        action: 'fm_feed_request',
-        queue: queue
-      };
-
-      var that = this;
-
-      $.post(ajaxurl, request, function (response) {
-        var data = JSON.parse(response);
-        if ( data.status && data.status == 'error' ) return;
-        that.update_feed.call( that, data.data, remove_queue );
-        $(document).trigger('fm/post_queue_update', [ that.queue, that.remove_queue ] );
-      });
     },
 
     /**
@@ -331,7 +333,7 @@ jQuery(function($) {
   });
 
   $queue.on('click', function(e) {
-    post_queue.retrieve_posts();
+    post_queue.retrieve_posts(post_queue.queue, post_queue.remove_queue);
     $feed.attr('data-ids', tmp_ids);
   });
 
