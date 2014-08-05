@@ -88,22 +88,32 @@
   opacity: .9;
 }
 
-/* line 93, ../scss/style.scss */
+/* line 90, ../scss/style.scss */
+.post-queue-alert {
+  cursor: pointer;
+  padding: 8px 12px;
+  background: #0074A2;
+  color: #FFF;
+  font-weight: bold;
+  display: none;
+}
+
+/* line 102, ../scss/style.scss */
 #feed_box_feed > .handlediv,
 #feed_box_feed > .hndle {
   display: none;
 }
-/* line 97, ../scss/style.scss */
+/* line 106, ../scss/style.scss */
 #feed_box_feed > .inside {
   margin: 0;
   padding: 0;
 }
-/* line 101, ../scss/style.scss */
+/* line 110, ../scss/style.scss */
 #feed_box_feed > .inside > .fm-posts {
   border: 0;
 }
 
-/* line 107, ../scss/style.scss */
+/* line 116, ../scss/style.scss */
 .post-type-fm_feed #title {
   position: relative;
   z-index: 1;

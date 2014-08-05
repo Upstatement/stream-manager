@@ -87,6 +87,15 @@ $stub-pinned: #D4F5FF;
   }
 }
 
+.post-queue-alert {
+  cursor: pointer;
+  padding: 8px 12px;
+  background: #0074A2;
+  color: #FFF;
+  font-weight: bold;
+  display: none;
+}
+
 // Override WordPress edit page styles
 #feed_box_feed {
   > .handlediv,

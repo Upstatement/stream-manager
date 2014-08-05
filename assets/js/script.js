@@ -1,3 +1,13 @@
+/**
+ * Feed Manager Admin JavaScript
+ *
+ * @package   FeedManager
+ * @author    Chris Voll + Upstatement
+ * @license   GPL-2.0+
+ * @link      http://upstatement.com
+ * @copyright 2014 Upstatement
+ */
+
 jQuery(function($) {
 
   // Setup
@@ -6,9 +16,7 @@ jQuery(function($) {
 
   ////////////////////////////////////////////
   // 
-  // Heartbeat - avoid feed collisions by
-  //             loading feed updates from
-  //             the database
+  // Heartbeat
   //
   // Avoid feed collisions by loading feed
   // updates from the database. For the purpose
@@ -24,11 +32,13 @@ jQuery(function($) {
   });
 
   // Listen for the custom event "heartbeat-tick" on $(document).
+  var tmp_ids = $feed.attr('data-ids');
+
   $(document).on( 'heartbeat-tick', function(e, data) {
-    console.log( data );
 
     if ( data.fm_feed_ids !== $feed.attr('data-ids') ) {
       console.log('discrepency!!!!');
+      tmp_ids = data.fm_feed_ids;
 
       var front = $feed.attr('data-ids').split(',');
       var back  = data.fm_feed_ids.split(',');
@@ -37,11 +47,13 @@ jQuery(function($) {
       // var deleted_posts   = [];
 
       for (i in back) {
-        if ( ! $.inArray(back[i], front) ) {
+        if ( $.inArray(back[i], front) < 0 ) {
+          console.log('new: ' + back[i]);
           post_queue.insert(back[i], i);
         }
       }
 
+      // @TODO: reenable this
       // for (i in front) {
       //   if ( ! $.inArray(front[i], back) ) deleted_posts.push(front[i]);
       // }
@@ -80,6 +92,7 @@ jQuery(function($) {
 
 
   // Remove Post
+  // @TODO: shift this into post_queue to account for pinned posts
   var remove_post = function(e) {
     e.preventDefault();
 
@@ -111,97 +124,216 @@ jQuery(function($) {
   // 
   // Post insertion queue
   //
-  // Provides a general API for use by both
-  // the collision management system (heartbeat)
-  // and search feature for inserting posts into
-  // (and removing them from) the feed UI.
+  // Provides a general API for use by the
+  // collision management system (heartbeat)
+  // and search feature.
+  //
+  // See the UI in the next section.
   //
   // -----------------------------------------
-  // 
-  // When a discrepency is detected, posts
-  // will be added to a queue and the user
-  // will be notified. Clicking a button will
-  // insert the posts into the feed.
+  //
+  // Queue usage:
+  // - post_queue.insert( post_id, position0 );
+  // - post_queue.remove( post_id );
+  //
+  // Apply changes:
+  // - post_queue.retrieve_posts();
+  //
+  // Add a single post without invoking the queues:
+  // - post_queue.retrieve_posts({ [post_id]: [position0] }, false);
   // 
   ////////////////////////////////////////////
 
   var post_queue = {
 
     queue: {},
-    pinned_cache: {},
+    remove_queue: {},
 
-    insert: function(id, position) {
+    /**
+     * Add a post to the queue.
+     * If it already exists, update the position
+     */
+    insert: function (id, position) {
       this.queue[id] = position;
+      $(document).trigger('fm/post_queue_update', [ this.queue, this.remove_queue ]);
     },
 
-    get_ids: function() {
-      var ids = [];
-      for (id in this.queue) {
-        ids.push(id);
+    /**
+     * Queue up a post for removal
+     */
+    remove: function (id) {
+      this.remove_queue[id] = id;
+      $(document).trigger('fm/post_queue_update', [ this.queue, this.remove_queue ]);
+    },
+
+    /**
+     * Retrieve rendered post stubs HTML from the database
+     *
+     * - queue: optional, override the built-in queue. Useful
+     *          for inserting single posts (e.g., from search).
+     *          Set to false/null to use this.queue
+     * - remove_queue: optional, override built-in removal queue.
+     *          Set to false to not remove posts.
+     */
+    retrieve_posts: function (queue, remove_queue) {
+      if (!queue) queue = this.queue;
+      if (queue.length < 1) return;
+
+      $(document).trigger('fm/post_queue_updating');
+
+      if ( !remove_queue && remove_queue !== false ) {
+        remove_queue = this.remove_queue;
       }
-      return ids;
-    },
 
-    // retrieves all posts and inserts them
-    retrieve_posts: function() {
-      if (this.queue.length < 1) return;
-      var that = this;
-
-      // Insert new posts
       var request = {
         action: 'fm_feed_request',
-        ids: this.get_ids()
-      }
+        queue: queue
+      };
+
+      var that = this;
+
       $.post(ajaxurl, request, function (response) {
-
-        // Temporarily remove pinned posts
-        var pinned = [];
-        $feed.find('.stub').each( function (i) {
-          if ($(this).hasClass('fm-pinned')) {
-            pinned.push({
-              id: $(this).attr('data-id'),
-              obj: this,
-              position: i
-            });
-            $(this).remove();
-          }
-        });
-
-        // Insert new posts
         var data = JSON.parse(response);
-
-        for ( id in that.queue ) {
-          var position = that.queue[id];
-          if ( data[id] ) {
-            that.inject( position, data[id] );
-          }
-          delete that.queue[id];
-        }
-
-        // Remove deleted posts
-
-        // Remove deleted pinned posts
-
-        // Reinsert pinned items
-        for (i in pinned) {
-          that.inject(pinned[i].position, pinned[i].obj);
-        }
+        if ( data.status && data.status == 'error' ) return;
+        that.update_feed.call( that, data.data, remove_queue );
+        $(document).trigger('fm/post_queue_update', [ that.queue, that.remove_queue ] );
       });
-
     },
 
-    // insert a post object into the feed
+    /**
+     * Inserts/removes posts in feed
+     *
+     * insert_data: comes from retrieve_posts AJAX
+     * remove_queue: comes from retrieve_posts
+     *
+     * @TODO: Post removal functionality
+     * @TODO: Avoid duplication
+     */
+    update_feed: function (insert_data, remove_queue) {
+
+      this.remove_pinned();
+
+      // Insert new posts
+      if ( insert_data ) {
+        for ( id in insert_data ) {
+          if ( insert_data[id]['object'] ) {
+            this.inject( insert_data[id]['position'], insert_data[id]['object'] );
+          }
+          delete this.queue[id];
+        }
+      }
+
+      // Remove deleted posts (+ pinned ones)
+      if ( remove_queue ) {
+        for ( id in remove_queue ) {
+          $feed.find('#post-' + id).remove();
+          delete this.remove_queue[id];
+          delete this.pinned_cache[id];
+        }
+        this.delete_pinned( remove_queue );
+      }
+
+      this.insert_pinned();
+    },
+
+    /**
+     * Inserts one post into the feed
+     */
     inject: function (position, object) {
       if ( position == 0 ) {
         $feed.prepend( object );
       } else {
         $feed.find( '.stub:nth-child(' + position + ')' ).after( object );
       }
+    },
+
+    /**
+     * Helpers for ensuring pinned items stay in place,
+     * and for deleting pinned items altogether
+     */
+    pinned_cache: [],
+    remove_pinned: function () {
+      var that = this;
+      $feed.find('.stub').each( function (i) {
+        if ( $(this).hasClass('fm-pinned') ) {
+          var id = $(this).attr('data-id');
+          that.pinned_cache.push({
+            id: id,
+            obj: this,
+            position: i
+          });
+          $(this).remove();
+        }
+      });
+    },
+    delete_pinned: function (remove_queue) {
+      for (i in this.pinned_cache) {
+        if ( remove_queue[ this.pinned_cache[i].id ] ) {
+          console.log( remove_queue, this.pinned_cache, this.pinned_cache[i] );
+          delete this.pinned_cache[i];
+          delete this.remove_queue[ this.pinned_cache[i].id ];
+        }
+      }
+    },
+    insert_pinned: function () {
+      for (i in this.pinned_cache) {
+        this.inject(
+          this.pinned_cache[i].position,
+          this.pinned_cache[i].obj
+        );
+      }
+      this.pinned_cache = [];
     }
 
-  }
+  };
 
   window.post_queue = post_queue;
+
+
+  ////////////////////////////////////////////
+  // 
+  // Post queue UI
+  //
+  // Listens for the post_queue events to update
+  // the user interface, letting the end user
+  // know when there are changes.
+  // 
+  ////////////////////////////////////////////
+
+  var $queue = $('.post-queue-alert');
+
+  $(document).on('fm/post_queue_update', function( e, queue, remove_queue ) {
+    var queue_length        = _.keys(queue).length;
+    var remove_queue_length = _.keys(remove_queue).length;
+
+    if ( (queue_length + remove_queue_length) > 0 ) {
+      $queue.show();
+      var text = [
+        '<span class="dashicons dashicons-plus"></span> '
+      ];
+
+      if ( queue_length == 1 ) {
+        text.push('There is 1 new post. ');
+      } else if ( queue_length > 1 ) {
+        text.push('There are ' + queue_length + ' new posts. ');
+      }
+
+      if ( remove_queue_length == 1 ) {
+        text.push('There is 1 post that was deleted. ');
+      } else if ( remove_queue_length > 1 ) {
+        text.push('There are ' + remove_queue_length + ' posts that were deleted. ');
+      }
+
+      $queue.html(text.join(""));
+    } else {
+      $queue.hide();
+    }
+  });
+
+  $queue.on('click', function(e) {
+    post_queue.retrieve_posts();
+    $feed.attr('data-ids', tmp_ids);
+  });
 
 });
 

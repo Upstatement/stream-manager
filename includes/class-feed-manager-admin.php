@@ -43,6 +43,10 @@ class FeedManagerAdmin {
 		$this->plugin_slug    = $this->plugin->get_plugin_slug();
 		$this->post_type_slug = $this->plugin->get_post_type_slug();
 
+
+		// Admin Page Helpers
+		// ------------------
+
 		// Load admin styles and scripts
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
@@ -50,20 +54,31 @@ class FeedManagerAdmin {
 		// Feed edit page metaboxes
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 
+		// Help text
+		add_action( 'admin_head', array( $this, 'add_help_text' ), 10, 3 );
+
+
+		// Feed Manipulation
+		// -----------------
+
 		// Saving Feeds
 		add_action( 'save_post', array( $this, 'save_feed' ) );
 
 		// Saving Posts (= updating feeds)
 		add_action( 'transition_post_status',  array( $this, 'on_save_post' ), 10, 3 );
 
-		// Help text
-		add_action( 'admin_head', array( $this, 'add_help_text' ), 10, 3 );
+
+		// AJAX Helpers
+		// ------------
 
 		// Heartbeat
-		add_filter( 'heartbeat_received', array( $this, 'heartbeat' ), 10, 3 );
+		add_filter( 'heartbeat_received', array( $this, 'ajax_heartbeat' ), 10, 3 );
 
-		// Retrieve posts AJAX
-		add_filter( 'wp_ajax_fm_feed_request', array( $this, 'retrieve_posts' ) );
+		// Retrieve rendered post stubs AJAX
+		add_filter( 'wp_ajax_fm_feed_request', array( $this, 'ajax_retrieve_posts' ) );
+
+		// Search posts AJAX
+		add_filter( 'wp_ajax_fm_feed_search', array( $this, 'ajax_search_posts' ) );
 	}
 
 	public static function is_active() {
@@ -161,10 +176,11 @@ class FeedManagerAdmin {
 	 */
 	public function meta_box_feed( $post ) {
 		$feed_post = new TimberFeed( $post->ID );
+	  $ids = array_keys( $feed_post->filter_feed('pinned', false) );
 
 		Timber::render('views/feed.twig', array(
 			'posts' => $feed_post->get_posts( array( 'show_hidden' => true ) ),
-			'post_ids' => implode( $feed_post->get_ids(), ',' ),
+			'post_ids' => implode( ',', $ids ),
 			'nonce' => wp_nonce_field('fm_feed_nonce', 'fm_feed_meta_box_nonce', true, false)
 		));
 	}
@@ -307,30 +323,49 @@ class FeedManagerAdmin {
 
 
 
-	public function heartbeat( $response, $data, $screen_id ) {
+	public function ajax_heartbeat( $response, $data, $screen_id ) {
+
 		if( $screen_id == 'fm_feed' && isset( $data['wp-refresh-post-lock'] ) ) {
-
 		  $feed_post = new TimberFeed( $data['wp-refresh-post-lock']['post_id'] );
-		  $response['fm_feed_ids'] = implode( ',', $feed_post->get_ids() );
-
+		  $ids = array_keys( $feed_post->filter_feed('pinned', false) );
+		  $response['fm_feed_ids'] = implode( ',', $ids );
 		}
+
 		return $response;
 	}
 
 
-	public function retrieve_posts( $request ) {
+	public function ajax_retrieve_posts( $request ) {
+		if ( !isset( $_POST['queue'] ) ) $this->ajax_respond( 'error' );
 
-		$ids = $_POST['ids'];
+		$queue = $_POST['queue'];
 		$output = array();
-		foreach($ids as $id) {
+
+		foreach($queue as $id => $position) {
 			$post = new TimberPost($id);
 			if (!$post) continue;
 			$post->pinned = false;
-			$output[$id] = Timber::compile('views/stub.twig', array(
-				'post' => $post
-			));
+			$output[$id] = array(
+				'position' => $position,
+				'object' => Timber::compile('views/stub.twig', array(
+					'post' => $post
+				))
+			);
 		}
-		echo( json_encode($output) );
+		$this->ajax_respond( 'success', $output );
+	}
+
+
+	public function ajax_search_posts( $request ) {
+		if ( !isset( $_POST['query'] ) ) $this->ajax_respond( 'error' );
+	}
+
+
+	public function ajax_respond( $status = 'error', $data = array() ) {
+		echo( json_encode( array(
+			'status' => $status,
+			'data' => $data
+		)));
 		die();
 	}
 
