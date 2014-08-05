@@ -358,6 +358,25 @@ class FeedManagerAdmin {
 
 	public function ajax_search_posts( $request ) {
 		if ( !isset( $_POST['query'] ) ) $this->ajax_respond( 'error' );
+
+		// Search!
+		$posts = Timber::get_posts(array(
+			's' => $_POST['query'],
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'posts_per_page' => 10
+		));
+
+		$output = array();
+
+		foreach ( $posts as $post ) {
+			$output[] = array(
+				'id' => $post->ID,
+				'title' => $post->title
+			);
+		}
+
+		$this->ajax_respond( 'success', $output );
 	}
 
 

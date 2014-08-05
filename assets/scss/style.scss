@@ -96,6 +96,44 @@ $stub-pinned: #D4F5FF;
   display: none;
 }
 
+
+
+.fm-add {
+  margin: -7px -12px -14px -14px;
+  .fm-search {
+    display: block;
+    width: 100%;
+    padding: 10px 14px;
+  }
+
+  .fm-browse {
+
+  }
+
+  .fm-results {
+    padding: 0;
+
+    li {
+      margin: 0;
+    }
+
+    .fm-result {
+      text-decoration: none;
+      display: block;
+      padding: 5px 14px;
+
+      &.active {
+        background: #0074A2;
+        color: #FFF;
+      }
+    }
+  }
+}
+
+
+
+
+
 // Override WordPress edit page styles
 #feed_box_feed {
   > .handlediv,

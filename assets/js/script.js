@@ -37,7 +37,6 @@ jQuery(function($) {
   $(document).on( 'heartbeat-tick', function(e, data) {
 
     if ( data.fm_feed_ids !== $feed.attr('data-ids') ) {
-      console.log('discrepency!!!!');
       tmp_ids = data.fm_feed_ids;
 
       var front = $feed.attr('data-ids').split(',');
@@ -54,13 +53,9 @@ jQuery(function($) {
       // Deleted posts
       for (i in front) {
         if ( $.inArray(front[i], back) < 0 ) {
-          console.log('deleted: ' + front[i]);
           post_queue.remove(front[i]);
         }
       }
-
-    } else {
-      console.log('no discrepency');
     }
   });
 
@@ -271,7 +266,6 @@ jQuery(function($) {
     delete_pinned: function (remove_queue) {
       for (i in this.pinned_cache) {
         if ( remove_queue[ this.pinned_cache[i].id ] ) {
-          console.log( remove_queue, this.pinned_cache, this.pinned_cache[i] );
           delete this.pinned_cache[i];
           delete this.remove_queue[ this.pinned_cache[i].id ];
         }
@@ -336,6 +330,89 @@ jQuery(function($) {
     post_queue.retrieve_posts(post_queue.queue, post_queue.remove_queue);
     $feed.attr('data-ids', tmp_ids);
   });
+
+
+  ////////////////////////////////////////////
+  // 
+  // Search
+  // 
+  ////////////////////////////////////////////
+
+  var search_query = '';
+  var search_timer = null;
+  var $results = $('.fm-results');
+
+  $('.fm-search').on('keydown paste', function(e) {
+    var that = this;
+
+    if (e.keyCode == 38) {
+      // up
+      e.preventDefault();
+      var $active = $results.find('.active');
+      var $prev = $active.parent().prev().find('.fm-result');
+
+      if (!$prev.length) return;
+
+      $active.removeClass('active');
+      $prev.addClass('active');
+      return;
+    } else if (e.keyCode == 40) {
+      // down
+      e.preventDefault();
+      var $active = $results.find('.active');
+      var $next = $active.parent().next().find('.fm-result');
+
+      if (!$next.length) return;
+
+      $active.removeClass('active');
+      $next.addClass('active');
+      return;
+    } else if (e.keyCode == 13) {
+      // enter
+      e.preventDefault();
+      $results.find('.active').trigger('fm/select');
+      return;
+    }
+
+    clearTimeout(search_timer);
+    search_timer = setTimeout(function() {
+      if ( $(that).val() !== search_query ) {
+        search_query = $(that).val();
+
+        var request = {
+          action: 'fm_feed_search',
+          query: search_query
+        };
+
+        $.post(ajaxurl, request, function(results) {
+          var data = JSON.parse(results);
+
+          $results.empty();
+          for (i in data.data) {
+            var post = data.data[i];
+            $results.append('<li><a class="fm-result" href="#" data-id="' + post.id + '">' + post.title + '</a></li>');
+
+            $results.find('li:nth-child(1) .fm-result').addClass('active');
+          }
+        });
+      }
+    }, 200);
+  });
+
+  $results.on('mouseover', '.fm-result', function (e) {
+    if ( $(this).hasClass('active') ) return;
+    $results.find('.active').removeClass('active');
+    $(this).addClass('active');
+  });
+
+  $results.on('click fm/select', '.fm-result', function (e) {
+    e.preventDefault();
+    posts = {};
+    posts[ $(this).attr('data-id') ] = 0;
+    post_queue.retrieve_posts(posts, false);
+  });
+
+
 
 });
 

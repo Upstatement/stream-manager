@@ -206,18 +206,4 @@ class TimberFeed extends TimberPost {
     update_post_meta( $this->ID, 'fm_feed', $this->fm_feed );
   }
 
-
-  /**
-   * Retrieve post IDs from the feed
-   *
-   * @since     1.0.0
-   */
-  public function get_ids() {
-    $post_ids = array();
-    foreach ( $this->fm_feed['data'] as $post ) {
-      $post_ids[] = $post['id'];
-    }
-    return $post_ids;
-  }
-
 }
