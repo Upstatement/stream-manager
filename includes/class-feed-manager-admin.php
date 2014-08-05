@@ -61,6 +61,9 @@ class FeedManagerAdmin {
 
 		// Heartbeat
 		add_filter( 'heartbeat_received', array( $this, 'heartbeat' ), 10, 3 );
+
+		// Retrieve posts AJAX
+		add_filter( 'wp_ajax_fm_feed_request', array( $this, 'retrieve_posts' ) );
 	}
 
 	public static function is_active() {
@@ -312,6 +315,23 @@ class FeedManagerAdmin {
 
 		}
 		return $response;
+	}
+
+
+	public function retrieve_posts( $request ) {
+
+		$ids = $_POST['ids'];
+		$output = array();
+		foreach($ids as $id) {
+			$post = new TimberPost($id);
+			if (!$post) continue;
+			$post->pinned = false;
+			$output[$id] = Timber::compile('views/stub.twig', array(
+				'post' => $post
+			));
+		}
+		echo( json_encode($output) );
+		die();
 	}
 
 
