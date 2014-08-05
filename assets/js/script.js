@@ -26,11 +26,6 @@ jQuery(function($) {
   // 
   ////////////////////////////////////////////
 
-  // Hook into the heartbeat-send
-  $(document).on('heartbeat-send', function(e, data) {
-    
-  });
-
   // Listen for the custom event "heartbeat-tick" on $(document).
   var tmp_ids = $feed.attr('data-ids');
 
@@ -88,16 +83,11 @@ jQuery(function($) {
 
 
   // Remove Post
-  // @TODO: shift this into post_queue to account for pinned posts
   var remove_post = function(e) {
     e.preventDefault();
 
-    var object = $(this).closest('.stub');
-    undo_cache.push({
-      position: object.index(),
-      object: object
-    });
-    $(object).remove();
+    var id = $(this).closest('.stub').attr('data-id');
+    post_queue.remove_single(id);
   };
 
   $('.fm-posts').on('click', '.remove', remove_post);
@@ -167,17 +157,19 @@ jQuery(function($) {
      *
      * - queue: optional, override the built-in queue. Useful
      *          for inserting single posts (e.g., from search).
-     *          Set to false/null to use this.queue
+     *          Set to false to not insert posts from the queue.
      * - remove_queue: optional, override built-in removal queue.
-     *          Set to false to not remove posts.
+     *          Set to false to not remove posts from the queue.
+     *
+     * @TODO: this is really weird/hacky, needs to be rewritten
      */
     retrieve_posts: function (queue, remove_queue) {
       $(document).trigger('fm/post_queue_updating');
 
-      if ( !queue ) queue = this.queue;
+      if ( queue === null ) queue = this.queue;
       if ( remove_queue === null ) remove_queue = this.remove_queue;
 
-      if ( _.keys(queue).length > 0 ) {
+      if ( queue !== false && _.keys(queue).length > 0 ) {
         var request = {
           action: 'fm_feed_request',
           queue: queue
@@ -191,10 +183,23 @@ jQuery(function($) {
           that.update_feed.call( that, data.data, remove_queue );
           $(document).trigger('fm/post_queue_update', [ that.queue, that.remove_queue ] );
         });
-      } else {
+      }
+      else if ( remove_queue !== null && _.keys(remove_queue).length > 0 ) {
         this.update_feed.call( this, false, remove_queue );
         $(document).trigger('fm/post_queue_update', [ this.queue, this.remove_queue ] );
       }
+    },
+
+    insert_single: function ( id, position ) {
+      var post = {};
+      post[id] = position;
+      this.retrieve_posts( post, false );
+    },
+
+    remove_single: function ( id ) {
+      var post = {};
+      post[id] = id;
+      this.retrieve_posts( false, post );
     },
 
     /**
@@ -266,8 +271,8 @@ jQuery(function($) {
     delete_pinned: function (remove_queue) {
       for (i in this.pinned_cache) {
         if ( remove_queue[ this.pinned_cache[i].id ] ) {
-          delete this.pinned_cache[i];
           delete this.remove_queue[ this.pinned_cache[i].id ];
+          delete this.pinned_cache[i];
         }
       }
     },
@@ -421,14 +426,11 @@ jQuery(function($) {
 
   $results.on('click fm/select', '.fm-result', function (e) {
     e.preventDefault();
-    posts = {};
-    posts[ $(this).attr('data-id') ] = 0;
-    post_queue.retrieve_posts(posts, false);
+    post_queue.insert_single( $(this).attr('data-id'), 0 );
     $results.hide();
   });
 
   $('body').on('click', function(e) {
-    console.log(e);
     if ( !$(e.target).closest('.fm-search-container').length ) {
       $results.hide();
     }
