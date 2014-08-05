@@ -99,11 +99,16 @@ $stub-pinned: #D4F5FF;
 
 
 .fm-add {
-  margin: -7px -12px -14px -14px;
+
+  .fm-search-container {
+    position: relative;
+  }
+
   .fm-search {
     display: block;
     width: 100%;
     padding: 10px 14px;
+    margin: 0;
   }
 
   .fm-browse {
@@ -111,7 +116,15 @@ $stub-pinned: #D4F5FF;
   }
 
   .fm-results {
-    padding: 0;
+    padding: 5px 0;
+    margin: 0;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 100;
+    background: #FFF;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 3px 7px rgba(0, 0, 0, .1);
 
     li {
       margin: 0;
@@ -120,7 +133,7 @@ $stub-pinned: #D4F5FF;
     .fm-result {
       text-decoration: none;
       display: block;
-      padding: 5px 14px;
+      padding: 6px 15px;
 
       &.active {
         background: #0074A2;

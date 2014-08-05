@@ -342,61 +342,75 @@ jQuery(function($) {
   var search_timer = null;
   var $results = $('.fm-results');
 
-  $('.fm-search').on('keydown paste', function(e) {
-    var that = this;
+  $('.fm-search').on({
+    input: function(e) {
+      var that = this;
 
-    if (e.keyCode == 38) {
-      // up
-      e.preventDefault();
-      var $active = $results.find('.active');
-      var $prev = $active.parent().prev().find('.fm-result');
+      clearTimeout(search_timer);
+      search_timer = setTimeout(function() {
+        if ( $(that).val() !== search_query ) {
+          search_query = $(that).val();
 
-      if (!$prev.length) return;
+          if ( search_query.length > 2 ) {
 
-      $active.removeClass('active');
-      $prev.addClass('active');
-      return;
-    } else if (e.keyCode == 40) {
-      // down
-      e.preventDefault();
-      var $active = $results.find('.active');
-      var $next = $active.parent().next().find('.fm-result');
+            var request = {
+              action: 'fm_feed_search',
+              query: search_query
+            };
 
-      if (!$next.length) return;
+            $.post(ajaxurl, request, function(results) {
+              var data = JSON.parse(results);
 
-      $active.removeClass('active');
-      $next.addClass('active');
-      return;
-    } else if (e.keyCode == 13) {
-      // enter
-      e.preventDefault();
-      $results.find('.active').trigger('fm/select');
-      return;
-    }
+              $results.empty();
+              $results.show();
 
-    clearTimeout(search_timer);
-    search_timer = setTimeout(function() {
-      if ( $(that).val() !== search_query ) {
-        search_query = $(that).val();
+              for (i in data.data) {
+                var post = data.data[i];
+                $results.append('<li><a class="fm-result" href="#" data-id="' + post.id + '">' + post.title + '</a></li>');
 
-        var request = {
-          action: 'fm_feed_search',
-          query: search_query
-        };
-
-        $.post(ajaxurl, request, function(results) {
-          var data = JSON.parse(results);
-
-          $results.empty();
-          for (i in data.data) {
-            var post = data.data[i];
-            $results.append('<li><a class="fm-result" href="#" data-id="' + post.id + '">' + post.title + '</a></li>');
-
-            $results.find('li:nth-child(1) .fm-result').addClass('active');
+                $results.find('li:nth-child(1) .fm-result').addClass('active');
+              }
+            });
+          } else {
+            $results.empty();
+            $results.hide();
           }
-        });
+        }
+      }, 200);
+    },
+    keydown: function (e) {
+      if (e.keyCode == 38) {
+        // up
+        e.preventDefault();
+        var $active = $results.find('.active');
+        var $prev = $active.parent().prev().find('.fm-result');
+
+        if (!$prev.length) return;
+
+        $active.removeClass('active');
+        $prev.addClass('active');
+      } else if (e.keyCode == 40) {
+        // down
+        e.preventDefault();
+        var $active = $results.find('.active');
+        var $next = $active.parent().next().find('.fm-result');
+
+        if (!$next.length) return;
+
+        $active.removeClass('active');
+        $next.addClass('active');
+      } else if (e.keyCode == 13) {
+        // enter
+        e.preventDefault();
+        $results.find('.active').trigger('fm/select');
       }
-    }, 200);
+    }
+  });
+
+  $('.fm-search').on('focus', function(e) {
+    if ( !$results.is(':empty') ) {
+      $results.show();
+    }
   });
 
   $results.on('mouseover', '.fm-result', function (e) {
@@ -410,6 +424,14 @@ jQuery(function($) {
     posts = {};
     posts[ $(this).attr('data-id') ] = 0;
     post_queue.retrieve_posts(posts, false);
+    $results.hide();
+  });
+
+  $('body').on('click', function(e) {
+    console.log(e);
+    if ( !$(e.target).closest('.fm-search-container').length ) {
+      $results.hide();
+    }
   });
 
 

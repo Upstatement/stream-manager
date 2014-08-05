@@ -98,52 +98,61 @@
   display: none;
 }
 
-/* line 101, ../scss/style.scss */
-.fm-add {
-  margin: -7px -12px -14px -14px;
-}
 /* line 103, ../scss/style.scss */
+.fm-add .fm-search-container {
+  position: relative;
+}
+/* line 107, ../scss/style.scss */
 .fm-add .fm-search {
   display: block;
   width: 100%;
   padding: 10px 14px;
+  margin: 0;
 }
-/* line 113, ../scss/style.scss */
+/* line 118, ../scss/style.scss */
 .fm-add .fm-results {
-  padding: 0;
+  padding: 5px 0;
+  margin: 0;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 100;
+  background: #FFF;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.1);
 }
-/* line 116, ../scss/style.scss */
+/* line 129, ../scss/style.scss */
 .fm-add .fm-results li {
   margin: 0;
 }
-/* line 120, ../scss/style.scss */
+/* line 133, ../scss/style.scss */
 .fm-add .fm-results .fm-result {
   text-decoration: none;
   display: block;
-  padding: 5px 14px;
+  padding: 6px 15px;
 }
-/* line 125, ../scss/style.scss */
+/* line 138, ../scss/style.scss */
 .fm-add .fm-results .fm-result.active {
   background: #0074A2;
   color: #FFF;
 }
 
-/* line 140, ../scss/style.scss */
+/* line 153, ../scss/style.scss */
 #feed_box_feed > .handlediv,
 #feed_box_feed > .hndle {
   display: none;
 }
-/* line 144, ../scss/style.scss */
+/* line 157, ../scss/style.scss */
 #feed_box_feed > .inside {
   margin: 0;
   padding: 0;
 }
-/* line 148, ../scss/style.scss */
+/* line 161, ../scss/style.scss */
 #feed_box_feed > .inside > .fm-posts {
   border: 0;
 }
 
-/* line 154, ../scss/style.scss */
+/* line 167, ../scss/style.scss */
 .post-type-fm_feed #title {
   position: relative;
   z-index: 1;
