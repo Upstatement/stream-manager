@@ -378,7 +378,9 @@ class FeedManagerAdmin {
 		foreach ( $posts as $post ) {
 			$output[] = array(
 				'id' => $post->ID,
-				'title' => $post->title
+				'title' => $post->title,
+				'date' => $post->post_date,
+				'human_date' => human_time_diff( strtotime( $post->post_date ) )
 			);
 		}
 

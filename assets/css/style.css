@@ -140,23 +140,29 @@
   background: #0074A2;
   color: #FFF;
 }
+/* line 147, ../scss/style.scss */
+.fm-add .fm-results .fm-result-date {
+  font-size: 11px;
+  opacity: .5;
+  margin-left: 5px;
+}
 
-/* line 156, ../scss/style.scss */
+/* line 162, ../scss/style.scss */
 #feed_box_feed > .handlediv,
 #feed_box_feed > .hndle {
   display: none;
 }
-/* line 160, ../scss/style.scss */
+/* line 166, ../scss/style.scss */
 #feed_box_feed > .inside {
   margin: 0;
   padding: 0;
 }
-/* line 164, ../scss/style.scss */
+/* line 170, ../scss/style.scss */
 #feed_box_feed > .inside > .fm-posts {
   border: 0;
 }
 
-/* line 170, ../scss/style.scss */
+/* line 176, ../scss/style.scss */
 .post-type-fm_feed #title {
   position: relative;
   z-index: 1;
