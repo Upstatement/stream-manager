@@ -347,12 +347,12 @@ class FeedManagerAdmin {
 		$queue = $_POST['queue'];
 		$output = array();
 
-		foreach($queue as $id => $position) {
-			$post = new TimberPost($id);
-			if (!$post) continue;
+		foreach($queue as $i => $item) {
+			$post = new TimberPost( $item['id'] );
+			if ( !$post ) continue;
 			$post->pinned = false;
-			$output[$id] = array(
-				'position' => $position,
+			$output[ $item['id'] ] = array(
+				'position' => $item['position'],
 				'object' => Timber::compile('views/stub.twig', array(
 					'post' => $post
 				))
