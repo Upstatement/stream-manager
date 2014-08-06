@@ -131,6 +131,8 @@ jQuery(function($) {
   //
   // See the UI in the next section.
   //
+  // NOTE: This whole thing is due for a rewrite.
+  //
   // -----------------------------------------
   //
   // Queue usage:
@@ -155,6 +157,9 @@ jQuery(function($) {
      * If it already exists, update the position
      */
     insert: function (id, position) {
+      // Verify that it doesn't already exist
+      if ( $feed.find('#post-' + id).length) return;
+
       this.queue[id] = position;
       $(document).trigger('fm/post_queue_update', [ this.queue, this.remove_queue ]);
     },
@@ -163,6 +168,9 @@ jQuery(function($) {
      * Queue up a post for removal
      */
     remove: function (id) {
+      // Verify that it exists
+      if ( !$feed.find('#post-' + id).length) return;
+
       this.remove_queue[id] = id;
       $(document).trigger('fm/post_queue_update', [ this.queue, this.remove_queue ]);
     },
@@ -206,12 +214,18 @@ jQuery(function($) {
     },
 
     insert_single: function ( id, position ) {
+      // Verify that it doesn't already exist
+      if ( $feed.find('#post-' + id).length) return;
+
       var post = {};
       post[id] = position;
       this.retrieve_posts( post, false );
     },
 
     remove_single: function ( id ) {
+      // Verify that it exists
+      if ( !$feed.find('#post-' + id).length) return;
+
       var post = {};
       post[id] = id;
       this.retrieve_posts( false, post );
