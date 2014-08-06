@@ -156,7 +156,16 @@ class TimberFeed extends TimberPost {
     $post = $this->check_post( $post_id );
     if ( $post ) {
       $this->remove_pinned();
+
+      // Remove non-pinned
       unset($this->fm_feed['data'][$post['position']]);
+
+      // Remove pinned
+      foreach ( $this->pinned as $i => $pinned ) {
+        if ( $pinned['id'] == $post_id ) {
+          unset( $this->pinned[$i] );
+        }
+      }
       $this->reinsert_pinned();
       $this->repopulate_feed();
       $this->save_feed();

@@ -176,11 +176,13 @@ class FeedManagerAdmin {
 	 */
 	public function meta_box_feed( $post ) {
 		$feed_post = new TimberFeed( $post->ID );
-	  $ids = array_keys( $feed_post->filter_feed('pinned', false) );
+	  $ids    = array_keys( $feed_post->filter_feed('pinned', false) );
+	  $pinned = array_keys( $feed_post->filter_feed('pinned', true ) );
 
 		Timber::render('views/feed.twig', array(
 			'posts' => $feed_post->get_posts( array( 'show_hidden' => true ) ),
-			'post_ids' => implode( ',', $ids ),
+			'post_ids'    => implode( ',', $ids ),
+			'post_pinned' => implode( ',', $pinned ),
 			'nonce' => wp_nonce_field('fm_feed_nonce', 'fm_feed_meta_box_nonce', true, false)
 		));
 	}
@@ -330,6 +332,9 @@ class FeedManagerAdmin {
 		  $feed_post = new TimberFeed( $data['wp-refresh-post-lock']['post_id'] );
 		  $ids = array_keys( $feed_post->filter_feed('pinned', false) );
 		  $response['fm_feed_ids'] = implode( ',', $ids );
+
+		  $pinned = array_keys( $feed_post->filter_feed('pinned', true) );
+		  $response['fm_feed_pinned'] = implode( ',', $pinned );
 		}
 
 		return $response;

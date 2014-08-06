@@ -27,20 +27,24 @@ jQuery(function($) {
   ////////////////////////////////////////////
 
   // Listen for the custom event "heartbeat-tick" on $(document).
-  var tmp_ids = $feed.attr('data-ids');
+  var tmp_ids    = $feed.attr('data-ids');
+  var tmp_pinned = $feed.attr('data-pinned');
 
   $(document).on( 'heartbeat-tick', function(e, data) {
 
-    if ( data.fm_feed_ids !== $feed.attr('data-ids') ) {
+    if ( data.fm_feed_ids !== $feed.attr('data-ids') || data.fm_feed_pinned !== $feed.attr('data-pinned') ) {
       tmp_ids = data.fm_feed_ids;
+      tmp_pinned = data.fm_feed_pinned;
 
       var front = $feed.attr('data-ids').split(',');
       var back  = data.fm_feed_ids.split(',');
 
+      var front_pinned = $feed.attr('data-pinned').split(',');
+      var back_pinned  = data.fm_feed_pinned.split(',');
+
       // Published posts
       for (i in back) {
         if ( $.inArray(back[i], front) < 0 ) {
-          console.log('new: ' + back[i]);
           post_queue.insert(back[i], i);
         }
       }
@@ -49,6 +53,13 @@ jQuery(function($) {
       for (i in front) {
         if ( $.inArray(front[i], back) < 0 ) {
           post_queue.remove(front[i]);
+        }
+      }
+
+      // Deleted pinned posts
+      for (i in front_pinned) {
+        if ( $.inArray(front_pinned[i], back_pinned) < 0 ) {
+          post_queue.remove(front_pinned[i]);
         }
       }
     }
@@ -231,12 +242,13 @@ jQuery(function($) {
 
       // Remove deleted posts (+ pinned ones)
       if ( remove_queue ) {
+        this.delete_pinned( remove_queue );
+
         for ( id in remove_queue ) {
           $feed.find('#post-' + id).remove();
           delete this.remove_queue[id];
           delete this.pinned_cache[id];
         }
-        this.delete_pinned( remove_queue );
       }
 
       this.insert_pinned();
