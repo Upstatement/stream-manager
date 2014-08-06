@@ -26,14 +26,13 @@ jQuery(function($) {
   // 
   ////////////////////////////////////////////
 
-  // Listen for the custom event "heartbeat-tick" on $(document).
   var tmp_ids    = $feed.attr('data-ids');
   var tmp_pinned = $feed.attr('data-pinned');
 
   $(document).on( 'heartbeat-tick', function(e, data) {
 
     if ( data.fm_feed_ids !== $feed.attr('data-ids') || data.fm_feed_pinned !== $feed.attr('data-pinned') ) {
-      tmp_ids = data.fm_feed_ids;
+      tmp_ids    = data.fm_feed_ids;
       tmp_pinned = data.fm_feed_pinned;
 
       var front = $feed.attr('data-ids').split(',');
@@ -43,23 +42,23 @@ jQuery(function($) {
       var back_pinned  = data.fm_feed_pinned.split(',');
 
       // Published posts
-      for (i in back) {
+      for ( i in back ) {
         if ( $.inArray(back[i], front) < 0 ) {
-          post_queue.insert(back[i], i);
+          feed.add_to_queue( 'insert', back[i], i );
         }
       }
 
       // Deleted posts
-      for (i in front) {
+      for ( i in front ) {
         if ( $.inArray(front[i], back) < 0 ) {
-          post_queue.remove(front[i]);
+          feed.add_to_queue( 'remove', front[i] );
         }
       }
 
       // Deleted pinned posts
-      for (i in front_pinned) {
+      for ( i in front_pinned ) {
         if ( $.inArray(front_pinned[i], back_pinned) < 0 ) {
-          post_queue.remove(front_pinned[i]);
+          feed.add_to_queue( 'remove', front_pinned[i] );
         }
       }
     }
@@ -98,7 +97,7 @@ jQuery(function($) {
     e.preventDefault();
 
     var id = $(this).closest('.stub').attr('data-id');
-    post_queue.remove_single(id);
+    feed.remove_single( id );
   };
 
   $('.fm-posts').on('click', '.remove', remove_post);
@@ -110,12 +109,12 @@ jQuery(function($) {
       if (ui.item.hasClass('fm-pinned')) return;
       $(document).trigger('fm/sortable_start', ui.item);
       $(ui.placeholder).height($(ui.item).height());
-      post_queue.sort_inventory_pinned();
+      feed.inventory_pinned();
     },
     change: function (event, ui) {
       if (ui.item.hasClass('fm-pinned')) return;
-      post_queue.sort_remove_pinned();
-      post_queue.sort_insert_pinned();
+      feed.remove_pinned();
+      feed.insert_pinned();
     },
     axis: 'y'
   });
@@ -123,153 +122,174 @@ jQuery(function($) {
 
   ////////////////////////////////////////////
   // 
-  // Post insertion queue
+  // Feed Post Queue
   //
-  // Provides a general API for use by the
-  // collision management system (heartbeat)
-  // and search feature.
-  //
-  // See the UI in the next section.
-  //
-  // NOTE: This whole thing is due for a rewrite.
+  // API for modifying the posts in the feed
+  // user interface, including adding and
+  // removing by post IDs. Used by the collision
+  // management system (with the WordPress
+  // heartbeat API) and the post search.
   //
   // -----------------------------------------
   //
-  // Queue usage:
-  // - post_queue.insert( post_id, position0 );
-  // - post_queue.remove( post_id );
+  // Usage: (where queue_name is 'insert' or 'remove')
+  // > feed.add_to_queue( queue_name, post_id, position );
+  // > feed.remove_from_queue( queue_name, post_id );
   //
   // Apply changes:
-  // - post_queue.retrieve_posts();
+  // > feed.apply_insert( queue_override );
+  // > feed.apply_remove( queue_override );
   //
   // Add a single post without invoking the queues:
-  // - post_queue.retrieve_posts({ [post_id]: [position0] }, false);
+  // > feed.insert_single( id, position );
+  // > feed.remove_single( id );
   // 
   ////////////////////////////////////////////
 
-  var post_queue = {
+  var feed = {
 
-    queue: {},
-    remove_queue: {},
-
-    /**
-     * Add a post to the queue.
-     * If it already exists, update the position
-     */
-    insert: function (id, position) {
-      // Verify that it doesn't already exist
-      if ( $feed.find('#post-' + id).length) return;
-
-      this.queue[id] = position;
-      $(document).trigger('fm/post_queue_update', [ this.queue, this.remove_queue ]);
-    },
+    insert_queue: [],
+    remove_queue: [],
 
     /**
-     * Queue up a post for removal
+     * Add a post to a queue
      */
-    remove: function (id) {
-      // Verify that it exists
-      if ( !$feed.find('#post-' + id).length) return;
-
-      this.remove_queue[id] = id;
-      $(document).trigger('fm/post_queue_update', [ this.queue, this.remove_queue ]);
-    },
-
-    /**
-     * Retrieve rendered post stubs HTML from the database
-     *
-     * - queue: optional, override the built-in queue. Useful
-     *          for inserting single posts (e.g., from search).
-     *          Set to false to not insert posts from the queue.
-     * - remove_queue: optional, override built-in removal queue.
-     *          Set to false to not remove posts from the queue.
-     *
-     * @TODO: this is really weird/hacky, needs to be rewritten
-     */
-    retrieve_posts: function (queue, remove_queue) {
-      $(document).trigger('fm/post_queue_updating');
-
-      if ( queue === null ) queue = this.queue;
-      if ( remove_queue === null ) remove_queue = this.remove_queue;
-
-      if ( queue !== false && _.keys(queue).length > 0 ) {
-        var request = {
-          action: 'fm_feed_request',
-          queue: queue
-        };
-
-        var that = this;
-
-        $.post(ajaxurl, request, function (response) {
-          var data = JSON.parse(response);
-          if ( data.status && data.status == 'error' ) return;
-          that.update_feed.call( that, data.data, remove_queue );
-          $(document).trigger('fm/post_queue_update', [ that.queue, that.remove_queue ] );
+    add_to_queue: function ( queue, id, position ) {
+      if ( queue == 'insert' ) {
+        if ( this.post_exists(id) || this.is_in_queue('insert', id) !== -1 ) return;
+        this.insert_queue.push({
+          id: id,
+          position: position
+        });
+      } else if ( queue == 'remove' ) {
+        if ( !this.post_exists(id) || this.is_in_queue('remove', id) !== -1 ) return;
+        this.remove_queue.push({
+          id: id
         });
       }
-      else if ( remove_queue !== null && _.keys(remove_queue).length > 0 ) {
-        this.update_feed.call( this, false, remove_queue );
-        $(document).trigger('fm/post_queue_update', [ this.queue, this.remove_queue ] );
-      }
-    },
-
-    insert_single: function ( id, position ) {
-      // Verify that it doesn't already exist
-      if ( $feed.find('#post-' + id).length) return;
-
-      var post = {};
-      post[id] = position;
-      this.retrieve_posts( post, false );
-    },
-
-    remove_single: function ( id ) {
-      // Verify that it exists
-      if ( !$feed.find('#post-' + id).length) return;
-
-      var post = {};
-      post[id] = id;
-      this.retrieve_posts( false, post );
+      $(document).trigger('fm/feed_update');
     },
 
     /**
-     * Inserts/removes posts in feed
-     *
-     * insert_data: comes from retrieve_posts AJAX
-     * remove_queue: comes from retrieve_posts
-     *
-     * @TODO: Post removal functionality
-     * @TODO: Avoid duplication
+     * Remove a post from a queue
      */
-    update_feed: function (insert_data, remove_queue) {
+    remove_from_queue: function ( queue, id ) {
+      var queue_name = queue + '_queue';
 
-      this.remove_pinned();
-
-      // Insert new posts
-      if ( insert_data ) {
-        for ( id in insert_data ) {
-          if ( insert_data[id]['object'] ) {
-            this.inject( insert_data[id]['position'], insert_data[id]['object'] );
-          }
-          delete this.queue[id];
+      for ( i in this[queue_name] ) {
+        if ( this[queue_name][i].id == id ) {
+          this[queue_name].splice(i, 1);
         }
       }
+      $(document).trigger('fm/feed_update');
+    },
 
-      // Remove deleted posts (+ pinned ones)
-      if ( remove_queue ) {
-        this.delete_pinned( remove_queue );
+    /**
+     * Checks if a post is in a queue
+     *
+     * @return -1 if not found, position if found
+     */
+    is_in_queue: function ( queue, id ) {
+      var queue_name = queue + '_queue';
 
-        for ( id in remove_queue ) {
-          $feed.find('#post-' + id).remove();
-          delete this.remove_queue[id];
-          delete this.pinned_cache[id];
+      for ( i in this[queue_name] ) {
+        if ( this[queue_name][i].id == id ) {
+          return i;
         }
+      }
+      return -1;
+    },
+
+
+    /**
+     * Apply queue changes
+     */
+    apply_insert: function ( queue_override ) {
+      var queue = queue_override ? queue_override : this.insert_queue;
+      if (queue.length < 1) return;
+      var that = this;
+
+      $.post(ajaxurl, {
+          action: 'fm_feed_request',
+          queue: queue
+        }, function (response) {
+          response = JSON.parse(response);
+          if ( response.status && response.status == 'error' ) return;
+          that.ui_insert(response.data);
+          $(document).trigger('fm/feed_update');
+        }
+      );
+    },
+    apply_remove: function ( queue_override ) {
+      var queue = queue_override ? queue_override : this.remove_queue;
+      if (queue.length < 1) return;
+      this.ui_remove( queue );
+      $(document).trigger('fm/feed_update');
+    },
+    apply_queues: function () {
+      this.apply_remove();
+      this.apply_insert();
+    },
+
+
+
+    /**
+     * Insert/remove post(s) in the UI
+     */
+    ui_insert: function ( insert_data ) {
+      if ( !insert_data ) return;
+
+      this.inventory_pinned();
+      this.remove_pinned();
+
+      for ( id in insert_data ) {
+        if ( insert_data[id]['object'] ) {
+          this.inject( insert_data[id]['position'], insert_data[id]['object'] );
+        }
+        this.remove_from_queue( 'insert', id );
+      }
+
+      this.insert_pinned();
+    },
+    ui_remove: function ( remove_queue ) {
+      if ( !remove_queue ) return;
+
+      this.inventory_pinned();
+      this.remove_pinned();
+
+      this.delete_pinned( remove_queue );
+
+      for ( i in remove_queue ) {
+        var id = remove_queue[i].id;
+        $feed.find('#post-' + id).remove();
+        this.remove_from_queue( 'remove', id );
       }
 
       this.insert_pinned();
     },
 
+
+
     /**
-     * Inserts one post into the feed
+     * Insert or remove just one post without invoking the queues
+     */
+    insert_single: function ( id, position ) {
+      if ( this.post_exists(id) ) return;
+      this.apply_insert([{ 
+        id: id,
+        position: position
+      }]);
+    },
+    remove_single: function ( id ) {
+      if ( !this.post_exists(id) ) return;
+      this.apply_remove([{
+        id: id
+      }]);
+    },
+
+
+    /**
+     * Inserts one post object into the feed
      */
     inject: function (position, object) {
       if ( position == 0 ) {
@@ -279,50 +299,20 @@ jQuery(function($) {
       }
     },
 
+
     /**
-     * Helpers for ensuring pinned items stay in place,
-     * and for deleting pinned items altogether
+     * Check if a post exists in the feed
      */
-    pinned_cache: [],
-    remove_pinned: function () {
-      var that = this;
-      $feed.find('.stub').each( function (i) {
-        if ( $(this).hasClass('fm-pinned') ) {
-          var id = $(this).attr('data-id');
-          that.pinned_cache.push({
-            id: id,
-            obj: this,
-            position: i
-          });
-          $(this).remove();
-        }
-      });
-    },
-    delete_pinned: function (remove_queue) {
-      for (i in this.pinned_cache) {
-        if ( remove_queue[ this.pinned_cache[i].id ] ) {
-          delete this.remove_queue[ this.pinned_cache[i].id ];
-          delete this.pinned_cache[i];
-        }
-      }
-    },
-    insert_pinned: function () {
-      for (i in this.pinned_cache) {
-        this.inject(
-          this.pinned_cache[i].position,
-          this.pinned_cache[i].obj
-        );
-      }
-      this.pinned_cache = [];
+    post_exists: function (id) {
+      return $feed.find('#post-' + id).length;
     },
 
 
     /**
-     * Helpers for keeping pinned stubs in place while
-     * sorting items manually.
+     * Helpers for keeping pinned stubs in place
      */
     pinned_inventory: [],
-    sort_inventory_pinned: function () {
+    inventory_pinned: function () {
       var that = this;
       this.pinned_inventory = [];
       $feed.find('.stub').each( function (i) {
@@ -336,12 +326,23 @@ jQuery(function($) {
         }
       });
     },
-    sort_remove_pinned: function () {
+    remove_pinned: function () {
       for (i in this.pinned_inventory) {
         this.pinned_inventory[i].obj.remove();
       }
     },
-    sort_insert_pinned: function () {
+    delete_pinned: function ( remove_queue ) {
+      for ( i in this.pinned_inventory ) {
+        var id = this.pinned_inventory[i].id;
+        for ( j in remove_queue ) {
+          if ( remove_queue[j].id == id ) {
+            this.remove_from_queue( 'remove', id );
+            this.pinned_inventory.splice(i, 1);
+          }
+        }
+      }
+    },
+    insert_pinned: function () {
       for (i in this.pinned_inventory) {
         this.inject(
           this.pinned_inventory[i].position,
@@ -352,14 +353,14 @@ jQuery(function($) {
 
   };
 
-  window.post_queue = post_queue;
-
+  window.feed = feed;
+  
 
   ////////////////////////////////////////////
   // 
   // Post queue UI
   //
-  // Listens for the post_queue events to update
+  // Listens for the feed events to update
   // the user interface, letting the end user
   // know when there are changes.
   // 
@@ -368,26 +369,26 @@ jQuery(function($) {
   var $queue = $('.post-queue-alert');
   var allow_submit = true;
 
-  $(document).on('fm/post_queue_update', function( e, queue, remove_queue ) {
-    var queue_length        = _.keys(queue).length;
-    var remove_queue_length = _.keys(remove_queue).length;
+  $(document).on('fm/feed_update', function( e ) {
+    var insert_queue = feed.insert_queue;
+    var remove_queue = feed.remove_queue;
 
-    if ( (queue_length + remove_queue_length) > 0 ) {
+    if ( (insert_queue.length + remove_queue.length) > 0 ) {
       $queue.show();
       var text = [
         '<span class="dashicons dashicons-plus"></span> '
       ];
 
-      if ( queue_length == 1 ) {
+      if ( insert_queue.length == 1 ) {
         text.push('There is 1 new post. ');
-      } else if ( queue_length > 1 ) {
-        text.push('There are ' + queue_length + ' new posts. ');
+      } else if ( insert_queue.length > 1 ) {
+        text.push('There are ' + insert_queue.length + ' new posts. ');
       }
 
-      if ( remove_queue_length == 1 ) {
+      if ( remove_queue.length == 1 ) {
         text.push('There is 1 post that was deleted. ');
-      } else if ( remove_queue_length > 1 ) {
-        text.push('There are ' + remove_queue_length + ' posts that were deleted. ');
+      } else if ( remove_queue.length > 1 ) {
+        text.push('There are ' + remove_queue.length + ' posts that were deleted. ');
       }
 
       $queue.html(text.join(""));
@@ -399,8 +400,9 @@ jQuery(function($) {
   });
 
   $queue.on('click', function(e) {
-    post_queue.retrieve_posts(post_queue.queue, post_queue.remove_queue);
-    $feed.attr('data-ids', tmp_ids);
+    feed.apply_queues();
+    $feed.attr('data-ids',    tmp_ids);
+    $feed.attr('data-pinned', tmp_pinned);
     allow_submit = true;
   });
 
@@ -510,7 +512,7 @@ jQuery(function($) {
 
   $results.on('click fm/select', '.fm-result', function (e) {
     e.preventDefault();
-    post_queue.insert_single( $(this).attr('data-id'), 0 );
+    feed.insert_single( $(this).attr('data-id'), 0 );
     $results.hide();
   });
 
@@ -524,18 +526,18 @@ jQuery(function($) {
 
 });
 
-// Remove undo
-// @TODO: move this somewhere else
-var undo_cache = [];
+// // Remove undo
+// // @TODO: move this somewhere else
+// var undo_cache = [];
 
-var undo_remove = function() {
-  var object = undo_cache.pop();
-  if (!object) return;
-  var container = jQuery('.fm-posts');
+// var undo_remove = function() {
+//   var object = undo_cache.pop();
+//   if (!object) return;
+//   var container = jQuery('.fm-posts');
 
-  if (object.position == 0) {
-    container.prepend(object.object);
-  } else {
-    container.find('.stub:nth-child(' + object.position + ')').after(object.object);
-  }
-}
+//   if (object.position == 0) {
+//     container.prepend(object.object);
+//   } else {
+//     container.find('.stub:nth-child(' + object.position + ')').after(object.object);
+//   }
+// }
