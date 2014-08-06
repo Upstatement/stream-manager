@@ -296,25 +296,33 @@ class FeedManagerAdmin {
 	  $screen = get_current_screen();
 
 	  // Return early if we're not on the book post type.
-	  if ( 'fm_feed' != $screen->post_type )
-	    return;
+	  if ( 'fm_feed' != $screen->post_type ) return;
 
 	  // Setup help tab args.
 	  $tabs = array(
 	  	array(
-		    'id'      => 'fm_feed_1', //unique id for the tab
-		    'title'   => 'Arranging Posts', //unique visible title for the tab
-		    'content' => '<h3>Arranging Posts</h3><p>Help content</p>',  //actual help text
+		    'id'      => 'fm_feed_1',
+		    'title'   => 'About Feeds',
+		    'content' => '<h3>About Feeds</h3><p>Help content</p>',
 		  ),
 	  	array(
-		    'id'      => 'fm_feed_2', //unique id for the tab
-		    'title'   => 'Adding Posts', //unique visible title for the tab
-		    'content' => '<h3>Adding &amp; Removing Posts</h3><p>Help content</p>',  //actual help text
+		    'id'      => 'fm_feed_2',
+		    'title'   => 'How to Use',
+		    'content' => '<h3>How to Use</h3><p>Help content</p>',
 		  ),
 	  	array(
-		    'id'      => 'fm_feed_3', //unique id for the tab
-		    'title'   => 'Whatever Else', //unique visible title for the tab
-		    'content' => '<h3>Whatever Else</h3><p>Help content</p>',  //actual help text
+		    'id'      => 'fm_feed_3',
+		    'title'   => 'Use in Theme',
+		    'content' => implode("\n", array(
+		    	'<h3>Use in Theme</h3>',
+		    	'<p>',
+		    		'<pre>$context[\'feed\'] = new TimberFeed(' . get_the_ID() . ');</pre>',
+		    	'</p>',
+		    	'<p>In your view file (twig):</p>',
+		    	'<p><pre>{% for post in feed %}',
+		    	'  {{ post.title }}',
+		    	'{% endfor %}</pre></p>'
+		    ))
 		  )
 		);
 	  
