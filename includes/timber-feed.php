@@ -87,10 +87,45 @@ class TimberFeed extends TimberPost {
    *
    * @since     1.0.0
    *
-   * @todo      do this
+   * @todo      it's possible for a pinned item to go above the limit
    */
   public function repopulate_feed() {
+    // Determine how many over/under we are
 
+    $difference = count($this->fm_feed['data']) - $this->limit;
+    // e.g., if we have 105 posts and a limit of 100,
+    // then this will be 5. If we only have 95 posts, it will be -5
+
+    if ( $difference < 0 ) {
+      // under -- add pinned posts to the end
+      $query = $this->query;
+      $ids = array();
+      foreach ( $this->fm_feed['data'] as $post ) {
+        $ids[] = $post['id'];
+      }
+      $query['post__not_in'] = $ids;
+      $query['posts_per_page'] = $difference * -1;
+      $posts = Timber::get_posts($query);
+
+      $this->remove_pinned();
+
+      foreach ( $posts as $post ) {
+        $this->fm_feed['data'][] = array(
+          'id' => $post->ID,
+          'pinned' => false
+        );
+      }
+
+      $this->reinsert_pinned();
+
+    } else if ( $difference > 0 ) {
+      // over -- remove non-pinned posts at the end
+      $this->remove_pinned();
+      for ( $i = 1; $i <= $difference; $i++ ) {
+        array_pop( $this->fm_feed['data'] );
+      }
+      $this->reinsert_pinned();
+    }
   }
 
 
@@ -123,6 +158,7 @@ class TimberFeed extends TimberPost {
       $this->remove_pinned();
       unset($this->fm_feed['data'][$post['position']]);
       $this->reinsert_pinned();
+      $this->repopulate_feed();
       $this->save_feed();
     }
   }
@@ -165,6 +201,8 @@ class TimberFeed extends TimberPost {
 
     // ... and then reinsert the pinned items
     $this->reinsert_pinned();
+
+    $this->repopulate_feed();
 
     $this->save_feed();
   }

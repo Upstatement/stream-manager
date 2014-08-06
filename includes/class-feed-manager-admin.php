@@ -256,6 +256,7 @@ class FeedManagerAdmin {
 	    	'hidden' => $hidden
 	    );
 
+	    $feed->repopulate_feed();
 	    $feed->save_feed();
 	  }
 	}
