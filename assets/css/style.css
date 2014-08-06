@@ -89,27 +89,31 @@
 }
 
 /* line 90, ../scss/style.scss */
-.post-queue-alert {
+.fm-alert {
   cursor: pointer;
   padding: 8px 12px;
-  background: #0074A2;
+  background: #0084A2;
   color: #FFF;
   font-weight: bold;
+}
+
+/* line 98, ../scss/style.scss */
+.post-queue-alert {
   display: none;
 }
 
-/* line 103, ../scss/style.scss */
+/* line 106, ../scss/style.scss */
 .fm-add .fm-search-container {
   position: relative;
 }
-/* line 107, ../scss/style.scss */
+/* line 110, ../scss/style.scss */
 .fm-add .fm-search {
   display: block;
   width: 100%;
   padding: 10px 14px;
   margin: 0;
 }
-/* line 118, ../scss/style.scss */
+/* line 121, ../scss/style.scss */
 .fm-add .fm-results {
   padding: 5px 0;
   margin: 0;
@@ -121,38 +125,38 @@
   border-radius: 0 0 4px 4px;
   box-shadow: 0 3px 7px rgba(0, 0, 0, 0.1);
 }
-/* line 129, ../scss/style.scss */
+/* line 132, ../scss/style.scss */
 .fm-add .fm-results li {
   margin: 0;
 }
-/* line 133, ../scss/style.scss */
+/* line 136, ../scss/style.scss */
 .fm-add .fm-results .fm-result {
   text-decoration: none;
   display: block;
   padding: 6px 15px;
 }
-/* line 138, ../scss/style.scss */
+/* line 141, ../scss/style.scss */
 .fm-add .fm-results .fm-result.active {
   background: #0074A2;
   color: #FFF;
 }
 
-/* line 153, ../scss/style.scss */
+/* line 156, ../scss/style.scss */
 #feed_box_feed > .handlediv,
 #feed_box_feed > .hndle {
   display: none;
 }
-/* line 157, ../scss/style.scss */
+/* line 160, ../scss/style.scss */
 #feed_box_feed > .inside {
   margin: 0;
   padding: 0;
 }
-/* line 161, ../scss/style.scss */
+/* line 164, ../scss/style.scss */
 #feed_box_feed > .inside > .fm-posts {
   border: 0;
 }
 
-/* line 167, ../scss/style.scss */
+/* line 170, ../scss/style.scss */
 .post-type-fm_feed #title {
   position: relative;
   z-index: 1;

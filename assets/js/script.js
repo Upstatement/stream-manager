@@ -340,6 +340,7 @@ jQuery(function($) {
   ////////////////////////////////////////////
 
   var $queue = $('.post-queue-alert');
+  var allow_submit = true;
 
   $(document).on('fm/post_queue_update', function( e, queue, remove_queue ) {
     var queue_length        = _.keys(queue).length;
@@ -364,14 +365,33 @@ jQuery(function($) {
       }
 
       $queue.html(text.join(""));
+      allow_submit = false;
     } else {
       $queue.hide();
+      allow_submit = true;
     }
   });
 
   $queue.on('click', function(e) {
     post_queue.retrieve_posts(post_queue.queue, post_queue.remove_queue);
     $feed.attr('data-ids', tmp_ids);
+    allow_submit = true;
+  });
+
+  // the submit event gets called twice, so keep track with this
+  var submit_flag = true;
+
+  $('form#post').off('submit.fm').on('submit.fm', function(e) {
+    submit_flag = !submit_flag;
+    if ( !submit_flag && !allow_submit ) return;
+
+    if ( !allow_submit ) {
+      if ( ! window.confirm('New posts have been published or removed since you began editing the feed. \n\nPress Cancel to go back, or OK to save the feed without them.') ) {
+        e.preventDefault();
+      } else {
+        allow_submit = true;
+      }
+    }
   });
 
 

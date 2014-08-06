@@ -87,12 +87,15 @@ $stub-pinned: #D4F5FF;
   }
 }
 
-.post-queue-alert {
+.fm-alert {
   cursor: pointer;
   padding: 8px 12px;
-  background: #0074A2;
+  background: #0084A2;
   color: #FFF;
   font-weight: bold;
+}
+
+.post-queue-alert {
   display: none;
 }
 
