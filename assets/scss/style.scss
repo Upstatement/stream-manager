@@ -1,5 +1,5 @@
 $stub-hover: #FAFAFA;
-$stub-pinned: #D4F5FF;
+$stub-pinned: #1E8CBE;//darken(#F1F1F1, 5%);
 
 @mixin prefixer($content) {
   -webkit-transition: #{$content};
@@ -18,6 +18,8 @@ $stub-pinned: #D4F5FF;
   cursor: move;
   padding: 10px;
   background: #FFF;
+  margin-bottom: 1px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
   @include prefixer(.2s opacity);
   @include clear;
 
@@ -67,6 +69,14 @@ $stub-pinned: #D4F5FF;
   }
   &.fm-pinned {
     background: $stub-pinned;
+    color: #FFF;
+
+    a {
+      color: #FFF;
+      &:hover {
+        color: lighten($stub-pinned, 40%);
+      }
+    }
 
     &:hover {
       background: darken($stub-pinned, 3%);
@@ -78,7 +88,7 @@ $stub-pinned: #D4F5FF;
 
     .date,
     .row-actions {
-      color: lighten(#2EA2CC, 10%);
+      color: lighten($stub-pinned, 30%);
     }
   }
   &.ui-sortable-helper {
@@ -153,14 +163,23 @@ $stub-pinned: #D4F5FF;
 }
 
 .fm-meta.fm-pinned {
-  background: #F5F5F5 !important;
+  background: transparent !important;
   cursor: default;
+  margin: 0;
+  padding: 0;
+  box-shadow: none;
+
+  h3 {
+    margin: 0;
+  }
 }
 
 
 
 // Override WordPress edit page styles
 #feed_box_feed {
+  background: transparent;
+  border: 0;
   > .handlediv,
   > .hndle {
     display: none;
