@@ -147,22 +147,28 @@
   margin-left: 5px;
 }
 
-/* line 162, ../scss/style.scss */
+/* line 155, ../scss/style.scss */
+.fm-meta.fm-pinned {
+  background: #F5F5F5 !important;
+  cursor: default;
+}
+
+/* line 165, ../scss/style.scss */
 #feed_box_feed > .handlediv,
 #feed_box_feed > .hndle {
   display: none;
 }
-/* line 166, ../scss/style.scss */
+/* line 169, ../scss/style.scss */
 #feed_box_feed > .inside {
   margin: 0;
   padding: 0;
 }
-/* line 170, ../scss/style.scss */
+/* line 173, ../scss/style.scss */
 #feed_box_feed > .inside > .fm-posts {
   border: 0;
 }
 
-/* line 176, ../scss/style.scss */
+/* line 179, ../scss/style.scss */
 .post-type-fm_feed #title {
   position: relative;
   z-index: 1;

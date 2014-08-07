@@ -103,16 +103,20 @@ jQuery(function($) {
   // Reorder Post
   $feed.sortable({
     start: function (event, ui) {
-      if (ui.item.hasClass('fm-pinned')) return;
       $(document).trigger('fm/sortable_start', ui.item);
       $(ui.placeholder).height($(ui.item).height());
-      feed.inventory_pinned();
+      if (ui.item.hasClass('fm-pinned')) {
+        feed.inventory_pinned('fm-meta');
+      } else {
+        feed.inventory_pinned();
+      }
     },
     change: function (event, ui) {
-      if (ui.item.hasClass('fm-pinned')) return;
+      //if (ui.item.hasClass('fm-pinned')) return;
       feed.remove_pinned();
       feed.insert_pinned();
     },
+    items: '.stub:not(.fm-meta)',
     axis: 'y'
   });
 
@@ -313,11 +317,12 @@ jQuery(function($) {
      * Helpers for keeping pinned stubs in place
      */
     pinned_inventory: [],
-    inventory_pinned: function () {
+    inventory_pinned: function (className) {
+      if ( !className ) className = 'fm-pinned';
       var that = this;
       this.pinned_inventory = [];
       $feed.find('.stub').each( function (i) {
-        if ( $(this).hasClass('fm-pinned') ) {
+        if ( $(this).hasClass( className ) ) {
           that.pinned_inventory.push({
             id: $(this).attr('data-id'),
             obj: this,

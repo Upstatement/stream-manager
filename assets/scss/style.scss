@@ -152,7 +152,10 @@ $stub-pinned: #D4F5FF;
   }
 }
 
-
+.fm-meta.fm-pinned {
+  background: #F5F5F5 !important;
+  cursor: default;
+}
 
 
 

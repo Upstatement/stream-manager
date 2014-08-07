@@ -4,6 +4,12 @@
 
     {% for i, post in posts %}
 
+      {% if feed_meta[i] %}
+        <div class="stub fm-meta fm-pinned" data-position="{{ i }}">
+          {{ feed_meta[i] }}
+        </div>
+      {% endif %}
+
       {% include "stub.twig" %}
 
     {% endfor %}
