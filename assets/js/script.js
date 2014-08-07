@@ -117,6 +117,7 @@ jQuery(function($) {
       feed.insert_pinned();
     },
     items: '.stub:not(.fm-meta)',
+    revert: 200,
     axis: 'y'
   });
 
