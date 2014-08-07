@@ -291,7 +291,12 @@ jQuery(function($) {
       if ( position == 0 ) {
         $feed.prepend( object );
       } else {
-        $feed.find( '.stub:nth-child(' + position + ')' ).after( object );
+        var $object_before = $feed.find( '.stub:nth-child(' + position + ')' );
+        if ( $object_before.length ) {
+          $object_before.after( object );
+        } else {
+          $feed.append( object );
+        }
       }
     },
 
@@ -313,9 +318,8 @@ jQuery(function($) {
       this.pinned_inventory = [];
       $feed.find('.stub').each( function (i) {
         if ( $(this).hasClass('fm-pinned') ) {
-          var id = $(this).attr('data-id');
           that.pinned_inventory.push({
-            id: id,
+            id: $(this).attr('data-id'),
             obj: this,
             position: i
           });
