@@ -13,142 +13,241 @@ jQuery(function($) {
   var $feed = $('.fm-posts');
 
 
-  ////////////////////////////////////////////
-  // 
-  //  Heartbeat
-  // 
-  //  Avoid feed collisions by loading feed
-  //  updates from the database. For the purpose
-  //  of more accurate placements, pinned posts
-  //  are excluded from the list of IDs that
-  //  are passed around.
-  // 
-  ////////////////////////////////////////////
+  var feed = {
 
-  var tmp_ids    = $feed.attr('data-ids');
-  var tmp_pinned = $feed.attr('data-pinned');
+    ////////////////////////////////////////////
+    // 
+    //  Setup
+    // 
+    ////////////////////////////////////////////
 
-  $(document).on( 'heartbeat-tick', function(e, data) {
+    init: function () {
+      this.$feed = $('.fm-posts');
 
-    if ( data.fm_feed_ids !== $feed.attr('data-ids') || data.fm_feed_pinned !== $feed.attr('data-pinned') ) {
-      tmp_ids = data.fm_feed_ids;
-      var front = $feed.attr('data-ids').split(',');
-      var back  = data.fm_feed_ids.split(',');
+      this.set_defaults();
+      this.bind_events();
+    },
+
+    set_defaults: function () {
+      this.tmp_ids    = this.$feed.attr('data-ids');
+      this.tmp_pinned = this.$feed.attr('data-pinned');
+
+      // Post queue
+      this.$queue = $('.post-queue-alert');
+      this.allow_submit = true;
+      // `submit` event gets called twice, keep track with this:
+      this.submit_flag = true;
+
+      // Search
+      this.search_query = '';
+      this.search_timer = null;
+      this.$results = $('.fm-results');
+    },
+
+    bind_events: function () {
+      // Feed Events
+      $(document).on('heartbeat-tick',        $.proxy(this.on_heartbeat,   this));
+      this.$feed.on('click',    '.pin-unpin', $.proxy(this.on_stub_pin,    this));
+      this.$feed.on('dblclick', '.stub',      $.proxy(this.on_stub_pin,    this));
+      this.$feed.on('click',    '.remove',    $.proxy(this.on_stub_remove, this));
+      this.$feed.sortable({
+        start  : $.proxy(this.on_sortable_start,  this),
+        change : $.proxy(this.on_sortable_change, this),
+        items  : '.stub:not(.fm-meta)',
+        revert : 200,
+        axis   : 'y'
+      });
+
+      // Feed Update Notifications
+      $(document).on('fm/feed_update', $.proxy(this.on_feed_update, this));
+      this.$queue.on('click',          $.proxy(this.on_apply_queue, this));
+      $('form#post').on('submit.fm',   $.proxy(this.on_form_submit, this));
+
+      // Search
+      $('.fm-search').on({
+        input:   $.proxy(this.on_search_input,   this),
+        keydown: $.proxy(this.on_search_keydown, this),
+        focus:   $.proxy(this.on_show_results,   this)
+      });
+      this.$results.on({
+        mouseover:         $.proxy(this.on_result_hover,  this),
+        'click fm/select': $.proxy(this.on_result_select, this)
+      }, '.fm-result');
+      $('body').on('mousedown', $.proxy(this.on_hide_results, this));
+    },
+
+
+    ////////////////////////////////////////////
+    // 
+    //  Heartbeat
+    // 
+    //  Avoid feed collisions by loading feed
+    //  updates from the database. For the purpose
+    //  of more accurate placements, pinned posts
+    //  are excluded from the list of IDs that
+    //  are passed around.
+    // 
+    ////////////////////////////////////////////
+
+    on_heartbeat: function(e, data) {
+      var that = this;
+
+      this.tmp_ids = data.fm_feed_ids;
+      var front = this.$feed.attr('data-ids').split(',')
+          back  = data.fm_feed_ids.split(',');
 
       // Published posts
-      for ( i in back ) {
-        if ( $.inArray(back[i], front) < 0 ) {
-          feed.add_to_queue( 'insert', back[i], i );
-        }
-      }
+      _.each( _.difference(back, front), function(id) {
+        console.log('insert: ' + id + ', ' + _.indexOf(back, id));
+        that.add_to_queue( 'insert', id, _.indexOf(back, id ) );
+      });
 
       // Deleted posts
-      for ( i in front ) {
-        if ( $.inArray(front[i], back) < 0 ) {
-          feed.add_to_queue( 'remove', front[i] );
-        }
-      }
+      _.each( _.difference(front, back), function(id) {
+        console.log('remove: ' + id);
+        that.add_to_queue( 'remove', id );
+      });
 
       // Deleted pinned posts
-      tmp_pinned = data.fm_feed_pinned;
-      var front_pinned = $feed.attr('data-pinned').split(',');
-      var back_pinned  = data.fm_feed_pinned.split(',');
+      this.tmp_pinned = data.fm_feed_pinned;
+      var front_pinned = this.$feed.attr('data-pinned').split(','),
+          back_pinned  = data.fm_feed_pinned.split(',');
 
-      for ( i in front_pinned ) {
-        if ( $.inArray(front_pinned[i], back_pinned) < 0 ) {
-          feed.add_to_queue( 'remove', front_pinned[i] );
-        }
+      _.each( _.difference(front_pinned, back_pinned), function(id) {
+        that.add_to_queue( 'remove', id );
+      });
+    },
+
+
+    ////////////////////////////////////////////
+    // 
+    //  Feed Manipulation
+    // 
+    ////////////////////////////////////////////
+
+    on_stub_pin: function(e) {
+      e.preventDefault();
+
+      var stub = $(e.target);
+      if (!stub.hasClass('stub')) stub = stub.closest('.stub');
+
+      if ( stub.hasClass('fm-pinned') ) {
+        stub.removeClass('fm-pinned');
+        stub.find('.fm-pin-checkbox').prop('checked', false);
+      } else {
+        stub.addClass('fm-pinned');
+        stub.find('.fm-pin-checkbox').prop('checked', true);
       }
-    }
-  });
+    },
 
+    on_stub_remove: function(e) {
+      e.preventDefault();
 
-  ////////////////////////////////////////////
-  // 
-  //  Feed Manipulation
-  // 
-  ////////////////////////////////////////////
+      var id = $(e.target).closest('.stub').attr('data-id');
+      this.remove_single( id );
+    },
 
-  // Pin Post
-  var pin_post = function(e) {
-    e.preventDefault();
-
-    var stub = $(this);
-    if (!stub.hasClass('stub')) stub = $(this).closest('.stub');
-
-    if ( stub.hasClass('fm-pinned') ) {
-      stub.removeClass('fm-pinned');
-      stub.find('.fm-pin-checkbox').prop('checked', false);
-    } else {
-      stub.addClass('fm-pinned');
-      stub.find('.fm-pin-checkbox').prop('checked', true);
-    }
-  };
-
-  $feed.on('click',    '.pin-unpin', pin_post);
-  $feed.on('dblclick', '.stub',      pin_post);
-
-
-  // Remove Post
-  var remove_post = function(e) {
-    e.preventDefault();
-
-    var id = $(this).closest('.stub').attr('data-id');
-    feed.remove_single( id );
-  };
-
-  $feed.on('click', '.remove', remove_post);
-
-
-  // Reorder Post
-  $feed.sortable({
-    start: function (event, ui) {
+    on_sortable_start: function (event, ui) {
       $(document).trigger('fm/sortable_start', ui.item);
       $(ui.placeholder).height($(ui.item).height());
       if (ui.item.hasClass('fm-pinned')) {
-        feed.inventory_pinned('fm-meta');
+        this.inventory_pinned('fm-meta');
       } else {
-        feed.inventory_pinned();
+        this.inventory_pinned();
       }
     },
-    change: function (event, ui) {
-      //if (ui.item.hasClass('fm-pinned')) return;
-      feed.remove_pinned();
-      feed.insert_pinned();
+
+    on_sortable_change: function (event, ui) {
+      this.remove_pinned();
+      this.insert_pinned();
     },
-    items: '.stub:not(.fm-meta)',
-    revert: 200,
-    axis: 'y'
-  });
 
 
-  ////////////////////////////////////////////
-  // 
-  //  Feed Post Queue
-  // 
-  //  API for modifying the posts in the feed
-  //  user interface, including adding and
-  //  removing by post IDs. Used by the collision
-  //  management system (with the WordPress
-  //  heartbeat API) and the post search.
-  //
-  //  -----------------------------------------
-  //
-  //  Usage: (where queue_name is 'insert' or 'remove')
-  //  > feed.add_to_queue( queue_name, post_id, position );
-  //  > feed.remove_from_queue( queue_name, post_id );
-  // 
-  //  Apply changes:
-  //  > feed.apply_insert( queue_override );
-  //  > feed.apply_remove( queue_override );
-  //
-  //  Add a single post without invoking the queues:
-  //  > feed.insert_single( id, position );
-  //  > feed.remove_single( id );
-  // 
-  ////////////////////////////////////////////
 
-  var feed = {
+    ////////////////////////////////////////////
+    // 
+    //  Post queue UI
+    //
+    //  Listens for the feed events to update
+    //  the user interface, letting the end user
+    //  know when there are changes.
+    // 
+    ////////////////////////////////////////////
+
+    on_feed_update: function (e) {
+      var insert = this.insert_queue,
+          remove = this.remove_queue;
+
+      if ( (insert.length + remove.length) > 0 ) {
+        this.$queue.show();
+        var text = ['<span class="dashicons dashicons-plus"></span> '];
+
+        if ( insert.length == 1 ) {
+          text.push('There is 1 new post. ');
+        } else if ( insert.length > 1 ) {
+          text.push('There are ' + insert.length + ' new posts. ');
+        }
+
+        if ( remove.length == 1 ) {
+          text.push('There is 1 removed post.');
+        } else if ( remove.length > 1 ) {
+          text.push('There are ' + remove.length + ' removed posts.');
+        }
+
+        this.$queue.html(text.join(""));
+        this.allow_submit = false;
+      } else {
+        this.$queue.hide();
+        this.allow_submit = true;
+      }
+    },
+
+    on_apply_queue: function(e) {
+      this.apply_queues();
+      this.$feed.attr('data-ids',    this.tmp_ids);
+      this.$feed.attr('data-pinned', this.tmp_pinned);
+      this.allow_submit = true;
+    },
+
+    on_form_submit: function(e) {
+      this.submit_flag = !this.submit_flag;
+      if ( !this.submit_flag && !this.allow_submit ) return;
+
+      if ( !this.allow_submit ) {
+        if ( ! window.confirm('New posts have been published or removed since you began editing the feed. \n\nPress Cancel to go back, or OK to save the feed without them.') ) {
+          e.preventDefault();
+        } else {
+          this.allow_submit = true;
+        }
+      }
+    },
+
+
+    ////////////////////////////////////////////
+    // 
+    //  Post Queue
+    // 
+    //  API for modifying the posts in the feed
+    //  user interface, including adding and
+    //  removing by post IDs. Used by the collision
+    //  management system (with the WordPress
+    //  heartbeat API) and the post search.
+    //
+    //  -----------------------------------------
+    //
+    //  Usage: (where queue_name is 'insert' or 'remove')
+    //  > feed.add_to_queue( queue_name, post_id, position );
+    //  > feed.remove_from_queue( queue_name, post_id );
+    // 
+    //  Apply changes:
+    //  > feed.apply_insert( queue_override );
+    //  > feed.apply_remove( queue_override );
+    //
+    //  Add a single post without invoking the queues:
+    //  > feed.insert_single( id, position );
+    //  > feed.remove_single( id );
+    // 
+    ////////////////////////////////////////////
 
     insert_queue: [],
     remove_queue: [],
@@ -357,109 +456,37 @@ jQuery(function($) {
       }
     },
 
-  };
-  
 
-  ////////////////////////////////////////////
-  // 
-  //  Post queue UI
-  //
-  //  Listens for the feed events to update
-  //  the user interface, letting the end user
-  //  know when there are changes.
-  // 
-  ////////////////////////////////////////////
+    ////////////////////////////////////////////
+    // 
+    //  Search
+    // 
+    ////////////////////////////////////////////
 
-  var $queue = $('.post-queue-alert');
-  var allow_submit = true;
-
-  $(document).on('fm/feed_update', function( e ) {
-    var insert = feed.insert_queue;
-    var remove = feed.remove_queue;
-
-    if ( (insert.length + remove.length) > 0 ) {
-      $queue.show();
-      var text = ['<span class="dashicons dashicons-plus"></span> '];
-
-      if ( insert.length == 1 ) {
-        text.push('There is 1 new post. ');
-      } else if ( insert.length > 1 ) {
-        text.push('There are ' + insert.length + ' new posts. ');
-      }
-
-      if ( remove.length == 1 ) {
-        text.push('There is 1 removed post.');
-      } else if ( remove.length > 1 ) {
-        text.push('There are ' + remove.length + ' removed posts.');
-      }
-
-      $queue.html(text.join(""));
-      allow_submit = false;
-    } else {
-      $queue.hide();
-      allow_submit = true;
-    }
-  });
-
-  $queue.on('click', function(e) {
-    feed.apply_queues();
-    $feed.attr('data-ids',    tmp_ids);
-    $feed.attr('data-pinned', tmp_pinned);
-    allow_submit = true;
-  });
-
-  // the submit event gets called twice, so keep track with this
-  var submit_flag = true;
-
-  $('form#post').off('submit.fm').on('submit.fm', function(e) {
-    submit_flag = !submit_flag;
-    if ( !submit_flag && !allow_submit ) return;
-
-    if ( !allow_submit ) {
-      if ( ! window.confirm('New posts have been published or removed since you began editing the feed. \n\nPress Cancel to go back, or OK to save the feed without them.') ) {
-        e.preventDefault();
-      } else {
-        allow_submit = true;
-      }
-    }
-  });
-
-
-  ////////////////////////////////////////////
-  // 
-  //  Search
-  // 
-  ////////////////////////////////////////////
-
-  var search_query = '';
-  var search_timer = null;
-  var $results = $('.fm-results');
-
-  $('.fm-search').on({
-    input: function(e) {
+    on_search_input: function(e) {
       var that = this;
 
-      clearTimeout(search_timer);
-      search_timer = setTimeout(function() {
-        if ( $(that).val() !== search_query ) {
-          search_query = $(that).val();
+      clearTimeout(this.search_timer);
+      this.search_timer = setTimeout(function() {
+        if ( $(e.target).val() !== that.search_query ) {
+          that.search_query = $(e.target).val();
 
-          if ( search_query.length > 2 ) {
+          if ( that.search_query.length > 2 ) {
 
             var request = {
               action: 'fm_feed_search',
-              query: search_query
+              query: that.search_query
             };
 
             $.post(ajaxurl, request, function(results) {
               var data = JSON.parse(results);
 
-              $results.empty();
-              $results.show();
+              that.$results.empty();
+              that.$results.show();
 
               for (i in data.data) {
                 var post = data.data[i];
-                $results.append([
+                that.$results.append([
                   '<li>',
                     '<a class="fm-result" href="#" data-id="' + post.id + '">',
                       post.title,
@@ -470,21 +497,22 @@ jQuery(function($) {
                   '</li>'].join('')
                 );
 
-                $results.find('li:nth-child(1) .fm-result').addClass('active');
+                that.$results.find('li:nth-child(1) .fm-result').addClass('active');
               }
             });
           } else {
-            $results.empty();
-            $results.hide();
+            that.$results.empty();
+            that.$results.hide();
           }
         }
       }, 200);
     },
-    keydown: function (e) {
+    
+    on_search_keydown: function (e) {
       if (e.keyCode == 38) {
         // up
         e.preventDefault();
-        var $active = $results.find('.active');
+        var $active = this.$results.find('.active');
         var $prev = $active.parent().prev().find('.fm-result');
 
         if (!$prev.length) return;
@@ -494,7 +522,7 @@ jQuery(function($) {
       } else if (e.keyCode == 40) {
         // down
         e.preventDefault();
-        var $active = $results.find('.active');
+        var $active = this.$results.find('.active');
         var $next = $active.parent().next().find('.fm-result');
 
         if (!$next.length) return;
@@ -504,35 +532,35 @@ jQuery(function($) {
       } else if (e.keyCode == 13) {
         // enter
         e.preventDefault();
-        $results.find('.active').trigger('fm/select');
+        this.$results.find('.active').trigger('fm/select');
       }
-    }
-  });
+    },
 
-  $('.fm-search').on('focus', function(e) {
-    if ( !$results.is(':empty') ) {
-      $results.show();
-    }
-  });
+    on_show_results: function(e) {
+      if ( !this.$results.is(':empty') ) {
+        this.$results.show();
+      }
+    },
 
-  $results.on('mouseover', '.fm-result', function (e) {
-    if ( $(this).hasClass('active') ) return;
-    $results.find('.active').removeClass('active');
-    $(this).addClass('active');
-  });
+    on_result_hover: function (e) {
+      if ( $(e.target).hasClass('active') ) return;
+      this.$results.find('.active').removeClass('active');
+      $(e.target).addClass('active');
+    },
 
-  $results.on('click fm/select', '.fm-result', function (e) {
-    e.preventDefault();
-    feed.insert_single( $(this).attr('data-id'), 0 );
-    $results.hide();
-  });
+    on_result_select: function (e) {
+      e.preventDefault();
+      this.insert_single( $(e.target).attr('data-id'), 0 );
+      this.$results.hide();
+    },
 
-  $('body').on('mousedown', function(e) {
-    if ( !$(e.target).closest('.fm-search-container').length ) {
-      $results.hide();
-    }
-  });
+    on_hide_results: function(e) {
+      if ( !$(e.target).closest('.fm-search-container').length ) {
+        this.$results.hide();
+      }
+    },
 
+  };
 
-
+  feed.init();
 });

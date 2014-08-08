@@ -185,10 +185,10 @@ class FeedManagerAdmin {
 			'post_pinned' => implode( ',', $pinned ),
 			'nonce' => wp_nonce_field('fm_feed_nonce', 'fm_feed_meta_box_nonce', true, false),
 			'feed_meta' => array(
-				0 => 'Top Story',
-				1 => 'Secondary Story',
-				2 => 'Videos',
-				4 => 'Recent Stories'
+				// 0 => 'Top Story',
+				// 1 => 'Secondary Story',
+				// 2 => 'Videos',
+				// 10 => 'Recent Stories'
 			)
 		));
 	}
