@@ -42,7 +42,7 @@ class TimberFeed extends TimberPost {
     if ( isset($this->posts) ) return $this->posts;
 
     // Create an array of just post IDs
-    $query = array_merge( $query, $this->query );
+    $query = array_merge( $this->query, $query );
     $query['post__in'] = array();
     foreach ( $this->fm_feed['data'] as $item ) {
       $query['post__in'][] = $item['id'];
