@@ -566,12 +566,13 @@ jQuery(function($) {
       $(e.currentTarget).addClass('active');
     },
 
-    // only move non-pinned item
     on_result_select: function (e) {
       e.preventDefault();
       var id = $(e.currentTarget).attr('data-id');
       var current = this.find_post( id );
       if ( current && current.length ) {
+        // only move non-pinned item
+        // @TODO: revisit this in the future
         if ( current.hasClass('fm-pinned') ) {
           setTimeout(function() { alert('This post is already pinned in the feed. To move it, please unpin it first.'); }, 0);
           return false;

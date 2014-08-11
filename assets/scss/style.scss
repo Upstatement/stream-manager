@@ -1,5 +1,5 @@
 $stub-hover: #FAFAFA;
-$stub-pinned: #1E8CBE;;
+$stub-pinned: #DEF3FA;
 
 @mixin prefixer($prefix, $content) {
   -webkit-#{$prefix}: #{$content};
@@ -70,14 +70,6 @@ $stub-pinned: #1E8CBE;;
   }
   &.fm-pinned {
     background: $stub-pinned;
-    color: #FFF;
-
-    a {
-      color: #FFF;
-      &:hover {
-        color: lighten($stub-pinned, 40%);
-      }
-    }
 
     &:hover {
       background: darken($stub-pinned, 3%);
@@ -89,7 +81,7 @@ $stub-pinned: #1E8CBE;;
 
     .date,
     .row-actions {
-      color: lighten($stub-pinned, 30%);
+      color: darken($stub-pinned, 40%);
     }
   }
   &.ui-sortable-helper {
