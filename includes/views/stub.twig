@@ -9,7 +9,7 @@
             <img src="{{ post.thumbnail.src|resize(72, 72) }}" class="post-thumb" alt=""/>
           {% endif %}
 
-          <a class="row-title" href="{{ post.edit_link }}" title="Edit Post" target="_blank">{{ post.title }}</a>
+          <a class="stub-title row-title" href="{{ post.edit_link }}" title="Edit Post" target="_blank">{{ post.title }}</a>
 
           <div class="post-meta">
             <abbr title="{{ post.post_date }}" class="date">

@@ -1,5 +1,5 @@
 $stub-hover: #FAFAFA;
-$stub-pinned: #DEF3FA;
+$stub-pinned: #F1F1F1;
 
 @mixin prefixer($prefix, $content) {
   -webkit-#{$prefix}: #{$content};
@@ -18,7 +18,7 @@ $stub-pinned: #DEF3FA;
   cursor: move;
   padding: 10px;
   background: #FFF;
-  margin-bottom: 1px;
+  margin: 0 1px 1px;
   box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
   @include prefixer(transition, .2s background);
   @include clear;
@@ -70,18 +70,17 @@ $stub-pinned: #DEF3FA;
   }
   &.fm-pinned {
     background: $stub-pinned;
+    box-shadow: none;
 
     &:hover {
       background: darken($stub-pinned, 3%);
     }
-
     .pin-unpin {
       opacity: 1;
+      color: #D54E21;
     }
-
-    .date,
-    .row-actions {
-      color: darken($stub-pinned, 40%);
+    .stub-title {
+      color: #D54E21;
     }
   }
   &.ui-sortable-helper {
@@ -176,6 +175,8 @@ $stub-pinned: #DEF3FA;
 #feed_box_feed {
   background: transparent;
   border: 0;
+  @include prefixer(box-shadow, none);
+  
   > .handlediv,
   > .hndle {
     display: none;
