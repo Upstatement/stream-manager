@@ -133,7 +133,7 @@ class FeedManagerAdmin {
 		wp_enqueue_script(
 			$this->plugin_slug . '-admin-script',
 			plugins_url( '../assets/js/script.js', __FILE__ ),
-			array( 'jquery', 'backbone', 'underscore' ),
+			array( 'jquery', 'underscore' ),
 			FeedManager::VERSION
 		);
 	}
@@ -200,11 +200,7 @@ class FeedManagerAdmin {
 	 * @since     1.0.0
 	 */
 	public function meta_box_add( $post ) {
-		$feed_post = new TimberFeed( $post->ID );
-
-		Timber::render('views/add.twig', array(
-			//'posts' => $feed_post->get_posts( array( 'show_hidden' => true ) ),
-		));
+		Timber::render('views/add.twig');
 	}
 
 
@@ -302,7 +298,7 @@ class FeedManagerAdmin {
 	  $screen = get_current_screen();
 
 	  // Return early if we're not on the book post type.
-	  if ( 'fm_feed' != $screen->post_type ) return;
+	  if ( 'fm_feed' != $screen->id ) return;
 
 	  // Setup help tab args.
 	  $tabs = array(

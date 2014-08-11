@@ -1,10 +1,10 @@
 $stub-hover: #FAFAFA;
 $stub-pinned: #1E8CBE;//darken(#F1F1F1, 5%);
 
-@mixin prefixer($content) {
-  -webkit-transition: #{$content};
-     -moz-transition: #{$content};
-          transition: #{$content};
+@mixin prefixer($prefix, $content) {
+  -webkit-#{$prefix}: #{$content};
+     -moz-#{$prefix}: #{$content};
+          #{$prefix}: #{$content};
 }
 @mixin clear {
   &::after {
@@ -20,7 +20,7 @@ $stub-pinned: #1E8CBE;//darken(#F1F1F1, 5%);
   background: #FFF;
   margin-bottom: 1px;
   box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
-  @include prefixer(.2s opacity);
+  @include prefixer(transition, .2s background);
   @include clear;
 
   a {
@@ -36,7 +36,7 @@ $stub-pinned: #1E8CBE;//darken(#F1F1F1, 5%);
     display: inline-block;
     padding: 10px 10px 10px 5px;
     opacity: .1;
-    @include prefixer(.2s opacity);
+    @include prefixer(transition, .2s opacity);
 
     &.pin-unpin {
       float: left;
@@ -49,12 +49,13 @@ $stub-pinned: #1E8CBE;//darken(#F1F1F1, 5%);
 
   .date {
     color: #AAA;
+    border: 0;
   }
   .row-actions {
     opacity: 0;
     display: inline;
     visibility: visible;
-    @include prefixer(.2s opacity);
+    @include prefixer(transition, .2s opacity);
   }
 
   &:hover {
@@ -94,6 +95,9 @@ $stub-pinned: #1E8CBE;//darken(#F1F1F1, 5%);
   &.ui-sortable-helper {
     box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
     opacity: .9;
+  }
+  &.inserted {
+    background: #FBF0C0;
   }
 }
 

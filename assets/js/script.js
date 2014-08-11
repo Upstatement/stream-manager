@@ -10,9 +10,6 @@
 
 jQuery(function($) {
 
-  var $feed = $('.fm-posts');
-
-
   var feed = {
 
     ////////////////////////////////////////////
@@ -304,7 +301,7 @@ jQuery(function($) {
     /**
      * Apply queue changes
      */
-    apply_insert: function ( queue_override ) {
+    apply_insert: function ( queue_override, animate ) {
       var queue = queue_override ? queue_override : this.insert_queue;
       if (queue.length < 1) return;
       var that = this;
@@ -315,8 +312,8 @@ jQuery(function($) {
         }, function (response) {
           response = JSON.parse(response);
           if ( response.status && response.status == 'error' ) return;
-          that.ui_insert(response.data);
-          $(document).trigger('fm/feed_update');
+          that.ui_insert( response.data, animate );
+          $(document).trigger( 'fm/feed_update' );
         }
       );
     },
@@ -324,7 +321,7 @@ jQuery(function($) {
       var queue = queue_override ? queue_override : this.remove_queue;
       if (queue.length < 1) return;
       this.ui_remove( queue );
-      $(document).trigger('fm/feed_update');
+      $(document).trigger( 'fm/feed_update' );
     },
     apply_queues: function () {
       this.apply_remove();
@@ -336,7 +333,7 @@ jQuery(function($) {
     /**
      * Insert/remove post(s) in the UI
      */
-    ui_insert: function ( insert_data ) {
+    ui_insert: function ( insert_data, animate ) {
       if ( !insert_data ) return;
 
       this.inventory_pinned();
@@ -344,7 +341,7 @@ jQuery(function($) {
 
       for ( id in insert_data ) {
         if ( insert_data[id]['object'] ) {
-          this.inject( insert_data[id]['position'], insert_data[id]['object'] );
+          this.inject( insert_data[id]['position'], insert_data[id]['object'], animate );
         }
         this.remove_from_queue( 'insert', id );
       }
@@ -361,7 +358,7 @@ jQuery(function($) {
 
       for ( i in remove_queue ) {
         var id = remove_queue[i].id;
-        $feed.find('#post-' + id).remove();
+        this.$feed.find('#post-' + id).remove();
         this.remove_from_queue( 'remove', id );
       }
 
@@ -378,7 +375,7 @@ jQuery(function($) {
       this.apply_insert([{ 
         id: id,
         position: position
-      }]);
+      }], true);
     },
     remove_single: function ( id ) {
       if ( !this.post_exists(id) ) return;
@@ -391,16 +388,24 @@ jQuery(function($) {
     /**
      * Inserts one post object into the feed
      */
-    inject: function (position, object) {
+    inject: function (position, object, animate) {
+      object = $( object );
       if ( position == 0 ) {
-        $feed.prepend( object );
+        this.$feed.prepend( object );
       } else {
-        var $object_before = $feed.find( '.stub:nth-child(' + position + ')' );
+        var $object_before = this.$feed.find( '.stub:nth-child(' + position + ')' );
         if ( $object_before.length ) {
           $object_before.after( object );
         } else {
-          $feed.append( object );
+          this.$feed.append( object );
         }
+      }
+
+      if ( animate ) {
+        object.addClass('inserted');
+        setTimeout(function() {
+          object.removeClass('inserted');
+        }, 2000);
       }
     },
 
@@ -409,7 +414,7 @@ jQuery(function($) {
      * Check if a post exists in the feed
      */
     post_exists: function (id) {
-      return $feed.find('#post-' + id).length;
+      return this.$feed.find('#post-' + id).length;
     },
 
 
@@ -421,7 +426,7 @@ jQuery(function($) {
       if ( !className ) className = 'fm-pinned';
       var that = this;
       this.pinned_inventory = [];
-      $feed.find('.stub').each( function (i) {
+      this.$feed.find('.stub').each( function (i) {
         if ( $(this).hasClass( className ) ) {
           that.pinned_inventory.push({
             id: $(this).attr('data-id'),

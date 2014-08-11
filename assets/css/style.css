@@ -5,9 +5,9 @@
   background: #FFF;
   margin-bottom: 1px;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-  -webkit-transition: 0.2s opacity;
-  -moz-transition: 0.2s opacity;
-  transition: 0.2s opacity;
+  -webkit-transition: 0.2s background;
+  -moz-transition: 0.2s background;
+  transition: 0.2s background;
 }
 /* line 10, ../scss/style.scss */
 .stub::after {
@@ -45,8 +45,9 @@
 /* line 50, ../scss/style.scss */
 .stub .date {
   color: #AAA;
+  border: 0;
 }
-/* line 53, ../scss/style.scss */
+/* line 54, ../scss/style.scss */
 .stub .row-actions {
   opacity: 0;
   display: inline;
@@ -55,51 +56,55 @@
   -moz-transition: 0.2s opacity;
   transition: 0.2s opacity;
 }
-/* line 60, ../scss/style.scss */
+/* line 61, ../scss/style.scss */
 .stub:hover {
   background: #fafafa;
 }
-/* line 63, ../scss/style.scss */
+/* line 64, ../scss/style.scss */
 .stub:hover .row-actions {
   opacity: 1;
 }
-/* line 66, ../scss/style.scss */
+/* line 67, ../scss/style.scss */
 .stub:hover .stub-action {
   opacity: .5;
 }
-/* line 70, ../scss/style.scss */
+/* line 71, ../scss/style.scss */
 .stub.fm-pinned {
   background: #1e8cbe;
   color: #FFF;
 }
-/* line 74, ../scss/style.scss */
+/* line 75, ../scss/style.scss */
 .stub.fm-pinned a {
   color: #FFF;
 }
-/* line 76, ../scss/style.scss */
+/* line 77, ../scss/style.scss */
 .stub.fm-pinned a:hover {
   color: #b5e0f3;
 }
-/* line 81, ../scss/style.scss */
+/* line 82, ../scss/style.scss */
 .stub.fm-pinned:hover {
   background: #1c82b1;
 }
-/* line 85, ../scss/style.scss */
+/* line 86, ../scss/style.scss */
 .stub.fm-pinned .pin-unpin {
   opacity: 1;
 }
-/* line 90, ../scss/style.scss */
+/* line 91, ../scss/style.scss */
 .stub.fm-pinned .date,
 .stub.fm-pinned .row-actions {
   color: #89cdec;
 }
-/* line 94, ../scss/style.scss */
+/* line 95, ../scss/style.scss */
 .stub.ui-sortable-helper {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   opacity: .9;
 }
+/* line 99, ../scss/style.scss */
+.stub.inserted {
+  background: #FBF0C0;
+}
 
-/* line 100, ../scss/style.scss */
+/* line 104, ../scss/style.scss */
 .fm-alert {
   cursor: pointer;
   padding: 8px 12px;
@@ -108,23 +113,23 @@
   font-weight: bold;
 }
 
-/* line 108, ../scss/style.scss */
+/* line 112, ../scss/style.scss */
 .post-queue-alert {
   display: none;
 }
 
-/* line 116, ../scss/style.scss */
+/* line 120, ../scss/style.scss */
 .fm-add .fm-search-container {
   position: relative;
 }
-/* line 120, ../scss/style.scss */
+/* line 124, ../scss/style.scss */
 .fm-add .fm-search {
   display: block;
   width: 100%;
   padding: 10px 14px;
   margin: 0;
 }
-/* line 131, ../scss/style.scss */
+/* line 135, ../scss/style.scss */
 .fm-add .fm-results {
   padding: 5px 0;
   margin: 0;
@@ -136,29 +141,29 @@
   border-radius: 0 0 4px 4px;
   box-shadow: 0 3px 7px rgba(0, 0, 0, 0.1);
 }
-/* line 142, ../scss/style.scss */
+/* line 146, ../scss/style.scss */
 .fm-add .fm-results li {
   margin: 0;
 }
-/* line 146, ../scss/style.scss */
+/* line 150, ../scss/style.scss */
 .fm-add .fm-results .fm-result {
   text-decoration: none;
   display: block;
   padding: 6px 15px;
 }
-/* line 151, ../scss/style.scss */
+/* line 155, ../scss/style.scss */
 .fm-add .fm-results .fm-result.active {
   background: #0074A2;
   color: #FFF;
 }
-/* line 157, ../scss/style.scss */
+/* line 161, ../scss/style.scss */
 .fm-add .fm-results .fm-result-date {
   font-size: 11px;
   opacity: .5;
   margin-left: 5px;
 }
 
-/* line 165, ../scss/style.scss */
+/* line 169, ../scss/style.scss */
 .fm-meta.fm-pinned {
   background: transparent !important;
   cursor: default;
@@ -166,32 +171,32 @@
   padding: 0;
   box-shadow: none;
 }
-/* line 172, ../scss/style.scss */
+/* line 176, ../scss/style.scss */
 .fm-meta.fm-pinned h3 {
   margin: 0;
 }
 
-/* line 180, ../scss/style.scss */
+/* line 184, ../scss/style.scss */
 #feed_box_feed {
   background: transparent;
   border: 0;
 }
-/* line 184, ../scss/style.scss */
+/* line 188, ../scss/style.scss */
 #feed_box_feed > .handlediv,
 #feed_box_feed > .hndle {
   display: none;
 }
-/* line 188, ../scss/style.scss */
+/* line 192, ../scss/style.scss */
 #feed_box_feed > .inside {
   margin: 0;
   padding: 0;
 }
-/* line 192, ../scss/style.scss */
+/* line 196, ../scss/style.scss */
 #feed_box_feed > .inside > .fm-posts {
   border: 0;
 }
 
-/* line 198, ../scss/style.scss */
+/* line 202, ../scss/style.scss */
 .post-type-fm_feed #title {
   position: relative;
   z-index: 1;
