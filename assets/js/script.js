@@ -83,6 +83,13 @@ jQuery(function($) {
     //  of more accurate placements, pinned posts
     //  are excluded from the list of IDs that
     //  are passed around.
+    //
+    //  Note that the purpose of this isn't to keep
+    //  the feed in sync among multiple editors;
+    //  instead, it's meant to ensure that no
+    //  published posts are left behind, in addition
+    //  to making sure that removed posts do not
+    //  interfere with the feed's sorting.
     // 
     ////////////////////////////////////////////
 
@@ -95,13 +102,11 @@ jQuery(function($) {
 
       // Published posts
       _.each( _.difference(back, front), function(id) {
-        console.log('insert: ' + id + ', ' + _.indexOf(back, id));
-        that.add_to_queue( 'insert', id, _.indexOf(back, id ) );
+        that.add_to_queue( 'insert', id, _.indexOf( back, id ) );
       });
 
       // Deleted posts
       _.each( _.difference(front, back), function(id) {
-        console.log('remove: ' + id);
         that.add_to_queue( 'remove', id );
       });
 
@@ -206,6 +211,7 @@ jQuery(function($) {
       this.allow_submit = true;
     },
 
+    // @TODO: force one more heartbeat
     on_form_submit: function(e) {
       this.submit_flag = !this.submit_flag;
       if ( !this.submit_flag && !this.allow_submit ) return;
@@ -413,8 +419,11 @@ jQuery(function($) {
     /**
      * Check if a post exists in the feed
      */
+    find_post: function (id) {
+      return this.$feed.find('#post-' + id);
+    },
     post_exists: function (id) {
-      return this.$feed.find('#post-' + id).length;
+      return this.find_post(id).length;
     },
 
 
@@ -496,8 +505,9 @@ jQuery(function($) {
                     '<a class="fm-result" href="#" data-id="' + post.id + '">',
                       post.title,
                       ' <span class="fm-result-date" title="' + post.date + '">',
-                        post.human_date,
-                      ' ago</span>',
+                        post.human_date + ' ago',
+                        that.post_exists( post.id ) ? ' - Already in feed' : '',
+                      '</span>',
                     '</a>',
                   '</li>'].join('')
                 );
@@ -517,6 +527,7 @@ jQuery(function($) {
       if (e.keyCode == 38) {
         // up
         e.preventDefault();
+        this.$results.show();
         var $active = this.$results.find('.active');
         var $prev = $active.parent().prev().find('.fm-result');
 
@@ -527,6 +538,7 @@ jQuery(function($) {
       } else if (e.keyCode == 40) {
         // down
         e.preventDefault();
+        this.$results.show();
         var $active = this.$results.find('.active');
         var $next = $active.parent().next().find('.fm-result');
 
@@ -537,6 +549,7 @@ jQuery(function($) {
       } else if (e.keyCode == 13) {
         // enter
         e.preventDefault();
+        if ( !this.$results.is(':visible') ) return;
         this.$results.find('.active').trigger('fm/select');
       }
     },
@@ -548,14 +561,24 @@ jQuery(function($) {
     },
 
     on_result_hover: function (e) {
-      if ( $(e.target).hasClass('active') ) return;
+      if ( $(e.currentTarget).hasClass('active') ) return;
       this.$results.find('.active').removeClass('active');
-      $(e.target).addClass('active');
+      $(e.currentTarget).addClass('active');
     },
 
+    // only move non-pinned item
     on_result_select: function (e) {
       e.preventDefault();
-      this.insert_single( $(e.target).attr('data-id'), 0 );
+      var id = $(e.currentTarget).attr('data-id');
+      var current = this.find_post( id );
+      if ( current && current.length ) {
+        if ( current.hasClass('fm-pinned') ) {
+          setTimeout(function() { alert('This post is already pinned in the feed. To move it, please unpin it first.'); }, 0);
+          return false;
+        }
+        this.remove_single( id );
+      }
+      this.insert_single( id, 0 );
       this.$results.hide();
     },
 
