@@ -1,6 +1,6 @@
       <div id="post-{{ post.ID }}" class="post-{{ post.ID }} stub{{ post.pinned ? ' fm-pinned' }}" data-id="{{ post.ID }}">
 
-        <a href="#" title="Pin this post" class="pin-unpin stub-action dashicons dashicons-admin-post"></a>
+        <a href="#" title="{{ post.pinned ? 'Unpin this post' : 'Pin this post' }}" class="pin-unpin stub-action dashicons dashicons-admin-post"></a>
 
         <a href="#" title="Remove this post from the feed" class="remove stub-action dashicons dashicons-no"></a>
 

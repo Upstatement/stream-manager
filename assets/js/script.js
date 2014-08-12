@@ -18,50 +18,35 @@ jQuery(function($) {
     // 
     ////////////////////////////////////////////
 
+    $feed:    $('.fm-posts'),
+    $queue:   $('.fm-alert'),
+    $search:  $('.fm-search'),
+    $results: $('.fm-results'),
+    $form:    $('form#post'),
+
     init: function () {
-      this.$feed = $('.fm-posts');
 
-      this.set_defaults();
-      this.bind_events();
-    },
-
-    set_defaults: function () {
-      this.tmp_ids    = this.$feed.attr('data-ids');
-      this.tmp_pinned = this.$feed.attr('data-pinned');
-
-      // Post queue
-      this.$queue = $('.post-queue-alert');
-      this.allow_submit = true;
-      // `submit` event gets called twice, keep track with this:
-      this.submit_flag = true;
-
-      // Search
-      this.search_query = '';
-      this.search_timer = null;
-      this.$results = $('.fm-results');
-    },
-
-    bind_events: function () {
       // Feed Events
-      $(document).on('heartbeat-tick',        $.proxy(this.on_heartbeat,   this));
-      this.$feed.on('click',    '.pin-unpin', $.proxy(this.on_stub_pin,    this));
-      this.$feed.on('dblclick', '.stub',      $.proxy(this.on_stub_pin,    this));
-      this.$feed.on('click',    '.remove',    $.proxy(this.on_stub_remove, this));
-      this.$feed.sortable({
-        start  : $.proxy(this.on_sortable_start,  this),
-        change : $.proxy(this.on_sortable_change, this),
-        items  : '.stub:not(.fm-meta)',
-        revert : 200,
-        axis   : 'y'
-      });
+      $(document).on('heartbeat-tick', $.proxy(this.on_heartbeat,   this));
+      this.$feed
+        .on('click',    '.pin-unpin',  $.proxy(this.on_stub_pin,    this))
+        .on('dblclick', '.stub',       $.proxy(this.on_stub_pin,    this))
+        .on('click',    '.remove',     $.proxy(this.on_stub_remove, this))
+        .sortable({
+          start  : $.proxy(this.on_sortable_start,  this),
+          change : $.proxy(this.on_sortable_change, this),
+          items  : '.stub:not(.fm-meta)',
+          revert : 150,
+          axis   : 'y'
+        });
 
       // Feed Update Notifications
       $(document).on('fm/feed_update', $.proxy(this.on_feed_update, this));
       this.$queue.on('click',          $.proxy(this.on_apply_queue, this));
-      $('form#post').on('submit.fm',   $.proxy(this.on_form_submit, this));
+      this.$form.on('submit.fm',       $.proxy(this.on_form_submit, this));
 
       // Search
-      $('.fm-search').on({
+      this.$search.on({
         input:   $.proxy(this.on_search_input,   this),
         keydown: $.proxy(this.on_search_keydown, this),
         focus:   $.proxy(this.on_show_results,   this)
@@ -71,6 +56,7 @@ jQuery(function($) {
         'click fm/select': $.proxy(this.on_result_select, this)
       }, '.fm-result');
       $('body').on('mousedown', $.proxy(this.on_hide_results, this));
+
     },
 
 
@@ -96,7 +82,6 @@ jQuery(function($) {
     on_heartbeat: function(e, data) {
       var that = this;
 
-      this.tmp_ids = data.fm_feed_ids;
       var front = this.$feed.attr('data-ids').split(',')
           back  = data.fm_feed_ids.split(',');
 
@@ -111,12 +96,16 @@ jQuery(function($) {
       });
 
       // Deleted pinned posts
-      this.tmp_pinned = data.fm_feed_pinned;
       var front_pinned = this.$feed.attr('data-pinned').split(','),
           back_pinned  = data.fm_feed_pinned.split(',');
 
       _.each( _.difference(front_pinned, back_pinned), function(id) {
         that.add_to_queue( 'remove', id );
+      });
+
+      this.$feed.prop({
+        'data-ids'    : data.fm_feed_ids,
+        'data-pinned' : data.fm_feed_pinned
       });
     },
 
@@ -136,9 +125,11 @@ jQuery(function($) {
       if ( stub.hasClass('fm-pinned') ) {
         stub.removeClass('fm-pinned');
         stub.find('.fm-pin-checkbox').prop('checked', false);
+        stub.find('.pin-unpin').prop('title', 'Pin this post');
       } else {
         stub.addClass('fm-pinned');
         stub.find('.fm-pin-checkbox').prop('checked', true);
+        stub.find('.pin-unpin').prop('title', 'Unpin this post');
       }
     },
 
@@ -206,8 +197,6 @@ jQuery(function($) {
 
     on_apply_queue: function(e) {
       this.apply_queues();
-      this.$feed.attr('data-ids',    this.tmp_ids);
-      this.$feed.attr('data-pinned', this.tmp_pinned);
       this.allow_submit = true;
     },
 
@@ -476,6 +465,12 @@ jQuery(function($) {
     //  Search
     // 
     ////////////////////////////////////////////
+
+    search_query: '',
+    search_timer: null,
+
+    allow_submit: true,
+    submit_flag:  true, // because `submit` event gets called twice
 
     on_search_input: function(e) {
       var that = this;

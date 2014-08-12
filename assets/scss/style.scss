@@ -93,15 +93,12 @@ $stub-pinned: #F1F1F1;
 }
 
 .fm-alert {
+  display: none;
   cursor: pointer;
   padding: 8px 12px;
   background: #1E8CBE;
   color: #FFF;
   font-weight: bold;
-}
-
-.post-queue-alert {
-  display: none;
 }
 
 
@@ -176,7 +173,7 @@ $stub-pinned: #F1F1F1;
   background: transparent;
   border: 0;
   @include prefixer(box-shadow, none);
-  
+
   > .handlediv,
   > .hndle {
     display: none;

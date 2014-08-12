@@ -1,13 +1,49 @@
 <?
+/**
+ * TimberFeed
+ *
+ * @package   TimberFeed
+ * @author    Chris Voll + Upstatement
+ * @license   GPL-2.0+
+ * @link      http://upstatement.com
+ * @copyright 2014 Upstatement
+ *
+ * Usage:
+ * > $posts = new TimberPost( $pid );
+ * > foreach ( $posts as $post ) {
+ * >   echo ( $post->title );
+ * > }
+ */
 
 class TimberFeed extends TimberPost {
 
+  /**
+   * Feed post cache.
+   *
+   * @since    1.0.0
+   *
+   * @var      array
+   */
   public $posts;
 
-  // Post limit for the feed. This will eventually be configurable
+  /**
+   * Feed post limit.
+   * Will be overridden by database.
+   *
+   * @since    1.0.0
+   *
+   * @var      array
+   */
   public $limit = 100;
 
-  // also eventually configurable
+  /**
+   * WP_Query query array.
+   * Will be overridden by database.
+   *
+   * @since    1.0.0
+   *
+   * @var      array
+   */
   public $query = array(
     'post_type' => 'post',
     'post_status' => 'publish',
@@ -18,14 +54,25 @@ class TimberFeed extends TimberPost {
     'orderby' => 'post__in'
   );
 
+  /**
+   * Feed data.
+   * Overridden by database.
+   *
+   * @since    1.0.0
+   *
+   * @var      array
+   */
   public $fm_feed = array(
     'data' => array(),
     'hidden' => array()
   );
 
   /**
+   * Init Feed object
+   *
+   * @param integer|boolean|string  $pid  Post ID or slug
+   *
    * @todo  allow creating a TimberFeed w/out database
-   * @param int|bool $pid
    */
   public function __construct($pid = null) {
     parent::__construct($pid);
@@ -34,9 +81,12 @@ class TimberFeed extends TimberPost {
   /**
    * Get filtered & sorted collection of posts in the feed
    *
-   * @since     1.0.0
+   * @since    1.0.0
    *
-   * @return    array    collection of TimberPost objects
+   * @param    array   $query      WP_Query query argument
+   * @param    string  $PostClass  Timber post class
+   *
+   * @return   array   collection of TimberPost objects
    */
   public function get_posts($query = array(), $PostClass = 'TimberPost') {
     if ( isset($this->posts) ) return $this->posts;
@@ -65,7 +115,7 @@ class TimberFeed extends TimberPost {
    *
    * @since     1.0.0
    *
-   * @return    array
+   * @return    array  filtered posts
    */
   public function filter_feed($attribute, $value) {
     $items = array();
@@ -90,14 +140,13 @@ class TimberFeed extends TimberPost {
    * @todo      it's possible for a pinned item to go above the limit
    */
   public function repopulate_feed() {
-    // Determine how many over/under we are
 
+    // Determine how many over/under we are
     $difference = count($this->fm_feed['data']) - $this->limit;
-    // e.g., if we have 105 posts and a limit of 100,
-    // then this will be 5. If we only have 95 posts, it will be -5
 
     if ( $difference < 0 ) {
-      // under -- add pinned posts to the end
+
+      // Under -- add pinned posts to the end
       $query = $this->query;
       $ids = array();
       foreach ( $this->fm_feed['data'] as $post ) {
@@ -119,12 +168,14 @@ class TimberFeed extends TimberPost {
       $this->reinsert_pinned();
 
     } else if ( $difference > 0 ) {
-      // over -- remove non-pinned posts at the end
+
+      // Over -- remove non-pinned posts at the end
       $this->remove_pinned();
       for ( $i = 1; $i <= $difference; $i++ ) {
         array_pop( $this->fm_feed['data'] );
       }
       $this->reinsert_pinned();
+
     }
   }
 
@@ -133,6 +184,8 @@ class TimberFeed extends TimberPost {
    * Checks if a post exists in a feed
    *
    * @since     1.0.0
+   *
+   * @param     integer  $post_id  Post ID
    *
    * @return    array    returns the data saved in the feed, plus its position
    */
@@ -151,6 +204,9 @@ class TimberFeed extends TimberPost {
    * in the empty space at the end.
    *
    * @since     1.0.0
+   *
+   * @param     integer  $post_id     Post ID
+   * @param     boolean  $repopulate  add/remove posts to enforce feed length
    */
   public function remove_post ( $post_id, $repopulate = true ) {
     $post = $this->check_post( $post_id );
@@ -167,7 +223,7 @@ class TimberFeed extends TimberPost {
         }
       }
       $this->reinsert_pinned();
-      $this->repopulate_feed();
+      if ( $repopulate ) $this->repopulate_feed();
       $this->save_feed();
     }
   }
@@ -176,6 +232,8 @@ class TimberFeed extends TimberPost {
    * Inserts a post in the feed
    *
    * @since     1.0.0
+   *
+   * @param     integer  $post_id  Post ID
    */
   public function insert_post ( $post_id ) {
     // Does it already exist? If so, remove it, and we'll reinsert it
@@ -210,9 +268,7 @@ class TimberFeed extends TimberPost {
 
     // ... and then reinsert the pinned items
     $this->reinsert_pinned();
-
     $this->repopulate_feed();
-
     $this->save_feed();
   }
 

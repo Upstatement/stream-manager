@@ -173,6 +173,8 @@ class FeedManagerAdmin {
 	 * Render Feed metabox
 	 *
 	 * @since     1.0.0
+	 *
+	 * @param     object  $post  WordPress post object
 	 */
 	public function meta_box_feed( $post ) {
 		$feed_post = new TimberFeed( $post->ID );
@@ -198,6 +200,8 @@ class FeedManagerAdmin {
 	 * Render Post Add metabox
 	 *
 	 * @since     1.0.0
+	 *
+	 * @param     object  $post  WordPress post object
 	 */
 	public function meta_box_add( $post ) {
 		Timber::render('views/add.twig');
@@ -208,6 +212,8 @@ class FeedManagerAdmin {
 	 * Render Rules metabox
 	 *
 	 * @since     1.0.0
+	 *
+	 * @param     object  $post  WordPress post object
 	 */
 	public function meta_box_rules( $post ) {
 		$feed_post = new TimberFeed( $post->ID );
@@ -222,6 +228,8 @@ class FeedManagerAdmin {
 	 * Save the feed metadata
 	 *
 	 * @since     1.0.0
+	 *
+	 * @param     integer  $feed_id  Feed Post ID
 	 *
 	 * @todo      Move Rules update to TimberFeed::save_feed
 	 */
@@ -270,6 +278,10 @@ class FeedManagerAdmin {
 	 * Update feeds whenever any post status is changed
 	 *
 	 * @since     1.0.0
+	 *
+	 * @param     string  $new   new post status
+	 * @param     string  $old   old post status
+	 * @param     object  $post  WordPress post object
 	 */
 	public function on_save_post( $new, $old, $post ) {
 		if ( $post->post_type == 'fm_feed' ) return;
@@ -292,8 +304,11 @@ class FeedManagerAdmin {
 	}
 
 
-
-
+	/**
+	 * Add help text to feed edit page
+	 *
+	 * @since     1.0.0
+	 */
 	function add_help_text() {
 	  $screen = get_current_screen();
 
@@ -335,10 +350,20 @@ class FeedManagerAdmin {
 	}
 
 
-
+	/**
+	 * Respond to admin heartbeat with feed IDs
+	 *
+	 * @since     1.0.0
+	 *
+	 * @param     array   $response   default WordPress heartbeat response
+	 * @param     array   $data       data included with WordPress heartbeat request
+	 * @param     string  $screen_id  admin screen slug
+	 *
+	 * @return    array   WordPress heartbeat response
+	 */
 	public function ajax_heartbeat( $response, $data, $screen_id ) {
 
-		if( $screen_id == 'fm_feed' && isset( $data['wp-refresh-post-lock'] ) ) {
+		if ( $screen_id == 'fm_feed' && isset( $data['wp-refresh-post-lock'] ) ) {
 		  $feed_post = new TimberFeed( $data['wp-refresh-post-lock']['post_id'] );
 		  $ids = array_keys( $feed_post->filter_feed('pinned', false) );
 		  $response['fm_feed_ids'] = implode( ',', $ids );
@@ -351,6 +376,13 @@ class FeedManagerAdmin {
 	}
 
 
+	/**
+	 * Retrieve rendered post stubs
+	 *
+	 * @since     1.0.0
+	 *
+	 * @param     array   $request   AJAX request (uses $_POST instead)
+	 */
 	public function ajax_retrieve_posts( $request ) {
 		if ( !isset( $_POST['queue'] ) ) $this->ajax_respond( 'error' );
 
@@ -372,6 +404,13 @@ class FeedManagerAdmin {
 	}
 
 
+	/**
+	 * Retrieve search results
+	 *
+	 * @since     1.0.0
+	 *
+	 * @param     array   $request   AJAX request (uses $_POST instead)
+	 */
 	public function ajax_search_posts( $request ) {
 		if ( !isset( $_POST['query'] ) ) $this->ajax_respond( 'error' );
 
@@ -398,6 +437,14 @@ class FeedManagerAdmin {
 	}
 
 
+	/**
+	 * Send AJAX response
+	 *
+	 * @since     1.0.0
+	 *
+	 * @param     string   $status   AJAX status (error|success)
+	 * @param     array    $data     data with which to respond
+	 */
 	public function ajax_respond( $status = 'error', $data = array() ) {
 		echo( json_encode( array(
 			'status' => $status,

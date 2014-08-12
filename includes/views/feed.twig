@@ -1,13 +1,11 @@
-<div class="fm-alert post-queue-alert"></div>
+<div class="fm-alert"></div>
 
 <div class="fm-posts" data-ids="{{ post_ids }}" data-pinned="{{ post_pinned }}">
 
     {% for i, post in posts %}
 
       {% if feed_meta[i] %}
-        <div class="stub fm-meta fm-pinned" data-position="{{ i }}">
-          <h3>{{ feed_meta[i] }}</h3>
-        </div>
+        {% include "meta.twig" %}
       {% endif %}
 
       {% include "stub.twig" %}
