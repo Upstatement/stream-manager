@@ -448,7 +448,9 @@ class FeedManagerAdmin {
 	public function feed_categories_helper( $args, $post_id ) {
 		if ( $this->is_active() ) {
 			$feed = new TimberFeed( $post_id );
-			$args['selected_cats'] = $feed->fm_feed_rules['category'];
+			if ( isset($feed->fm_feed_rules['category']) ) {
+				$args['selected_cats'] = $feed->fm_feed_rules['category'];
+			}
 		}
 		return $args;
 	}
@@ -523,10 +525,10 @@ class FeedManagerAdmin {
 		$output = array();
 
 		// Build the query
-		$query = $feed->query;
+		$query = ($feed && $feed->query) ? $feed->query : $this->default_query;
 		$query['tax_query'] = $this->build_tax_query( $_POST['taxonomies'] );
 
-		if ( $_POST['exclude'] ) {
+		if ( isset($_POST['exclude']) ) {
 			$query['post__not_in'] = $_POST['exclude'];
 		}
 		$posts = Timber::get_posts($query);
