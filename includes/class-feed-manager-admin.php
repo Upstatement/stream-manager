@@ -218,9 +218,26 @@ class FeedManagerAdmin {
 	public function meta_box_rules( $post ) {
 		$feed_post = new TimberFeed( $post->ID );
 
-		Timber::render('views/rules.twig', array(
-			'fm_feed_rules' => $feed_post->fm_feed_rules
-		));
+		// $taxonomies = get_taxonomies(array('public' => true), 'objects');
+		// foreach ($taxonomies as $slug => &$taxonomy) {
+		// 	if ( $taxonomy->meta_box_cb != 'post_tags_meta_box' ) {
+		// 		$taxonomy->terms = Timber::get_terms( $slug );
+		// 	}
+		// }
+
+		$context = array(
+			'post' => $feed_post,
+			'rules' => $feed_post->fm_feed_rules,
+			'query' => $feed_post->query
+
+			// 'taxonomies' => $taxonomies,
+			// 'post_types' => get_post_types(array(
+			// 	'public' => true
+			// )),
+		);
+		//print_r($context);
+
+		Timber::render('views/rules.twig', array_merge(Timber::get_context(), $context));
 	}
 
 
@@ -243,12 +260,33 @@ class FeedManagerAdmin {
     // if our current user can't edit this post, bail
     if( !current_user_can( 'edit_post' ) ) return;
 
+    $feed = new TimberFeed( $feed_id );
+
     if ( isset( $_POST['fm_feed_rules'] ) ) {
-    	update_post_meta( $feed_id, 'fm_feed_rules', $_POST['fm_feed_rules'] );
+    	$feed->fm_feed_rules = $_POST['fm_feed_rules'];
+
+    	$feed->query['tax_query'] = array('relation' => 'OR');
+    	$categories = explode( ',', $_POST['fm_feed_rules']['categories'] );
+    	$tags       = explode( ',', $_POST['fm_feed_rules']['tags'] );
+
+    	if ( $categories ) {
+    		$feed->query['tax_query'][] = array(
+    			'taxonomy' => 'category',
+    			'field' => 'id',
+    			'terms' => $this->encode_terms( 'category', $categories )
+    		);
+    	}
+
+    	if ( $tags ) {
+    		$feed->query['tax_query'][] = array(
+    			'taxonomy' => 'post_tag',
+    			'field' => 'id',
+    			'terms' => $this->encode_terms( 'post_tag', $tags )
+    		);
+    	}
     }
 
     if ( isset( $_POST['fm_sort'] ) ) {
-    	$feed = new TimberFeed( $feed_id );
 	    $data   = array();
 	    $hidden = array();
 
@@ -269,8 +307,49 @@ class FeedManagerAdmin {
 	    );
 
 	    $feed->repopulate_feed();
-	    $feed->save_feed();
 	  }
+
+	   $feed->save_feed();
+	}
+
+
+	/**
+	 * Convert comma-separated list of terms to term IDs
+	 *
+	 * @since     1.0.0
+	 *
+	 * @param     string   $taxonomy        taxonomy slug (category, post_tag, etc.)
+	 * @param     string   $terms           comma-separated list of term slugs
+	 * @param     boolean  $return_objects  return term objects if true, IDs if false
+	 *
+	 * @return    array   array of term IDs
+	 */
+	public function encode_terms( $taxonomy, $terms, $return_objects = false ) {
+		if ( !is_array($terms) ) $terms = explode( ",", $terms );
+
+		$output = array();
+
+		foreach ( $terms as &$term ) {
+			$term = trim($term);
+			$term = get_term_by( 'slug', $term, $taxonomy );
+			$output[] = $term->term_id;
+		}
+
+		return $return_objects ? $terms : $output;
+	}
+
+	/**
+	 * Convert term IDs to a usable array with stubs, names, and IDs
+	 *
+	 * @since     1.0.0
+	 *
+	 * @param     string  $taxonomy  taxonomy slug (category, post_tag, etc.)
+	 * @param     string  $terms     comma-separated list of term IDs
+	 *
+	 * @return    array   array of arrays with taxonomy name, slug, and id
+	 */
+	public function decode_terms( $taxonomy, $terms ) {
+
 	}
 
 

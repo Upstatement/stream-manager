@@ -120,30 +120,42 @@ jQuery(function($) {
       e.preventDefault();
 
       var stub = $(e.target);
-      if (!stub.hasClass('stub')) stub = stub.closest('.stub');
+      if ( !stub.is('.stub') ) stub = stub.closest('.stub');
 
-      if ( stub.hasClass('fm-pinned') ) {
-        stub.removeClass('fm-pinned');
+      if ( stub.hasClass('pinned') ) {
+        stub.removeClass('pinned');
         stub.find('.fm-pin-checkbox').prop('checked', false);
-        stub.find('.pin-unpin').prop('title', 'Pin this post');
+        stub.find('.pin-unpin').prop('title', 'Pin this post')
       } else {
-        stub.addClass('fm-pinned');
+        stub.addClass('pinned');
         stub.find('.fm-pin-checkbox').prop('checked', true);
-        stub.find('.pin-unpin').prop('title', 'Unpin this post');
+        stub.find('.pin-unpin')
+          .prop('title', 'Unpin this post')
+          .addClass('animating')
+          .one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function () {
+            $(this).removeClass('animating');
+          });
       }
     },
 
     on_stub_remove: function(e) {
       e.preventDefault();
+      var $stub = $(e.target).closest('.stub'),
+          that  = this;
 
-      var id = $(e.target).closest('.stub').attr('data-id');
-      this.remove_single( id );
+      if ( $stub.hasClass('removed') ) return;
+
+      $stub.addClass('removed');
+
+      setTimeout(function() {
+        that.remove_single( $stub.attr('data-id') );
+      }, 500);
     },
 
     on_sortable_start: function (event, ui) {
       $(document).trigger('fm/sortable_start', ui.item);
       $(ui.placeholder).height($(ui.item).height());
-      if (ui.item.hasClass('fm-pinned')) {
+      if (ui.item.hasClass('pinned')) {
         this.inventory_pinned('fm-meta');
       } else {
         this.inventory_pinned();
@@ -320,7 +332,7 @@ jQuery(function($) {
     },
     apply_queues: function () {
       this.apply_remove();
-      this.apply_insert();
+      this.apply_insert(null, true);
     },
 
 
@@ -421,7 +433,7 @@ jQuery(function($) {
      */
     pinned_inventory: [],
     inventory_pinned: function (className) {
-      if ( !className ) className = 'fm-pinned';
+      if ( !className ) className = 'pinned';
       var that = this;
       this.pinned_inventory = [];
       this.$feed.find('.stub').each( function (i) {
@@ -568,7 +580,7 @@ jQuery(function($) {
       if ( current && current.length ) {
         // only move non-pinned item
         // @TODO: revisit this in the future
-        if ( current.hasClass('fm-pinned') ) {
+        if ( current.hasClass('pinned') ) {
           setTimeout(function() { alert('This post is already pinned in the feed. To move it, please unpin it first.'); }, 0);
           return false;
         }

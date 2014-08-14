@@ -67,6 +67,8 @@ class TimberFeed extends TimberPost {
     'hidden' => array()
   );
 
+  public $fm_feed_rules = array();
+
   /**
    * Init Feed object
    *
@@ -97,6 +99,10 @@ class TimberFeed extends TimberPost {
     foreach ( $this->fm_feed['data'] as $item ) {
       $query['post__in'][] = $item['id'];
     }
+
+    // Remove any taxonomy limitations, since those would remove any
+    // posts from the feed that were added by searching in the UI.
+    unset($query['tax_query']);
 
     $posts = Timber::get_posts($query, $PostClass);
 
@@ -306,7 +312,9 @@ class TimberFeed extends TimberPost {
    * @since     1.0.0
    */
   public function save_feed() {
-    update_post_meta( $this->ID, 'fm_feed', $this->fm_feed );
+    update_post_meta( $this->ID, 'fm_feed',       $this->fm_feed );
+    update_post_meta( $this->ID, 'fm_feed_rules', $this->fm_feed_rules );
+    update_post_meta( $this->ID, 'query',         $this->query );
   }
 
 }

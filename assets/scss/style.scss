@@ -14,6 +14,54 @@ $stub-pinned: #F1F1F1;
   }
 }
 
+@-webkit-keyframes pulse {
+  0% {
+    -webkit-transform: scale3d(1, 1, 1);
+            transform: scale3d(1, 1, 1);
+  }
+
+  30% {
+    -webkit-transform: scale3d(1.4, 1.4, 1.4);
+            transform: scale3d(1.4, 1.4, 1.4);
+  }
+
+  60% {
+    -webkit-transform: scale3d(.8, .8, .8);
+            transform: scale3d(.8, .8, .8);
+  }
+
+  100% {
+    -webkit-transform: scale3d(1, 1, 1);
+            transform: scale3d(1, 1, 1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    -webkit-transform: scale3d(1, 1, 1);
+        -ms-transform: scale3d(1, 1, 1);
+            transform: scale3d(1, 1, 1);
+  }
+
+  30% {
+    -webkit-transform: scale3d(1.4, 1.4, 1.4);
+        -ms-transform: scale3d(1.4, 1.4, 1.4);
+            transform: scale3d(1.4, 1.4, 1.4);
+  }
+
+  60% {
+    -webkit-transform: scale3d(.8, .8, .8);
+        -ms-transform: scale3d(.8, .8, .8);
+            transform: scale3d(.8, .8, .8);
+  }
+
+  100% {
+    -webkit-transform: scale3d(1, 1, 1);
+        -ms-transform: scale3d(1, 1, 1);
+            transform: scale3d(1, 1, 1);
+  }
+}
+
 .stub {
   cursor: move;
   padding: 10px;
@@ -68,7 +116,7 @@ $stub-pinned: #F1F1F1;
       opacity: .5;
     }
   }
-  &.fm-pinned {
+  &.pinned {
     background: $stub-pinned;
     box-shadow: none;
 
@@ -78,6 +126,10 @@ $stub-pinned: #F1F1F1;
     .pin-unpin {
       opacity: 1;
       color: #D54E21;
+      &.animating {
+        -webkit-animation: pulse .5s ease-out;
+                animation: pulse .5s ease-out;
+      }
     }
     .stub-title {
       color: #D54E21;
@@ -89,6 +141,9 @@ $stub-pinned: #F1F1F1;
   }
   &.inserted {
     background: #FBF0C0;
+  }
+  &.removed {
+    background: #FBCFCA !important;
   }
 }
 
@@ -154,7 +209,7 @@ $stub-pinned: #F1F1F1;
   }
 }
 
-.fm-meta.fm-pinned {
+.fm-meta.pinned {
   background: transparent !important;
   cursor: default;
   margin: 0;
@@ -193,4 +248,11 @@ $stub-pinned: #F1F1F1;
     position: relative;
     z-index: 1;
   }
+}
+.misc-pub-visibility,
+.misc-pub-curtime {
+  display: none;
+}
+#misc-publishing-actions {
+  padding-bottom: 15px;
 }
