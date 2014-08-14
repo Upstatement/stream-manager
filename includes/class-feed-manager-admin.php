@@ -33,6 +33,16 @@ class FeedManagerAdmin {
 	 */
 	public $plugin = null;
 
+	public $default_query = array(
+    'post_type' => 'post',
+    'post_status' => 'publish',
+    'has_password' => false,
+    'ignore_sticky_posts' => true,
+
+    'posts_per_page' => 100,
+    'orderby' => 'post__in'
+  );
+
 	/**
 	 * Initialize the plugin
 	 *
@@ -79,6 +89,11 @@ class FeedManagerAdmin {
 
 		// Search posts AJAX
 		add_filter( 'wp_ajax_fm_feed_search', array( $this, 'ajax_search_posts' ) );
+
+		// Retrieve posts for feed reload
+		add_filter( 'wp_ajax_fm_feed_reload', array( $this, 'ajax_retrieve_reload_posts' ) );
+
+		add_filter( 'wp_terms_checklist_args', array( $this, 'feed_categories_helper' ), 10, 2 );
 	}
 
 	public static function is_active() {
@@ -228,7 +243,7 @@ class FeedManagerAdmin {
 		$context = array(
 			'post' => $feed_post,
 			'rules' => $feed_post->fm_feed_rules,
-			'query' => $feed_post->query
+			'query' => $feed_post->query,
 
 			// 'taxonomies' => $taxonomies,
 			// 'post_types' => get_post_types(array(
@@ -262,30 +277,24 @@ class FeedManagerAdmin {
 
     $feed = new TimberFeed( $feed_id );
 
-    if ( isset( $_POST['fm_feed_rules'] ) ) {
-    	$feed->fm_feed_rules = $_POST['fm_feed_rules'];
+  	$feed->fm_feed_rules = array();
 
-    	$feed->query['tax_query'] = array('relation' => 'OR');
-    	$categories = explode( ',', $_POST['fm_feed_rules']['categories'] );
-    	$tags       = explode( ',', $_POST['fm_feed_rules']['tags'] );
+  	// Categories
+  	if ( $_POST['post_category'] ) {
+  		$feed->fm_feed_rules['category'] = $_POST['post_category'];
+  	}
 
-    	if ( $categories ) {
-    		$feed->query['tax_query'][] = array(
-    			'taxonomy' => 'category',
-    			'field' => 'id',
-    			'terms' => $this->encode_terms( 'category', $categories )
-    		);
-    	}
+  	// Tags and all other taxonomies
+  	if ( $_POST['tax_input'] ) {
+  		foreach ( $_POST['tax_input'] as $taxonomy => $terms ) {
+  			$feed->fm_feed_rules[$taxonomy] = $terms;
+  		}
+  	}
 
-    	if ( $tags ) {
-    		$feed->query['tax_query'][] = array(
-    			'taxonomy' => 'post_tag',
-    			'field' => 'id',
-    			'terms' => $this->encode_terms( 'post_tag', $tags )
-    		);
-    	}
-    }
+  	$feed->query = array_merge($this->default_query, $feed->query);
+  	$feed->query['tax_query'] = $this->build_tax_query( $feed->fm_feed_rules );
 
+  	// Sorting
     if ( isset( $_POST['fm_sort'] ) ) {
 	    $data   = array();
 	    $hidden = array();
@@ -312,6 +321,26 @@ class FeedManagerAdmin {
 	   $feed->save_feed();
 	}
 
+	public function build_tax_query( $taxonomies ) {
+		$output = array('relation' => 'OR');
+
+		foreach ( $taxonomies as $taxonomy => $terms ) {
+			if ( !$terms ) continue;
+
+			$terms = is_array($terms) ? $terms : $this->parse_terms( $taxonomy, $terms );
+			foreach ( $terms as $i => $term ) {
+				if ( empty( $term ) ) unset( $terms[$i] );
+			}
+
+			$output[] = array(
+				'taxonomy' => $taxonomy,
+				'field' => 'id',
+				'terms' => is_array($terms) ? $terms : $this->parse_terms( $taxonomy, $terms )
+			);
+		}
+		return $output;
+	}
+
 
 	/**
 	 * Convert comma-separated list of terms to term IDs
@@ -324,32 +353,20 @@ class FeedManagerAdmin {
 	 *
 	 * @return    array   array of term IDs
 	 */
-	public function encode_terms( $taxonomy, $terms, $return_objects = false ) {
+	public function parse_terms( $taxonomy, $terms, $return_objects = false ) {
 		if ( !is_array($terms) ) $terms = explode( ",", $terms );
 
 		$output = array();
 
 		foreach ( $terms as &$term ) {
 			$term = trim($term);
-			$term = get_term_by( 'slug', $term, $taxonomy );
-			$output[] = $term->term_id;
+			$term_object = get_term_by( 'name', $term, $taxonomy );
+			if ( !$term_object ) $term_object = get_term_by( 'slug', $term, $taxonomy );
+			if ( !$term_object ) continue;
+			$output[] = $term_object->term_id;
 		}
 
 		return $return_objects ? $terms : $output;
-	}
-
-	/**
-	 * Convert term IDs to a usable array with stubs, names, and IDs
-	 *
-	 * @since     1.0.0
-	 *
-	 * @param     string  $taxonomy  taxonomy slug (category, post_tag, etc.)
-	 * @param     string  $terms     comma-separated list of term IDs
-	 *
-	 * @return    array   array of arrays with taxonomy name, slug, and id
-	 */
-	public function decode_terms( $taxonomy, $terms ) {
-
 	}
 
 
@@ -428,6 +445,14 @@ class FeedManagerAdmin {
 		}
 	}
 
+	public function feed_categories_helper( $args, $post_id ) {
+		if ( $this->is_active() ) {
+			$feed = new TimberFeed( $post_id );
+			$args['selected_cats'] = $feed->fm_feed_rules['category'];
+		}
+		return $args;
+	}
+
 
 	/**
 	 * Respond to admin heartbeat with feed IDs
@@ -484,6 +509,36 @@ class FeedManagerAdmin {
 
 
 	/**
+	 * Retrieve rendered post stubs when reloading all posts in
+	 * in the admin UI
+	 *
+	 * @since     1.0.0
+	 *
+	 * @param     array   $request   AJAX request (uses $_POST instead)
+	 */
+	public function ajax_retrieve_reload_posts( $request ) {
+		if ( !isset( $_POST['feed_id'] ) || !isset( $_POST['taxonomies'] ) ) $this->ajax_respond( 'error' );
+
+		$feed = new TimberPost( $_POST['feed_id'] );
+		$output = array();
+
+		// Build the query
+		$query = $feed->query;
+		$query['tax_query'] = $this->build_tax_query( $_POST['taxonomies'] );
+
+		if ( $_POST['exclude'] ) {
+			$query['post__not_in'] = $_POST['exclude'];
+		}
+		$posts = Timber::get_posts($query);
+		foreach ( $posts as $post ) {
+			$output[] = Timber::compile('views/stub.twig', array( 'post' => $post ));
+		}
+
+		$this->ajax_respond( 'success', $output );
+	}
+
+
+	/**
 	 * Retrieve search results
 	 *
 	 * @since     1.0.0
@@ -509,6 +564,28 @@ class FeedManagerAdmin {
 				'title' => $post->title,
 				'date' => $post->post_date,
 				'human_date' => human_time_diff( strtotime( $post->post_date ) )
+			);
+		}
+
+		$this->ajax_respond( 'success', $output );
+	}
+
+
+	public function ajax_search_terms( $request ) {
+		if ( !isset( $_POST['query'] ) || !isset( $_POST['taxonomy'] ) ) $this->ajax_respond( 'error' );
+
+		// Search terms!
+		$terms = Timber::get_terms( $_POST['taxonomy'], array(
+			'name__like' => $_POST['query']
+		));
+
+		$output = array();
+
+		foreach ( $terms as $term ) {
+			$output[] = array(
+				'id' => $term->term_id,
+				'slug' => $term->slug,
+				'name' => $term->name
 			);
 		}
 

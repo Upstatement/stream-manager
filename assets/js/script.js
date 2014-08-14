@@ -27,7 +27,7 @@ jQuery(function($) {
     init: function () {
 
       // Feed Events
-      $(document).on('heartbeat-tick', $.proxy(this.on_heartbeat,   this));
+      $(document).on('heartbeat-tick.fm', $.proxy(this.on_heartbeat,   this));
       this.$feed
         .on('click',    '.pin-unpin',  $.proxy(this.on_stub_pin,    this))
         .on('dblclick', '.stub',       $.proxy(this.on_stub_pin,    this))
@@ -39,6 +39,7 @@ jQuery(function($) {
           revert : 150,
           axis   : 'y'
         });
+      $('.reload-feed').on('click', $.proxy(this.on_feed_reload, this));
 
       // Feed Update Notifications
       $(document).on('fm/feed_update', $.proxy(this.on_feed_update, this));
@@ -165,6 +166,56 @@ jQuery(function($) {
     on_sortable_change: function (event, ui) {
       this.remove_pinned();
       this.insert_pinned();
+    },
+
+
+    // Remove all unpinned items, get new posts
+    // from the database based on categories and tags
+    // selected under Rules
+    on_feed_reload: function (e) {
+      e.preventDefault();
+      var that = this;
+
+      // Clear queues
+      this.insert_queue = [];
+      this.remove_queue = [];
+      $(document).trigger('fm/feed_update');
+
+      // Disable heartbeat checking
+      $(document).off('heartbeat-tick.fm');
+
+
+      // Setup the ajax request
+      var categories = [];
+      $('#categorychecklist input:checked').each(function() {
+        categories.push( $(this).val() );
+      })
+      var exclude = [];
+      $('.stub.pinned').each(function() {
+        exclude.push( $(this).attr('data-id') );
+      });
+      var request = {
+        action: 'fm_feed_reload',
+        feed_id: $('#post_ID').val(),
+        taxonomies: {
+          category: categories,
+          post_tag: $('#tax-input-post_tag').val(),
+        },
+        exclude: exclude
+      };
+      
+      $.post(ajaxurl, request, function(response) {
+        response = JSON.parse(response);
+        if ( !response.status || response.status == 'error' ) return;
+
+        that.inventory_pinned();
+        that.remove_pinned();
+        that.$feed.empty();
+        $(response.data).each(function() {
+          that.$feed.append(this);
+        });
+        that.insert_pinned();
+      });
     },
 
 
@@ -599,4 +650,5 @@ jQuery(function($) {
   };
 
   feed.init();
+  window.feed = feed;
 });

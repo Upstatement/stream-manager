@@ -1,55 +1,10 @@
 
+<div id="categorydiv">
+{{ function('post_categories_meta_box', post, null ) }}
+</div>
 
-<input type="text" name="fm_feed_rules[categories]" value="{{ rules.categories }}" placeholder="Categories">
-<input type="text" name="fm_feed_rules[tags]" value="{{ rules.tags }}" placeholder="Tags">
+<div id="tagsdiv-post_tag">
+  {{ function('post_tags_meta_box', post, null) }}
+</div>
 
-<pre>rules:
-{{ rules|print_r }}</pre>
-<pre>query:
-{{ query|print_r }}</pre>
-
-{#<script type="text/javascript">
-
-  var fields = [
-
-    {% for slug, taxonomy in taxonomies %}
-
-      {
-        name: '{{ taxonomy.labels.singular_name|escape }}',
-        slug: '{{ slug|escape }}',
-
-        {% if taxonomy.terms %}
-
-          type: 'select',
-          options: {
-            {% for term in taxonomy.terms %}
-            {{ term.id }}: '{{ term.name|escape }}',
-            {% endfor %}
-          }
-
-        {% else %}
-
-          type: 'text',
-
-        {% endif %}
-
-      },
-
-    {% endfor %}
-
-
-    {
-      name: 'Post Type',
-      slug: 'post_type',
-      type: 'select',
-      options: {
-
-        {% for post_type in post_types %}
-        '{{ post_type|escape }}': '{{ post_type|escape }}',
-        {% endfor %}
-
-      }
-    }
-  ];
-
-</script>#}
+<a class="button reload-feed">Reload Feed</a>

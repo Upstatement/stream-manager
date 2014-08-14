@@ -9,8 +9,8 @@
  * @copyright 2014 Upstatement
  *
  * Usage:
- * > $posts = new TimberPost( $pid );
- * > foreach ( $posts as $post ) {
+ * > $feed = new TimberPost( $pid );
+ * > foreach ( $feed->get_posts() as $post ) {
  * >   echo ( $post->title );
  * > }
  */
@@ -38,7 +38,7 @@ class TimberFeed extends TimberPost {
 
   /**
    * WP_Query query array.
-   * Will be overridden by database.
+   * Overridden by database.
    *
    * @since    1.0.0
    *
@@ -67,6 +67,14 @@ class TimberFeed extends TimberPost {
     'hidden' => array()
   );
 
+  /**
+   * Feed rules.
+   * Overridden by database.
+   *
+   * @since    1.0.0
+   *
+   * @var      array
+   */
   public $fm_feed_rules = array();
 
   /**
