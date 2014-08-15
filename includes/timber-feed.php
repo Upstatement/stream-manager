@@ -99,7 +99,9 @@ class TimberFeed extends TimberPost {
    * @return   array   collection of TimberPost objects
    */
   public function get_posts($query = array(), $PostClass = 'TimberPost') {
-    if ( isset($this->posts) ) return $this->posts;
+    $cache = ( empty($query) || !is_array($query) ) ? true : false;
+
+    if ( $cache && !empty($this->posts) ) return $this->posts;
 
     // Create an array of just post IDs
     $query = array_merge( $this->query, $query );
@@ -120,7 +122,9 @@ class TimberFeed extends TimberPost {
       $post->pinned = in_array( $post->ID, $pinned );
     }
 
-    return $this->posts = $posts;
+    if ( $cache ) $this->posts = $posts;
+
+    return $posts;
   }
 
   /**
