@@ -1,3 +1,4 @@
-<div class="stub fm-meta pinned" data-position="{{ i }}">
-  <h3>{{ feed_meta[i] }}</h3>
+<div class="stub zone pinned" data-position="{{ ( i + modifier ) }}">
+  <a href="#" title="Remove this zone" class="remove stub-action dashicons dashicons-no"></a>
+  <input type="text" class="zone-header" value="{{ layout.zones[i + modifier]|escape }}">
 </div>

@@ -44,7 +44,7 @@ class TimberFeed extends TimberPost {
    *
    * @var      array
    */
-  public $query = array(
+  public $fm_query = array(
     'post_type' => 'post',
     'post_status' => 'publish',
     'has_password' => false,
@@ -75,7 +75,28 @@ class TimberFeed extends TimberPost {
    *
    * @var      array
    */
-  public $fm_feed_rules = array();
+  public $fm_rules = array();
+
+  /**
+   * Feed layouts & zones.
+   * Overridden by database.
+   *
+   * @since    1.0.0
+   *
+   * @var      array
+   */
+  public $fm_layouts = array(
+    'active'  => 'default',
+    'layouts' => array(
+      'default' => array(
+        'name'  => 'Default Layout',
+        'zones' => array(
+          0 => 'Top Stories',
+          5 => 'Recent Stories'
+        )
+      )
+    )
+  );
 
   /**
    * Init Feed object
@@ -104,7 +125,7 @@ class TimberFeed extends TimberPost {
     if ( $cache && !empty($this->posts) ) return $this->posts;
 
     // Create an array of just post IDs
-    $query = array_merge( $this->query, $query );
+    $query = array_merge( $this->fm_query, $query );
     $query['post__in'] = array();
     foreach ( $this->fm_feed['data'] as $item ) {
       $query['post__in'][] = $item['id'];
@@ -165,7 +186,7 @@ class TimberFeed extends TimberPost {
     if ( $difference < 0 ) {
 
       // Under -- add pinned posts to the end
-      $query = $this->query;
+      $query = $this->fm_query;
       $ids = array();
       foreach ( $this->fm_feed['data'] as $post ) {
         $ids[] = $post['id'];
@@ -261,7 +282,7 @@ class TimberFeed extends TimberPost {
 
     // Determine where it is in the original query (if at all),
     // minus any pinned items
-    $query = array_merge( $this->query, array(
+    $query = array_merge( $this->fm_query, array(
       'post__not_in' => array_keys($this->filter_feed('pinned', true))
     ));
     $posts = Timber::get_posts( $query );
@@ -324,9 +345,10 @@ class TimberFeed extends TimberPost {
    * @since     1.0.0
    */
   public function save_feed() {
-    update_post_meta( $this->ID, 'fm_feed',       $this->fm_feed );
-    update_post_meta( $this->ID, 'fm_feed_rules', $this->fm_feed_rules );
-    update_post_meta( $this->ID, 'query',         $this->query );
+    update_post_meta( $this->ID, 'fm_feed',    $this->fm_feed );
+    update_post_meta( $this->ID, 'fm_rules',   $this->fm_rules );
+    update_post_meta( $this->ID, 'fm_layouts', $this->fm_layouts );
+    update_post_meta( $this->ID, 'fm_query',   $this->fm_query );
   }
 
 }

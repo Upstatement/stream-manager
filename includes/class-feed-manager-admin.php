@@ -85,13 +85,13 @@ class FeedManagerAdmin {
 		add_filter( 'heartbeat_received', array( $this, 'ajax_heartbeat' ), 10, 3 );
 
 		// Retrieve rendered post stubs AJAX
-		add_filter( 'wp_ajax_fm_feed_request', array( $this, 'ajax_retrieve_posts' ) );
+		add_filter( 'wp_ajax_fm_request', array( $this, 'ajax_retrieve_posts' ) );
 
 		// Search posts AJAX
-		add_filter( 'wp_ajax_fm_feed_search', array( $this, 'ajax_search_posts' ) );
+		add_filter( 'wp_ajax_fm_search', array( $this, 'ajax_search_posts' ) );
 
 		// Retrieve posts for feed reload
-		add_filter( 'wp_ajax_fm_feed_reload', array( $this, 'ajax_retrieve_reload_posts' ) );
+		add_filter( 'wp_ajax_fm_reload', array( $this, 'ajax_retrieve_reload_posts' ) );
 
 		add_filter( 'wp_terms_checklist_args', array( $this, 'feed_categories_helper' ), 10, 2 );
 	}
@@ -175,6 +175,13 @@ class FeedManagerAdmin {
 			'side'
 		);
 		add_meta_box(
+			'feed_box_layout',
+			'Layout',
+			array( $this, 'meta_box_layout' ),
+			$this->post_type_slug,
+			'side'
+		);
+		add_meta_box(
 			'feed_box_rules',
 			'Rules',
 			array( $this, 'meta_box_rules' ),
@@ -195,18 +202,14 @@ class FeedManagerAdmin {
 		$feed_post = new TimberFeed( $post->ID );
 	  $ids    = array_keys( $feed_post->filter_feed('pinned', false) );
 	  $pinned = array_keys( $feed_post->filter_feed('pinned', true ) );
+	  $layout = $feed_post->fm_layouts['layouts'][ $feed_post->fm_layouts['active'] ];
 
 		Timber::render('views/feed.twig', array(
 			'posts' => $feed_post->get_posts( array( 'show_hidden' => true ) ),
 			'post_ids'    => implode( ',', $ids ),
 			'post_pinned' => implode( ',', $pinned ),
-			'nonce' => wp_nonce_field('fm_feed_nonce', 'fm_feed_meta_box_nonce', true, false),
-			'feed_meta' => array(
-				// 0 => 'Top Story',
-				// 1 => 'Secondary Story',
-				// 2 => 'Videos',
-				// 10 => 'Recent Stories'
-			)
+			'nonce' => wp_nonce_field('fm_nonce', 'fm_meta_box_nonce', true, false),
+			'layout' => $layout
 		));
 	}
 
@@ -224,6 +227,26 @@ class FeedManagerAdmin {
 
 
 	/**
+	 * Render Layout metabox
+	 *
+	 * @since     1.0.0
+	 *
+	 * @param     object  $post  WordPress post object
+	 */
+	public function meta_box_layout( $post ) {
+		$feed_post = new TimberFeed( $post->ID );
+
+		$context = array(
+			'post'         => $feed_post,
+			'layouts'      => $feed_post->fm_layouts,
+			'layouts_json' => JSON_encode($feed_post->fm_layouts)
+		);
+
+		Timber::render('views/layout.twig', array_merge(Timber::get_context(), $context));
+	}
+
+
+	/**
 	 * Render Rules metabox
 	 *
 	 * @since     1.0.0
@@ -233,24 +256,10 @@ class FeedManagerAdmin {
 	public function meta_box_rules( $post ) {
 		$feed_post = new TimberFeed( $post->ID );
 
-		// $taxonomies = get_taxonomies(array('public' => true), 'objects');
-		// foreach ($taxonomies as $slug => &$taxonomy) {
-		// 	if ( $taxonomy->meta_box_cb != 'post_tags_meta_box' ) {
-		// 		$taxonomy->terms = Timber::get_terms( $slug );
-		// 	}
-		// }
-
 		$context = array(
-			'post' => $feed_post,
-			'rules' => $feed_post->fm_feed_rules,
-			'query' => $feed_post->query,
-
-			// 'taxonomies' => $taxonomies,
-			// 'post_types' => get_post_types(array(
-			// 	'public' => true
-			// )),
+			'post'    => $feed_post,
+			'rules'   => $feed_post->fm_rules,
 		);
-		//print_r($context);
 
 		Timber::render('views/rules.twig', array_merge(Timber::get_context(), $context));
 	}
@@ -270,29 +279,29 @@ class FeedManagerAdmin {
     if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
      
     // if our nonce isn't there, or we can't verify it, bail
-    if( !isset( $_POST['fm_feed_meta_box_nonce'] ) || !wp_verify_nonce( $_POST['fm_feed_meta_box_nonce'], 'fm_feed_nonce' ) ) return;
+    if( !isset( $_POST['fm_meta_box_nonce'] ) || !wp_verify_nonce( $_POST['fm_meta_box_nonce'], 'fm_nonce' ) ) return;
      
     // if our current user can't edit this post, bail
     if( !current_user_can( 'edit_post' ) ) return;
 
     $feed = new TimberFeed( $feed_id );
 
-  	$feed->fm_feed_rules = array();
+  	$feed->fm_rules = array();
 
   	// Categories
   	if ( $_POST['post_category'] ) {
-  		$feed->fm_feed_rules['category'] = $_POST['post_category'];
+  		$feed->fm_rules['category'] = $_POST['post_category'];
   	}
 
   	// Tags and all other taxonomies
   	if ( $_POST['tax_input'] ) {
   		foreach ( $_POST['tax_input'] as $taxonomy => $terms ) {
-  			$feed->fm_feed_rules[$taxonomy] = $terms;
+  			$feed->fm_rules[$taxonomy] = $terms;
   		}
   	}
 
-  	$feed->query = array_merge($this->default_query, $feed->query);
-  	$feed->query['tax_query'] = $this->build_tax_query( $feed->fm_feed_rules );
+  	$feed->fm_query = array_merge($this->default_query, $feed->fm_query);
+  	$feed->fm_query['tax_query'] = $this->build_tax_query( $feed->fm_rules );
 
   	// Sorting
     if ( isset( $_POST['fm_sort'] ) ) {
@@ -318,7 +327,12 @@ class FeedManagerAdmin {
 	    $feed->repopulate_feed();
 	  }
 
-	   $feed->save_feed();
+	  // Layouts
+	  if ( isset( $_POST['fm_layouts'] ) ) {
+	  	$feed->fm_layouts = JSON_decode( stripslashes($_POST['fm_layouts']), true );
+	  }
+
+	  $feed->save_feed();
 	}
 
 	public function build_tax_query( $taxonomies ) {
@@ -448,8 +462,8 @@ class FeedManagerAdmin {
 	public function feed_categories_helper( $args, $post_id ) {
 		if ( $this->is_active() ) {
 			$feed = new TimberFeed( $post_id );
-			if ( isset($feed->fm_feed_rules['category']) ) {
-				$args['selected_cats'] = $feed->fm_feed_rules['category'];
+			if ( isset($feed->fm_rules['category']) ) {
+				$args['selected_cats'] = $feed->fm_rules['category'];
 			}
 		}
 		return $args;
@@ -472,10 +486,10 @@ class FeedManagerAdmin {
 		if ( $screen_id == 'fm_feed' && isset( $data['wp-refresh-post-lock'] ) ) {
 		  $feed_post = new TimberFeed( $data['wp-refresh-post-lock']['post_id'] );
 		  $ids = array_keys( $feed_post->filter_feed('pinned', false) );
-		  $response['fm_feed_ids'] = implode( ',', $ids );
+		  $response['fm_ids'] = implode( ',', $ids );
 
 		  $pinned = array_keys( $feed_post->filter_feed('pinned', true) );
-		  $response['fm_feed_pinned'] = implode( ',', $pinned );
+		  $response['fm_pinned'] = implode( ',', $pinned );
 		}
 
 		return $response;
@@ -525,7 +539,7 @@ class FeedManagerAdmin {
 		$output = array();
 
 		// Build the query
-		$query = ($feed && $feed->query) ? $feed->query : $this->default_query;
+		$query = ($feed && $feed->fm_query) ? $feed->fm_query : $this->default_query;
 		$query['tax_query'] = $this->build_tax_query( $_POST['taxonomies'] );
 
 		if ( isset($_POST['exclude']) ) {

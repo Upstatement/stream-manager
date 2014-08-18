@@ -1,5 +1,19 @@
+
+////////////////////////////////////////////
+//
+//  Configuration
+//
+////////////////////////////////////////////
+
 $stub-hover: #FAFAFA;
 $stub-pinned: #F1F1F1;
+
+
+////////////////////////////////////////////
+//
+//  Mixins & Animations
+//
+////////////////////////////////////////////
 
 @mixin prefixer($prefix, $content) {
   -webkit-#{$prefix}: #{$content};
@@ -13,54 +27,53 @@ $stub-pinned: #F1F1F1;
     display: table;
   }
 }
-
 @-webkit-keyframes pulse {
   0% {
     -webkit-transform: scale3d(1, 1, 1);
             transform: scale3d(1, 1, 1);
   }
-
   30% {
     -webkit-transform: scale3d(1.4, 1.4, 1.4);
             transform: scale3d(1.4, 1.4, 1.4);
   }
-
   60% {
     -webkit-transform: scale3d(.8, .8, .8);
             transform: scale3d(.8, .8, .8);
   }
-
   100% {
     -webkit-transform: scale3d(1, 1, 1);
             transform: scale3d(1, 1, 1);
   }
 }
-
 @keyframes pulse {
   0% {
     -webkit-transform: scale3d(1, 1, 1);
         -ms-transform: scale3d(1, 1, 1);
             transform: scale3d(1, 1, 1);
   }
-
   30% {
     -webkit-transform: scale3d(1.4, 1.4, 1.4);
         -ms-transform: scale3d(1.4, 1.4, 1.4);
             transform: scale3d(1.4, 1.4, 1.4);
   }
-
   60% {
     -webkit-transform: scale3d(.8, .8, .8);
         -ms-transform: scale3d(.8, .8, .8);
             transform: scale3d(.8, .8, .8);
   }
-
   100% {
     -webkit-transform: scale3d(1, 1, 1);
         -ms-transform: scale3d(1, 1, 1);
             transform: scale3d(1, 1, 1);
   }
 }
+
+
+////////////////////////////////////////////
+//
+//  Post Stub
+//
+////////////////////////////////////////////
 
 .stub {
   cursor: move;
@@ -147,6 +160,13 @@ $stub-pinned: #F1F1F1;
   }
 }
 
+
+////////////////////////////////////////////
+//
+//  Feed Queue UI
+//
+////////////////////////////////////////////
+
 .fm-alert {
   display: none;
   cursor: pointer;
@@ -157,6 +177,11 @@ $stub-pinned: #F1F1F1;
 }
 
 
+////////////////////////////////////////////
+//
+//  Search
+//
+////////////////////////////////////////////
 
 .fm-add {
 
@@ -169,10 +194,6 @@ $stub-pinned: #F1F1F1;
     width: 100%;
     padding: 10px 14px;
     margin: 0;
-  }
-
-  .fm-browse {
-
   }
 
   .fm-results {
@@ -209,16 +230,38 @@ $stub-pinned: #F1F1F1;
   }
 }
 
-.fm-meta.pinned {
-  background: transparent !important;
-  cursor: default;
+
+////////////////////////////////////////////
+//
+//  Layouts & Zones
+//
+////////////////////////////////////////////
+
+.zone {
   margin: 0;
-  padding: 0;
   box-shadow: none;
+
+  .zone-header {
+    border-width: 0;
+    background: transparent;
+    box-shadow: none;
+    margin: 6px 1px;
+
+    &:focus {
+      background: #FFF;
+      border-width: 1px;
+      margin: 5px 0;
+    }
+  }
 
   h3 {
     margin: 0;
   }
+}
+
+.add-layout-container,
+.add-zone-container {
+  display: none;
 }
 
 

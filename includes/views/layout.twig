@@ -1,0 +1,20 @@
+
+<select class="active-layout">
+{% for slug, layout in layouts.layouts %}
+  <option value="{{ slug }}"{{ layouts.active == slug ? ' selected' }}>{{ layout.name }}</option>
+{% endfor %}
+</select>
+
+<a href="#" class="add-layout"><h4>+ Add Layout</h4></a>
+<p class="add-layout-container">
+  <input type="text" class="add-layout-input layouts-input" size="16" value="">
+  <input type="button" class="button add-layout-button" value="Add">
+</p>
+
+<a href="#" class="add-zone"><h4>+ Add Zone</h4></a>
+<p class="add-zone-container">
+  <input type="text" class="add-zone-input layouts-input" size="16" value="">
+  <input type="button" class="button add-zone-button" value="Add">
+</p>
+
+<input type="hidden" name="fm_layouts" value="{{ layouts_json|escape }}" class="layouts-data">

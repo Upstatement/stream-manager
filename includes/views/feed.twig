@@ -2,10 +2,13 @@
 
 <div class="fm-posts" data-ids="{{ post_ids }}" data-pinned="{{ post_pinned }}">
 
+    {% set modifier = 0 %}
+
     {% for i, post in posts %}
 
-      {% if feed_meta[i] %}
+      {% if layout.zones[i + modifier] %}
         {% include "meta.twig" %}
+        {% set modifier = modifier + 1 %}
       {% endif %}
 
       {% include "stub.twig" %}
