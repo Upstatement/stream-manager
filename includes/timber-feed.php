@@ -89,11 +89,8 @@ class TimberFeed extends TimberPost {
     'active'  => 'default',
     'layouts' => array(
       'default' => array(
-        'name'  => 'Default Layout',
-        'zones' => array(
-          0 => 'Top Stories',
-          5 => 'Recent Stories'
-        )
+        'name'  => 'Default',
+        'zones' => array()
       )
     )
   );
