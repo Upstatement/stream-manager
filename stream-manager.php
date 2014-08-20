@@ -19,17 +19,18 @@
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Domain Path:       /languages
- * GitHub Plugin URI: https://github.com/upstatement/not-stream-manager
- * WordPress-Plugin-Boilerplate: v2.6.1
+ * GitHub Plugin URI: https://github.com/upstatement/not-feed-manager
  */
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) die;
 
 
-/*----------------------------------------------------------------------------*
- * Dependencies
- *----------------------------------------------------------------------------*/
+////////////////////////////////////////////
+//
+//  Dependencies
+//
+////////////////////////////////////////////
 
 // Check if Timber is installed, and include it before any stream manager
 // things are initiated. This is needed for the TimberStream class.
@@ -44,9 +45,11 @@ if ( !class_exists('Timber') ) {
 }
 
 
-/*----------------------------------------------------------------------------*
- * Public-Facing Functionality
- *----------------------------------------------------------------------------*/
+////////////////////////////////////////////
+//
+//  Public-Facing Functionality
+//
+////////////////////////////////////////////
 
 require_once( plugin_dir_path( __FILE__ ) . 'includes/class-stream-manager.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'includes/timber-stream.php' );
@@ -54,13 +57,14 @@ require_once( plugin_dir_path( __FILE__ ) . 'includes/timber-stream.php' );
 add_action( 'plugins_loaded', array( 'StreamManager', 'get_instance' ) );
 
 
-/*----------------------------------------------------------------------------*
- * Dashboard and Administrative Functionality
- *----------------------------------------------------------------------------*/
+////////////////////////////////////////////
+//
+//  Dashboard & Administrative Functionality
+//
+////////////////////////////////////////////
 
 if ( is_admin() ) {
-
 	require_once( plugin_dir_path( __FILE__ ) . 'includes/class-stream-manager-admin.php' );
+  
 	add_action( 'plugins_loaded', array( 'StreamManagerAdmin', 'get_instance' ) );
-
 }
