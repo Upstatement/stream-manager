@@ -18,7 +18,7 @@ jQuery(function($) {
     // 
     ////////////////////////////////////////////
 
-    $stream:    $('.sm-posts'),
+    $stream:  $('.sm-posts'),
     $queue:   $('.sm-alert'),
     $search:  $('.sm-search'),
     $results: $('.sm-results'),

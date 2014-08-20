@@ -342,7 +342,7 @@ class TimberStream extends TimberPost {
    * @since     1.0.0
    */
   public function save_stream() {
-    update_post_meta( $this->ID, 'sm_stream',    $this->sm_stream );
+    update_post_meta( $this->ID, 'sm_stream',  $this->sm_stream );
     update_post_meta( $this->ID, 'sm_rules',   $this->sm_rules );
     update_post_meta( $this->ID, 'sm_layouts', $this->sm_layouts );
     update_post_meta( $this->ID, 'sm_query',   $this->sm_query );
