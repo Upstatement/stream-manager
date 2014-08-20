@@ -6,7 +6,7 @@ Stream Manager
 Install and activate Timber, then install and activate this plugin. Create your first stream in the admin, and then use this in your template file, replacing the ID with the stream ID:
 
 ```php
-$context['stream'] = new TimberstreamStream(5);
+$context['stream'] = new TimberStream(5);
 ```
 
 And add this to your twig file:
