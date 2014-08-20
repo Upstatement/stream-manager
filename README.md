@@ -1,9 +1,11 @@
 Stream Manager
 ==============
 
+Curate streams of WordPress posts.
+
 ## Setup
 
-Install and activate Timber, then install and activate this plugin. Create your first stream in the admin, and then use this in your template file, replacing the ID with the stream ID:
+Install and activate [Timber](https://github.com/jarednova/timber), then install and activate this plugin. Create your first stream in the WordPress admin, and then use this in your template file, replacing the ID with the stream ID:
 
 ```php
 $context['stream'] = new TimberStream(5);
@@ -21,17 +23,12 @@ And add this to your twig file:
 
 
 
-
-
-
-A better name, TBD
-
-- [ ] Define project requirements _Jared_
-- [ ] Write a technical spec _Chris_
+### Roadmap
+- [x] Define project requirements _Jared_
+- [x] Write a technical spec _Chris_
 - [ ] Create a WordPress plugin _Chris_
 - [ ] Release WordPress plugin
-- [ ] Integrate on a site (dailyorange.com)
-- [ ] Repeat.
+- [ ] Integrate on a site
 
 ### Goals
 - [ ] Gives editors an easy and intutive way to manage streams of content on their site
@@ -42,7 +39,7 @@ A better name, TBD
 - [ ] Modeled after existing [feed manager](https://github.com/Upstatement/chainsaw-feed) for general UI and UX
 - [ ] Matches general WordPress UI
 - [ ] Contains Upstatement mention/branding
-- [ ] Can handle multipile "streams"
+- [ ] Can handle multiple streams
 - [ ] Built upon normal WordPress post_type architecture
-- [ ] JavaScript / Ajax provides _enhancements_ as opposed to core UX
-_Jared and Chris to add other things here. Will meet to plan tech spec on Tuesday 6/24_
+- [ ] JavaScript / AJAX provides _enhancements_ as opposed to core UX
+
