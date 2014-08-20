@@ -1,24 +1,24 @@
 <?
 /**
- * TimberFeed
+ * TimberStream
  *
- * @package   TimberFeed
+ * @package   TimberStream
  * @author    Chris Voll + Upstatement
  * @license   GPL-2.0+
  * @link      http://upstatement.com
  * @copyright 2014 Upstatement
  *
  * Usage:
- * > $feed = new TimberPost( $pid );
- * > foreach ( $feed->get_posts() as $post ) {
+ * > $stream = new TimberStrean( $pid );
+ * > foreach ( $stream->get_posts() as $post ) {
  * >   echo ( $post->title );
  * > }
  */
 
-class TimberFeed extends TimberPost {
+class TimberStream extends TimberPost {
 
   /**
-   * Feed post cache.
+   * Stream post cache.
    *
    * @since    1.0.0
    *
@@ -27,7 +27,7 @@ class TimberFeed extends TimberPost {
   public $posts;
 
   /**
-   * Feed post limit.
+   * Stream post limit.
    * Will be overridden by database.
    *
    * @since    1.0.0
@@ -44,7 +44,7 @@ class TimberFeed extends TimberPost {
    *
    * @var      array
    */
-  public $fm_query = array(
+  public $sm_query = array(
     'post_type' => 'post',
     'post_status' => 'publish',
     'has_password' => false,
@@ -55,37 +55,37 @@ class TimberFeed extends TimberPost {
   );
 
   /**
-   * Feed data.
+   * Stream data.
    * Overridden by database.
    *
    * @since    1.0.0
    *
    * @var      array
    */
-  public $fm_feed = array(
+  public $sm_stream = array(
     'data' => array(),
     'hidden' => array()
   );
 
   /**
-   * Feed rules.
+   * Stream rules.
    * Overridden by database.
    *
    * @since    1.0.0
    *
    * @var      array
    */
-  public $fm_rules = array();
+  public $sm_rules = array();
 
   /**
-   * Feed layouts & zones.
+   * Stream layouts & zones.
    * Overridden by database.
    *
    * @since    1.0.0
    *
    * @var      array
    */
-  public $fm_layouts = array(
+  public $sm_layouts = array(
     'active'  => 'default',
     'layouts' => array(
       'default' => array(
@@ -96,18 +96,18 @@ class TimberFeed extends TimberPost {
   );
 
   /**
-   * Init Feed object
+   * Init Stream object
    *
    * @param integer|boolean|string  $pid  Post ID or slug
    *
-   * @todo  allow creating a TimberFeed w/out database
+   * @todo  allow creating a TimberStream w/out database
    */
   public function __construct($pid = null) {
     parent::__construct($pid);
   }
 
   /**
-   * Get filtered & sorted collection of posts in the feed
+   * Get filtered & sorted collection of posts in the stream
    *
    * @since    1.0.0
    *
@@ -122,19 +122,19 @@ class TimberFeed extends TimberPost {
     if ( $cache && !empty($this->posts) ) return $this->posts;
 
     // Create an array of just post IDs
-    $query = array_merge( $this->fm_query, $query );
+    $query = array_merge( $this->sm_query, $query );
     $query['post__in'] = array();
-    foreach ( $this->fm_feed['data'] as $item ) {
+    foreach ( $this->sm_stream['data'] as $item ) {
       $query['post__in'][] = $item['id'];
     }
 
     // Remove any taxonomy limitations, since those would remove any
-    // posts from the feed that were added by searching in the UI.
+    // posts from the stream that were added by searching in the UI.
     unset($query['tax_query']);
 
     $posts = Timber::get_posts($query, $PostClass);
 
-    $pinned = array_keys($this->filter_feed('pinned', true));
+    $pinned = array_keys($this->filter_stream('pinned', true));
 
     foreach ($posts as &$post) {
       $post->pinned = in_array( $post->ID, $pinned );
@@ -146,17 +146,17 @@ class TimberFeed extends TimberPost {
   }
 
   /**
-   * Filter posts in the feed, returning only the filtered
+   * Filter posts in the stream, returning only the filtered
    * posts (including their position).
    *
    * @since     1.0.0
    *
    * @return    array  filtered posts
    */
-  public function filter_feed($attribute, $value) {
+  public function filter_stream($attribute, $value) {
     $items = array();
 
-    foreach ( $this->fm_feed['data'] as $position => $item ) {
+    foreach ( $this->sm_stream['data'] as $position => $item ) {
       $item['position'] = $position;
       if ( $item[$attribute] == $value ) $items[$item['id']] = $item;
     }
@@ -166,7 +166,7 @@ class TimberFeed extends TimberPost {
 
 
   /**
-   * Enforce the feed length.
+   * Enforce the stream length.
    *
    * If there are fewer posts than allowed, add some from the base query.
    * If there are more, remove them.
@@ -175,17 +175,17 @@ class TimberFeed extends TimberPost {
    *
    * @todo      it's possible for a pinned item to go above the limit
    */
-  public function repopulate_feed() {
+  public function repopulate_stream() {
 
     // Determine how many over/under we are
-    $difference = count($this->fm_feed['data']) - $this->limit;
+    $difference = count($this->sm_stream['data']) - $this->limit;
 
     if ( $difference < 0 ) {
 
       // Under -- add pinned posts to the end
-      $query = $this->fm_query;
+      $query = $this->sm_query;
       $ids = array();
-      foreach ( $this->fm_feed['data'] as $post ) {
+      foreach ( $this->sm_stream['data'] as $post ) {
         $ids[] = $post['id'];
       }
       $query['post__not_in'] = $ids;
@@ -195,7 +195,7 @@ class TimberFeed extends TimberPost {
       $this->remove_pinned();
 
       foreach ( $posts as $post ) {
-        $this->fm_feed['data'][] = array(
+        $this->sm_stream['data'][] = array(
           'id' => $post->ID,
           'pinned' => false
         );
@@ -208,7 +208,7 @@ class TimberFeed extends TimberPost {
       // Over -- remove non-pinned posts at the end
       $this->remove_pinned();
       for ( $i = 1; $i <= $difference; $i++ ) {
-        array_pop( $this->fm_feed['data'] );
+        array_pop( $this->sm_stream['data'] );
       }
       $this->reinsert_pinned();
 
@@ -217,16 +217,16 @@ class TimberFeed extends TimberPost {
 
 
   /**
-   * Checks if a post exists in a feed
+   * Checks if a post exists in a stream
    *
    * @since     1.0.0
    *
    * @param     integer  $post_id  Post ID
    *
-   * @return    array    returns the data saved in the feed, plus its position
+   * @return    array    returns the data saved in the stream, plus its position
    */
   public function check_post ( $post_id ) {
-    foreach ( $this->fm_feed['data'] as $position => $item ) {
+    foreach ( $this->sm_stream['data'] as $position => $item ) {
       if ( $item['id'] == $post_id ) {
         $item['position'] = $position;
         return $item;
@@ -236,13 +236,13 @@ class TimberFeed extends TimberPost {
   }
 
   /**
-   * Removes a post from a feed and, by default, fills
+   * Removes a post from a stream and, by default, fills
    * in the empty space at the end.
    *
    * @since     1.0.0
    *
    * @param     integer  $post_id     Post ID
-   * @param     boolean  $repopulate  add/remove posts to enforce feed length
+   * @param     boolean  $repopulate  add/remove posts to enforce stream length
    */
   public function remove_post ( $post_id, $repopulate = true ) {
     $post = $this->check_post( $post_id );
@@ -250,7 +250,7 @@ class TimberFeed extends TimberPost {
       $this->remove_pinned();
 
       // Remove non-pinned
-      unset($this->fm_feed['data'][$post['position']]);
+      unset($this->sm_stream['data'][$post['position']]);
 
       // Remove pinned
       foreach ( $this->pinned as $i => $pinned ) {
@@ -259,13 +259,13 @@ class TimberFeed extends TimberPost {
         }
       }
       $this->reinsert_pinned();
-      if ( $repopulate ) $this->repopulate_feed();
-      $this->save_feed();
+      if ( $repopulate ) $this->repopulate_stream();
+      $this->save_stream();
     }
   }
 
   /**
-   * Inserts a post in the feed
+   * Inserts a post in the stream
    *
    * @since     1.0.0
    *
@@ -279,50 +279,50 @@ class TimberFeed extends TimberPost {
 
     // Determine where it is in the original query (if at all),
     // minus any pinned items
-    $query = array_merge( $this->fm_query, array(
-      'post__not_in' => array_keys($this->filter_feed('pinned', true))
+    $query = array_merge( $this->sm_query, array(
+      'post__not_in' => array_keys($this->filter_stream('pinned', true))
     ));
     $posts = Timber::get_posts( $query );
 
-    $in_feed = false;
+    $in_stream = false;
 
     foreach ( $posts as $i => $post ) {
-      if ( $post->ID == $post_id ) $in_feed = $i;
+      if ( $post->ID == $post_id ) $in_stream = $i;
     }
 
-    // If it's not in the feed, bail
-    if ( $in_feed === false ) return;
+    // If it's not in the stream, bail
+    if ( $in_stream === false ) return;
 
-    // Remove pinned items from the feed...
+    // Remove pinned items from the stream...
     $this->remove_pinned();
 
     // ... then insert this post ...
-    array_splice( $this->fm_feed['data'], $in_feed, 0, array( array (
+    array_splice( $this->sm_stream['data'], $in_stream, 0, array( array (
       'id' => $post_id,
       'pinned' => false
     ) ) );
 
     // ... and then reinsert the pinned items
     $this->reinsert_pinned();
-    $this->repopulate_feed();
-    $this->save_feed();
+    $this->repopulate_stream();
+    $this->save_stream();
   }
 
   /**
-   * Temporarily removes pinned items from the feed, for the
-   * purpose of modifying the auto-flowing feed.
+   * Temporarily removes pinned items from the stream, for the
+   * purpose of modifying the auto-flowing stream.
    *
    * @since     1.0.0
    */
   public function remove_pinned() {
-    $this->pinned = $this->filter_feed('pinned', true);
+    $this->pinned = $this->filter_stream('pinned', true);
     foreach ( $this->pinned as $pin ) {
-      unset ( $this->fm_feed['data'][$pin['position']] );
+      unset ( $this->sm_stream['data'][$pin['position']] );
     }
   }
 
   /**
-   * Place the pinned items back in the feed in their appropriate
+   * Place the pinned items back in the stream in their appropriate
    * locations
    *
    * @since     1.0.0
@@ -331,21 +331,21 @@ class TimberFeed extends TimberPost {
     foreach ( $this->pinned as $pin ) {
       $position = $pin['position'];
       unset( $pin['position'] );
-      array_splice( $this->fm_feed['data'], $position, 0, array( $pin ) );
+      array_splice( $this->sm_stream['data'], $position, 0, array( $pin ) );
     }
   }
 
 
   /**
-   * Save the feed metadata
+   * Save the stream metadata
    *
    * @since     1.0.0
    */
-  public function save_feed() {
-    update_post_meta( $this->ID, 'fm_feed',    $this->fm_feed );
-    update_post_meta( $this->ID, 'fm_rules',   $this->fm_rules );
-    update_post_meta( $this->ID, 'fm_layouts', $this->fm_layouts );
-    update_post_meta( $this->ID, 'fm_query',   $this->fm_query );
+  public function save_stream() {
+    update_post_meta( $this->ID, 'sm_stream',    $this->sm_stream );
+    update_post_meta( $this->ID, 'sm_rules',   $this->sm_rules );
+    update_post_meta( $this->ID, 'sm_layouts', $this->sm_layouts );
+    update_post_meta( $this->ID, 'sm_query',   $this->sm_query );
   }
 
 }

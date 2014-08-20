@@ -1,4 +1,4 @@
-=== Feed Manager ===
+=== Stream Manager ===
 Contributors: chrisvoll
 Tags: posts
 Requires at least: 3.8

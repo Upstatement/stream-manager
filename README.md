@@ -1,18 +1,18 @@
-Feed Manager
-============
+Stream Manager
+==============
 
 ## Setup
 
-Install and activate Timber, then install and activate this plugin. Create your first feed in the admin, and then use this in your template file, replacing the ID with the feed ID:
+Install and activate Timber, then install and activate this plugin. Create your first stream in the admin, and then use this in your template file, replacing the ID with the stream ID:
 
 ```php
-$context['feed'] = new TimberFeed(5);
+$context['stream'] = new TimberstreamStream(5);
 ```
 
 And add this to your twig file:
 
 ```twig
-{% for post in feed.get_posts %}
+{% for post in stream.get_posts %}
 
     {{ post.title }}
 
@@ -34,7 +34,7 @@ A better name, TBD
 - [ ] Repeat.
 
 ### Goals
-- [ ] Gives editors an easy and intutive way to manage feeds of content on their site
+- [ ] Gives editors an easy and intutive way to manage streams of content on their site
 - [ ] Has ways Upstatement or other developers can extend/customize for particular implemenetation or site
 - [ ] Doesn't require an editor to set after every update (ie. auto-insertion of published posts)
 

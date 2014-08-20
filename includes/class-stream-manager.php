@@ -1,8 +1,8 @@
 <?php
 /**
- * Feed Manager.
+ * Stream Manager.
  *
- * @package   FeedManager
+ * @package   StreamManager
  * @author    Chris Voll + Upstatement
  * @license   GPL-2.0+
  * @link      http://upstatement.com
@@ -16,10 +16,10 @@
  * If you're interested in introducing administrative or dashboard
  * functionality, then refer to `class-plugin-name-admin.php`
  *
- * @package FeedManager
+ * @package StreamManager
  * @author  Chris Voll + Upstatement
  */
-class FeedManager {
+class StreamManager {
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -42,11 +42,11 @@ class FeedManager {
 	 *
 	 * @var      string
 	 */
-	protected $plugin_slug = 'feed-manager';
+	protected $plugin_slug = 'stream-manager';
 
 
 	/**
-	 * Unique identifier for the feed post type.
+	 * Unique identifier for the stream post type.
 	 *
 	 * This needs to avoid conflicting with other plugins.
 	 *
@@ -54,7 +54,7 @@ class FeedManager {
 	 *
 	 * @var      string
 	 */
-	protected $post_type_slug = 'fm_feed';
+	protected $post_type_slug = 'sm_stream';
 
 	/**
 	 * Instance of this class.
@@ -65,7 +65,7 @@ class FeedManager {
 	 */
 	protected static $instance = null;
 
-	public $feeds = null;
+	public $streams = null;
 
 	/**
 	 * Initialize the plugin
@@ -77,7 +77,7 @@ class FeedManager {
 		// Ensure that Timber is loaded
 		if ( !self::check_dependencies() ) return;
 
-		require_once( plugin_dir_path( __FILE__ ) . 'timber-feed.php' );
+		require_once( plugin_dir_path( __FILE__ ) . 'timber-stream.php' );
 
 		add_action( 'init', array( $this, 'define_post_types' ), 0 );
 
@@ -127,7 +127,7 @@ class FeedManager {
 
 	/**
 	 * Ensure that Timber is loaded. Depending on the order that the
-	 * plugins are activated, Timber may be loaded after the Feed
+	 * plugins are activated, Timber may be loaded after the Stream
 	 * Manager and needs to be loaded manually.
 	 *
 	 * @since     1.0.0
@@ -139,29 +139,29 @@ class FeedManager {
 	}
 
 	/**
-	 * Create the Feed post type, add to admin
+	 * Create the Stream post type, add to admin
 	 *
 	 * @since     1.0.0
 	 */
 	public function define_post_types() {
 	  $labels = array(
-	    'name'                => 'Feeds',
-	    'singular_name'       => 'Feed',
-	    'menu_name'           => 'Feeds',
-	    'parent_item_colon'   => 'Parent Feed',
-	    'all_items'           => 'Feeds',
-	    'view_item'           => 'View Feed',
-	    'add_new_item'        => 'Add New Feed',
+	    'name'                => 'Streams',
+	    'singular_name'       => 'Stream',
+	    'menu_name'           => 'Streams',
+	    'parent_item_colon'   => 'Parent Stream',
+	    'all_items'           => 'Streams',
+	    'view_item'           => 'View Stream',
+	    'add_new_item'        => 'Add New Stream',
 	    'add_new'             => 'Add New',
-	    'edit_item'           => 'Edit Feed',
-	    'update_item'         => 'Update Feed',
-	    'search_items'        => 'Search Feed',
+	    'edit_item'           => 'Edit Stream',
+	    'update_item'         => 'Update Stream',
+	    'search_items'        => 'Search Stream',
 	    'not_found'           => 'Not found',
 	    'not_found_in_trash'  => 'Not found in Trash',
 	  );
 	  $args = array(
 	    'label'               => $this->post_type_slug,
-	    'description'         => 'Feed',
+	    'description'         => 'Stream',
 	    'labels'              => $labels,
 	    'supports'            => array( 'title', 'revisions', ),
 	    'hierarchical'        => false,
@@ -182,7 +182,7 @@ class FeedManager {
 	}
 
 	/**
-	 * Add Feed post type messages
+	 * Add Stream post type messages
 	 *
 	 * @since     1.0.0
 	 */
@@ -210,19 +210,19 @@ class FeedManager {
 	}
 
 	/**
-	 * Retrieve all feeds from the database
+	 * Retrieve all streams from the database
 	 *
 	 * @since     1.0.0
 	 *
-	 * @return    array     Collection of TimberFeed objects
+	 * @return    array     Collection of TimberStream objects
 	 */
-	public function get_feeds( $query = array(), $PostClass = 'TimberFeed' ) {
-		if ($this->feeds) return $this->feeds;
+	public function get_streams( $query = array(), $PostClass = 'TimberStream' ) {
+		if ($this->streams) return $this->streams;
 		$query = array_merge( $query, array(
 			'post_type' => $this->post_type_slug,
 			'nopaging'  => true
 		));
-		return $this->feeds = Timber::get_posts( $query, $PostClass );
+		return $this->streams = Timber::get_posts( $query, $PostClass );
 	}
 
 }

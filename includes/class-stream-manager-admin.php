@@ -1,8 +1,8 @@
 <?php
 /**
- * Feed Manager.
+ * Stream Manager.
  *
- * @package   FeedManagerAdmin
+ * @package   StreamManagerAdmin
  * @author    Chris Voll + Upstatement
  * @license   GPL-2.0+
  * @link      http://upstatement.com
@@ -10,10 +10,10 @@
  */
 
 /**
- * @package FeedManagerAdmin
+ * @package StreamManagerAdmin
  * @author  Chris Voll + Upstatement
  */
-class FeedManagerAdmin {
+class StreamManagerAdmin {
 
 	/**
 	 * Instance of this class.
@@ -25,7 +25,7 @@ class FeedManagerAdmin {
 	protected static $instance = null;
 
 	/**
-	 * Instance of FeedManager.
+	 * Instance of StreamManager.
 	 *
 	 * @since    1.0.0
 	 *
@@ -49,7 +49,7 @@ class FeedManagerAdmin {
 	 * @since     1.0.0
 	 */
 	private function __construct() {
-		$this->plugin = FeedManager::get_instance();
+		$this->plugin = StreamManager::get_instance();
 		$this->plugin_slug    = $this->plugin->get_plugin_slug();
 		$this->post_type_slug = $this->plugin->get_post_type_slug();
 
@@ -61,20 +61,20 @@ class FeedManagerAdmin {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
-		// Feed edit page metaboxes
+		// Stream edit page metaboxes
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 
 		// Help text
 		add_action( 'admin_head', array( $this, 'add_help_text' ), 10, 3 );
 
 
-		// Feed Manipulation
+		// Stream Manipulation
 		// -----------------
 
-		// Saving Feeds
-		add_action( 'save_post', array( $this, 'save_feed' ) );
+		// Saving Streams
+		add_action( 'save_post', array( $this, 'save_stream' ) );
 
-		// Saving Posts (= updating feeds)
+		// Saving Posts (= updating streams)
 		add_action( 'transition_post_status',  array( $this, 'on_save_post' ), 10, 3 );
 
 
@@ -85,19 +85,19 @@ class FeedManagerAdmin {
 		add_filter( 'heartbeat_received', array( $this, 'ajax_heartbeat' ), 10, 3 );
 
 		// Retrieve rendered post stubs AJAX
-		add_filter( 'wp_ajax_fm_request', array( $this, 'ajax_retrieve_posts' ) );
+		add_filter( 'wp_ajax_sm_request', array( $this, 'ajax_retrieve_posts' ) );
 
 		// Search posts AJAX
-		add_filter( 'wp_ajax_fm_search', array( $this, 'ajax_search_posts' ) );
+		add_filter( 'wp_ajax_sm_search', array( $this, 'ajax_search_posts' ) );
 
-		// Retrieve posts for feed reload
-		add_filter( 'wp_ajax_fm_reload', array( $this, 'ajax_retrieve_reload_posts' ) );
+		// Retrieve posts for stream reload
+		add_filter( 'wp_ajax_sm_reload', array( $this, 'ajax_retrieve_reload_posts' ) );
 
-		add_filter( 'wp_terms_checklist_args', array( $this, 'feed_categories_helper' ), 10, 2 );
+		add_filter( 'wp_terms_checklist_args', array( $this, 'stream_categories_helper' ), 10, 2 );
 	}
 
 	public static function is_active() {
-		return get_current_screen()->id == "fm_feed";
+		return get_current_screen()->id == "sm_stream";
 	}
 
 	/**
@@ -131,7 +131,7 @@ class FeedManagerAdmin {
 			$this->plugin_slug .'-admin-styles',
 			plugins_url( '../assets/css/style.css', __FILE__ ),
 			array(),
-			FeedManager::VERSION
+			StreamManager::VERSION
 		);
 	}
 
@@ -149,40 +149,40 @@ class FeedManagerAdmin {
 			$this->plugin_slug . '-admin-script',
 			plugins_url( '../assets/js/script.js', __FILE__ ),
 			array( 'jquery', 'underscore' ),
-			FeedManager::VERSION
+			StreamManager::VERSION
 		);
 	}
 
 
 	/**
-	 * Add meta boxes to Feed edit page
+	 * Add meta boxes to Stream edit page
 	 *
 	 * @since     1.0.0
 	 */
 	public function add_meta_boxes() {
 		add_meta_box(
-			'feed_box_feed',
-			'Feed',
-			array( $this, 'meta_box_feed'  ),
+			'stream_box_stream',
+			'Stream',
+			array( $this, 'meta_box_stream'  ),
 			$this->post_type_slug,
 			'normal'
 		);
 		add_meta_box(
-			'feed_box_add',
+			'stream_box_add',
 			'Add Post',
 			array( $this, 'meta_box_add' ),
 			$this->post_type_slug,
 			'side'
 		);
 		add_meta_box(
-			'feed_box_zones',
+			'stream_box_zones',
 			'Zones',
 			array( $this, 'meta_box_zones' ),
 			$this->post_type_slug,
 			'side'
 		);
 		add_meta_box(
-			'feed_box_rules',
+			'stream_box_rules',
 			'Rules',
 			array( $this, 'meta_box_rules' ),
 			$this->post_type_slug,
@@ -192,23 +192,23 @@ class FeedManagerAdmin {
 
 
 	/**
-	 * Render Feed metabox
+	 * Render Stream metabox
 	 *
 	 * @since     1.0.0
 	 *
 	 * @param     object  $post  WordPress post object
 	 */
-	public function meta_box_feed( $post ) {
-		$feed_post = new TimberFeed( $post->ID );
-	  $ids    = array_keys( $feed_post->filter_feed('pinned', false) );
-	  $pinned = array_keys( $feed_post->filter_feed('pinned', true ) );
-	  $layout = $feed_post->fm_layouts['layouts'][ $feed_post->fm_layouts['active'] ];
+	public function meta_box_stream( $post ) {
+		$stream_post = new TimberStream( $post->ID );
+	  $ids    = array_keys( $stream_post->filter_stream('pinned', false) );
+	  $pinned = array_keys( $stream_post->filter_stream('pinned', true ) );
+	  $layout = $stream_post->sm_layouts['layouts'][ $stream_post->sm_layouts['active'] ];
 
-		Timber::render('views/feed.twig', array(
-			'posts' => $feed_post->get_posts( array( 'show_hidden' => true ) ),
+		Timber::render('views/stream.twig', array(
+			'posts' => $stream_post->get_posts( array( 'show_hidden' => true ) ),
 			'post_ids'    => implode( ',', $ids ),
 			'post_pinned' => implode( ',', $pinned ),
-			'nonce' => wp_nonce_field('fm_nonce', 'fm_meta_box_nonce', true, false),
+			'nonce' => wp_nonce_field('sm_nonce', 'sm_meta_box_nonce', true, false),
 			'layout' => $layout
 		));
 	}
@@ -234,12 +234,12 @@ class FeedManagerAdmin {
 	 * @param     object  $post  WordPress post object
 	 */
 	public function meta_box_zones( $post ) {
-		$feed_post = new TimberFeed( $post->ID );
+		$stream_post = new TimberStream( $post->ID );
 
 		$context = array(
-			'post'         => $feed_post,
-			'layouts'      => $feed_post->fm_layouts,
-			'layouts_json' => JSON_encode($feed_post->fm_layouts)
+			'post'         => $stream_post,
+			'layouts'      => $stream_post->sm_layouts,
+			'layouts_json' => JSON_encode($stream_post->sm_layouts)
 		);
 
 		Timber::render('views/zones.twig', array_merge(Timber::get_context(), $context));
@@ -254,11 +254,11 @@ class FeedManagerAdmin {
 	 * @param     object  $post  WordPress post object
 	 */
 	public function meta_box_rules( $post ) {
-		$feed_post = new TimberFeed( $post->ID );
+		$stream_post = new TimberStream( $post->ID );
 
 		$context = array(
-			'post'    => $feed_post,
-			'rules'   => $feed_post->fm_rules,
+			'post'    => $stream_post,
+			'rules'   => $stream_post->sm_rules,
 		);
 
 		Timber::render('views/rules.twig', array_merge(Timber::get_context(), $context));
@@ -266,73 +266,73 @@ class FeedManagerAdmin {
 
 
 	/**
-	 * Save the feed metadata
+	 * Save the stream metadata
 	 *
 	 * @since     1.0.0
 	 *
-	 * @param     integer  $feed_id  Feed Post ID
+	 * @param     integer  $stream_id  Stream Post ID
 	 *
-	 * @todo      Move Rules update to TimberFeed::save_feed
+	 * @todo      Move Rules update to TimberStream::save_stream
 	 */
-	public function save_feed( $feed_id ) {
+	public function save_stream( $stream_id ) {
     // Bail if we're doing an auto save
     if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
      
     // if our nonce isn't there, or we can't verify it, bail
-    if( !isset( $_POST['fm_meta_box_nonce'] ) || !wp_verify_nonce( $_POST['fm_meta_box_nonce'], 'fm_nonce' ) ) return;
+    if( !isset( $_POST['sm_meta_box_nonce'] ) || !wp_verify_nonce( $_POST['sm_meta_box_nonce'], 'sm_nonce' ) ) return;
      
     // if our current user can't edit this post, bail
     if( !current_user_can( 'edit_post' ) ) return;
 
-    $feed = new TimberFeed( $feed_id );
+    $stream = new TimberStream( $stream_id );
 
-  	$feed->fm_rules = array();
+  	$stream->sm_rules = array();
 
   	// Categories
   	if ( $_POST['post_category'] ) {
-  		$feed->fm_rules['category'] = $_POST['post_category'];
+  		$stream->sm_rules['category'] = $_POST['post_category'];
   	}
 
   	// Tags and all other taxonomies
   	if ( $_POST['tax_input'] ) {
   		foreach ( $_POST['tax_input'] as $taxonomy => $terms ) {
-  			$feed->fm_rules[$taxonomy] = $terms;
+  			$stream->sm_rules[$taxonomy] = $terms;
   		}
   	}
 
-  	$feed->fm_query = array_merge($this->default_query, $feed->fm_query);
-  	$feed->fm_query['tax_query'] = $this->build_tax_query( $feed->fm_rules );
+  	$stream->sm_query = array_merge($this->default_query, $stream->sm_query);
+  	$stream->sm_query['tax_query'] = $this->build_tax_query( $stream->sm_rules );
 
   	// Sorting
-    if ( isset( $_POST['fm_sort'] ) ) {
+    if ( isset( $_POST['sm_sort'] ) ) {
 	    $data   = array();
 	    $hidden = array();
 
-	    foreach ( $_POST['fm_sort'] as $i => $post_id ) {
-	    	if ( isset($_POST['fm_hide'][$post_id]) ) {
+	    foreach ( $_POST['sm_sort'] as $i => $post_id ) {
+	    	if ( isset($_POST['sm_hide'][$post_id]) ) {
 	    		$hidden[] = $post_id;
 	    	} else {
 		    	$data[] = array(
 		    		'id' => $post_id,
-		    		'pinned' => isset($_POST['fm_pin'][$post_id])
+		    		'pinned' => isset($_POST['sm_pin'][$post_id])
 		    	);
 		    }
 	    }
 
-	    $feed->fm_feed = array(
+	    $stream->sm_stream = array(
 	    	'data' => $data,
 	    	'hidden' => $hidden
 	    );
 
-	    $feed->repopulate_feed();
+	    $stream->repopulate_stream();
 	  }
 
 	  // Layouts
-	  if ( isset( $_POST['fm_layouts'] ) ) {
-	  	$feed->fm_layouts = JSON_decode( stripslashes($_POST['fm_layouts']), true );
+	  if ( isset( $_POST['sm_layouts'] ) ) {
+	  	$stream->sm_layouts = JSON_decode( stripslashes($_POST['sm_layouts']), true );
 	  }
 
-	  $feed->save_feed();
+	  $stream->save_stream();
 	}
 
 	public function build_tax_query( $taxonomies ) {
@@ -387,7 +387,7 @@ class FeedManagerAdmin {
 
 
 	/**
-	 * Update feeds whenever any post status is changed
+	 * Update streams whenever any post status is changed
 	 *
 	 * @since     1.0.0
 	 *
@@ -396,28 +396,28 @@ class FeedManagerAdmin {
 	 * @param     object  $post  WordPress post object
 	 */
 	public function on_save_post( $new, $old, $post ) {
-		if ( $post->post_type == 'fm_feed' ) return;
+		if ( $post->post_type == 'sm_stream' ) return;
 
 		if ( $old == 'publish' && $new != 'publish' ) {
-			// Remove from feeds
-			$feeds = $this->plugin->get_feeds();
-			foreach ( $feeds as $feed ) {
-				$feed->remove_post( $post->ID );
+			// Remove from streams
+			$streams = $this->plugin->get_streams();
+			foreach ( $streams as $stream ) {
+				$stream->remove_post( $post->ID );
 			}
 		}
 
 		if ( $old != 'publish' && $new == 'publish' ) {
-			// Add to feeds
-			$feeds = $this->plugin->get_feeds();
-			foreach ( $feeds as $feed ) {
-				$feed->insert_post( $post->ID );
+			// Add to streams
+			$streams = $this->plugin->get_streams();
+			foreach ( $streams as $stream ) {
+				$stream->insert_post( $post->ID );
 			}
 		}
 	}
 
 
 	/**
-	 * Add help text to feed edit page
+	 * Add help text to stream edit page
 	 *
 	 * @since     1.0.0
 	 */
@@ -425,30 +425,30 @@ class FeedManagerAdmin {
 	  $screen = get_current_screen();
 
 	  // Return early if we're not on the book post type.
-	  if ( 'fm_feed' != $screen->id ) return;
+	  if ( 'sm_stream' != $screen->id ) return;
 
 	  // Setup help tab args.
 	  $tabs = array(
 	  	array(
-		    'id'      => 'fm_feed_1',
-		    'title'   => 'About Feeds',
-		    'content' => '<h3>About Feeds</h3><p>Help content</p>',
+		    'id'      => 'sm_stream_1',
+		    'title'   => 'About Streams',
+		    'content' => '<h3>About Streams</h3><p>Help content</p>',
 		  ),
 	  	array(
-		    'id'      => 'fm_feed_2',
+		    'id'      => 'sm_stream_2',
 		    'title'   => 'How to Use',
 		    'content' => '<h3>How to Use</h3><p>Help content</p>',
 		  ),
 	  	array(
-		    'id'      => 'fm_feed_3',
+		    'id'      => 'sm_stream_3',
 		    'title'   => 'Use in Theme',
 		    'content' => implode("\n", array(
 		    	'<h3>Use in Theme</h3>',
 		    	'<p>',
-		    		'<pre>$context[\'feed\'] = new TimberFeed(' . get_the_ID() . ');</pre>',
+		    		'<pre>$context[\'stream\'] = new TimberStream(' . get_the_ID() . ');</pre>',
 		    	'</p>',
 		    	'<p>In your view file (twig):</p>',
-		    	'<p><pre>{% for post in feed %}',
+		    	'<p><pre>{% for post in stream %}',
 		    	'  {{ post.title }}',
 		    	'{% endfor %}</pre></p>'
 		    ))
@@ -461,11 +461,11 @@ class FeedManagerAdmin {
 		}
 	}
 
-	public function feed_categories_helper( $args, $post_id ) {
+	public function stream_categories_helper( $args, $post_id ) {
 		if ( $this->is_active() ) {
-			$feed = new TimberFeed( $post_id );
-			if ( isset($feed->fm_rules['category']) ) {
-				$args['selected_cats'] = $feed->fm_rules['category'];
+			$stream = new TimberStream( $post_id );
+			if ( isset($stream->sm_rules['category']) ) {
+				$args['selected_cats'] = $stream->sm_rules['category'];
 			}
 		}
 		return $args;
@@ -473,7 +473,7 @@ class FeedManagerAdmin {
 
 
 	/**
-	 * Respond to admin heartbeat with feed IDs
+	 * Respond to admin heartbeat with stream IDs
 	 *
 	 * @since     1.0.0
 	 *
@@ -485,13 +485,13 @@ class FeedManagerAdmin {
 	 */
 	public function ajax_heartbeat( $response, $data, $screen_id ) {
 
-		if ( $screen_id == 'fm_feed' && isset( $data['wp-refresh-post-lock'] ) ) {
-		  $feed_post = new TimberFeed( $data['wp-refresh-post-lock']['post_id'] );
-		  $ids = array_keys( $feed_post->filter_feed('pinned', false) );
-		  $response['fm_ids'] = implode( ',', $ids );
+		if ( $screen_id == 'sm_stream' && isset( $data['wp-refresh-post-lock'] ) ) {
+		  $stream_post = new TimberStream( $data['wp-refresh-post-lock']['post_id'] );
+		  $ids = array_keys( $stream_post->filter_stream('pinned', false) );
+		  $response['sm_ids'] = implode( ',', $ids );
 
-		  $pinned = array_keys( $feed_post->filter_feed('pinned', true) );
-		  $response['fm_pinned'] = implode( ',', $pinned );
+		  $pinned = array_keys( $stream_post->filter_stream('pinned', true) );
+		  $response['sm_pinned'] = implode( ',', $pinned );
 		}
 
 		return $response;
@@ -535,13 +535,13 @@ class FeedManagerAdmin {
 	 * @param     array   $request   AJAX request (uses $_POST instead)
 	 */
 	public function ajax_retrieve_reload_posts( $request ) {
-		if ( !isset( $_POST['feed_id'] ) || !isset( $_POST['taxonomies'] ) ) $this->ajax_respond( 'error' );
+		if ( !isset( $_POST['stream_id'] ) || !isset( $_POST['taxonomies'] ) ) $this->ajax_respond( 'error' );
 
-		$feed = new TimberPost( $_POST['feed_id'] );
+		$stream = new TimberPost( $_POST['stream_id'] );
 		$output = array();
 
 		// Build the query
-		$query = ($feed && $feed->fm_query) ? $feed->fm_query : $this->default_query;
+		$query = ($stream && $stream->sm_query) ? $stream->sm_query : $this->default_query;
 		$query['tax_query'] = $this->build_tax_query( $_POST['taxonomies'] );
 
 		if ( isset($_POST['exclude']) ) {

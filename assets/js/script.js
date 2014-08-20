@@ -1,7 +1,7 @@
 /**
- * Feed Manager Admin JavaScript
+ * Stream Manager Admin JavaScript
  *
- * @package   FeedManager
+ * @package   StreamManager
  * @author    Chris Voll + Upstatement
  * @license   GPL-2.0+
  * @link      http://upstatement.com
@@ -10,7 +10,7 @@
 
 jQuery(function($) {
 
-  var feed = {
+  var stream = {
 
     ////////////////////////////////////////////
     // 
@@ -18,17 +18,17 @@ jQuery(function($) {
     // 
     ////////////////////////////////////////////
 
-    $feed:    $('.fm-posts'),
-    $queue:   $('.fm-alert'),
-    $search:  $('.fm-search'),
-    $results: $('.fm-results'),
+    $stream:    $('.sm-posts'),
+    $queue:   $('.sm-alert'),
+    $search:  $('.sm-search'),
+    $results: $('.sm-results'),
     $form:    $('form#post'),
 
     init: function () {
 
-      // Feed Events
-      $(document).on('heartbeat-tick.fm', $.proxy(this.on_heartbeat,   this));
-      this.$feed
+      // stream Events
+      $(document).on('heartbeat-tick.sm', $.proxy(this.on_heartbeat,   this));
+      this.$stream
         .on('click',    '.pin-unpin',  $.proxy(this.on_stub_pin,    this))
         .on('dblclick', '.stub',       $.proxy(this.on_stub_pin,    this))
         .on('click',    '.remove',     $.proxy(this.on_stub_remove, this))
@@ -39,12 +39,12 @@ jQuery(function($) {
           revert : 150,
           axis   : 'y'
         });
-      $('.reload-feed').on('click', $.proxy(this.on_feed_reload, this));
+      $('.reload-stream').on('click', $.proxy(this.on_stream_reload, this));
 
-      // Feed Update Notifications
-      $(document).on('fm/feed_update', $.proxy(this.on_feed_update, this));
+      // stream Update Notifications
+      $(document).on('sm/stream_update', $.proxy(this.on_stream_update, this));
       this.$queue.on('click',          $.proxy(this.on_apply_queue, this));
-      this.$form.on('submit.fm',       $.proxy(this.on_form_submit, this));
+      this.$form.on('submit.sm',       $.proxy(this.on_form_submit, this));
 
       // Search
       this.$search.on({
@@ -54,8 +54,8 @@ jQuery(function($) {
       });
       this.$results.on({
         mouseover:         $.proxy(this.on_result_hover,  this),
-        'click fm/select': $.proxy(this.on_result_select, this)
-      }, '.fm-result');
+        'click sm/select': $.proxy(this.on_result_select, this)
+      }, '.sm-result');
       $('body').on('mousedown', $.proxy(this.on_hide_results, this));
 
     },
@@ -65,26 +65,26 @@ jQuery(function($) {
     // 
     //  Heartbeat
     // 
-    //  Avoid feed collisions by loading feed
+    //  Avoid stream collisions by loading stream
     //  updates from the database. For the purpose
     //  of more accurate placements, pinned posts
     //  are excluded from the list of IDs that
     //  are passed around.
     //
     //  Note that the purpose of this isn't to keep
-    //  the feed in sync among multiple editors;
+    //  the stream in sync among multiple editors;
     //  instead, it's meant to ensure that no
     //  published posts are left behind, in addition
     //  to making sure that removed posts do not
-    //  interfere with the feed's sorting.
+    //  interfere with the stream's sorting.
     // 
     ////////////////////////////////////////////
 
     on_heartbeat: function(e, data) {
       var that = this;
 
-      var front = this.$feed.attr('data-ids').split(',')
-          back  = data.fm_ids.split(',');
+      var front = this.$stream.attr('data-ids').split(',')
+          back  = data.sm_ids.split(',');
 
       // Published posts
       _.each( _.difference(back, front), function(id) {
@@ -97,23 +97,23 @@ jQuery(function($) {
       });
 
       // Deleted pinned posts
-      var front_pinned = this.$feed.attr('data-pinned').split(','),
-          back_pinned  = data.fm_pinned.split(',');
+      var front_pinned = this.$stream.attr('data-pinned').split(','),
+          back_pinned  = data.sm_pinned.split(',');
 
       _.each( _.difference(front_pinned, back_pinned), function(id) {
         that.add_to_queue( 'remove', id );
       });
 
-      this.$feed.prop({
-        'data-ids'    : data.fm_ids,
-        'data-pinned' : data.fm_pinned
+      this.$stream.prop({
+        'data-ids'    : data.sm_ids,
+        'data-pinned' : data.sm_pinned
       });
     },
 
 
     ////////////////////////////////////////////
     // 
-    //  Feed Manipulation
+    //  Stream Manipulation
     // 
     ////////////////////////////////////////////
 
@@ -127,11 +127,11 @@ jQuery(function($) {
 
       if ( $stub.hasClass('pinned') ) {
         $stub.removeClass('pinned');
-        $stub.find('.fm-pin-checkbox').prop('checked', false);
+        $stub.find('.sm-pin-checkbox').prop('checked', false);
         $stub.find('.pin-unpin').prop('title', 'Pin this post')
       } else {
         $stub.addClass('pinned');
-        $stub.find('.fm-pin-checkbox').prop('checked', true);
+        $stub.find('.sm-pin-checkbox').prop('checked', true);
         $stub.find('.pin-unpin')
           .prop('title', 'Unpin this post')
           .addClass('animating')
@@ -148,7 +148,7 @@ jQuery(function($) {
 
       if ( $stub.hasClass('zone') ) {
         $stub.remove();
-        $(document).trigger('fm/zone_update');
+        $(document).trigger('sm/zone_update');
         return;
       }
       if ( $stub.hasClass('removed') ) return;
@@ -161,7 +161,7 @@ jQuery(function($) {
     },
 
     on_sortable_start: function (event, ui) {
-      $(document).trigger('fm/sortable_start', ui.item);
+      $(document).trigger('sm/sortable_start', ui.item);
       $(ui.placeholder).height($(ui.item).height());
       if ( ui.item.hasClass('pinned') ) {
         if ( !ui.item.hasClass('zone') ) {
@@ -176,7 +176,7 @@ jQuery(function($) {
 
     on_sortable_stop: function (event, ui) {
       if ( ui.item.hasClass('zone') ) {
-        $(document).trigger('fm/zone_update');
+        $(document).trigger('sm/zone_update');
       }
     },
 
@@ -189,17 +189,17 @@ jQuery(function($) {
     // Remove all unpinned items, get new posts
     // from the database based on categories and tags
     // selected under Rules
-    on_feed_reload: function (e) {
+    on_stream_reload: function (e) {
       e.preventDefault();
       var that = this;
 
       // Clear queues
       this.insert_queue = [];
       this.remove_queue = [];
-      $(document).trigger('fm/feed_update');
+      $(document).trigger('sm/stream_update');
 
       // Disable heartbeat checking
-      $(document).off('heartbeat-tick.fm');
+      $(document).off('heartbeat-tick.sm');
 
 
       // Setup the ajax request
@@ -212,8 +212,8 @@ jQuery(function($) {
         exclude.push( $(this).attr('data-id') );
       });
       var request = {
-        action: 'fm_reload',
-        feed_id: $('#post_ID').val(),
+        action: 'sm_reload',
+        stream_id: $('#post_ID').val(),
         taxonomies: {
           category: categories,
           post_tag: $('#tax-input-post_tag').val(),
@@ -227,9 +227,9 @@ jQuery(function($) {
 
         that.inventory_pinned();
         that.remove_pinned();
-        that.$feed.empty();
+        that.$stream.empty();
         $(response.data).each(function() {
-          that.$feed.append(this);
+          that.$stream.append(this);
         });
         that.insert_pinned();
       });
@@ -241,13 +241,13 @@ jQuery(function($) {
     // 
     //  Post queue UI
     //
-    //  Listens for the feed events to update
+    //  Listens for the stream events to update
     //  the user interface, letting the end user
     //  know when there are changes.
     // 
     ////////////////////////////////////////////
 
-    on_feed_update: function (e) {
+    on_stream_update: function (e) {
       var insert = this.insert_queue,
           remove = this.remove_queue;
 
@@ -286,7 +286,7 @@ jQuery(function($) {
       if ( !this.submit_flag && !this.allow_submit ) return;
 
       if ( !this.allow_submit ) {
-        if ( ! window.confirm('New posts have been published or removed since you began editing the feed. \n\nPress Cancel to go back, or OK to save the feed without them.') ) {
+        if ( ! window.confirm('New posts have been published or removed since you began editing the stream. \n\nPress Cancel to go back, or OK to save the stream without them.') ) {
           e.preventDefault();
         } else {
           this.allow_submit = true;
@@ -299,7 +299,7 @@ jQuery(function($) {
     // 
     //  Post Queue
     // 
-    //  API for modifying the posts in the feed
+    //  API for modifying the posts in the stream
     //  user interface, including adding and
     //  removing by post IDs. Used by the collision
     //  management system (with the WordPress
@@ -308,16 +308,16 @@ jQuery(function($) {
     //  -----------------------------------------
     //
     //  Usage: (where queue_name is 'insert' or 'remove')
-    //  > feed.add_to_queue( queue_name, post_id, position );
-    //  > feed.remove_from_queue( queue_name, post_id );
+    //  > stream.add_to_queue( queue_name, post_id, position );
+    //  > stream.remove_from_queue( queue_name, post_id );
     // 
     //  Apply changes:
-    //  > feed.apply_insert( queue_override );
-    //  > feed.apply_remove( queue_override );
+    //  > stream.apply_insert( queue_override );
+    //  > stream.apply_remove( queue_override );
     //
     //  Add a single post without invoking the queues:
-    //  > feed.insert_single( id, position );
-    //  > feed.remove_single( id );
+    //  > stream.insert_single( id, position );
+    //  > stream.remove_single( id );
     // 
     ////////////////////////////////////////////
 
@@ -340,7 +340,7 @@ jQuery(function($) {
           id: id
         });
       }
-      $(document).trigger('fm/feed_update');
+      $(document).trigger('sm/stream_update');
     },
 
     /**
@@ -354,7 +354,7 @@ jQuery(function($) {
           this[queue_name].splice(i, 1);
         }
       }
-      $(document).trigger('fm/feed_update');
+      $(document).trigger('sm/stream_update');
     },
 
     /**
@@ -382,13 +382,13 @@ jQuery(function($) {
       var that = this;
 
       $.post(ajaxurl, {
-          action: 'fm_request',
+          action: 'sm_request',
           queue: queue
         }, function (response) {
           response = JSON.parse(response);
           if ( response.status && response.status == 'error' ) return;
           that.ui_insert( response.data, animate );
-          $(document).trigger( 'fm/feed_update' );
+          $(document).trigger( 'sm/stream_update' );
         }
       );
     },
@@ -396,7 +396,7 @@ jQuery(function($) {
       var queue = queue_override ? queue_override : this.remove_queue;
       if (queue.length < 1) return;
       this.ui_remove( queue );
-      $(document).trigger( 'fm/feed_update' );
+      $(document).trigger( 'sm/stream_update' );
     },
     apply_queues: function () {
       this.apply_remove();
@@ -433,7 +433,7 @@ jQuery(function($) {
 
       for ( i in remove_queue ) {
         var id = remove_queue[i].id;
-        this.$feed.find('#post-' + id).remove();
+        this.$stream.find('#post-' + id).remove();
         this.remove_from_queue( 'remove', id );
       }
 
@@ -461,18 +461,18 @@ jQuery(function($) {
 
 
     /**
-     * Inserts one post object into the feed
+     * Inserts one post object into the stream
      */
     inject: function (position, object, animate) {
       object = $( object );
       if ( position == 0 ) {
-        this.$feed.prepend( object );
+        this.$stream.prepend( object );
       } else {
-        var $object_before = this.$feed.find( '.stub:nth-child(' + position + ')' );
+        var $object_before = this.$stream.find( '.stub:nth-child(' + position + ')' );
         if ( $object_before.length ) {
           $object_before.after( object );
         } else {
-          this.$feed.append( object );
+          this.$stream.append( object );
         }
       }
 
@@ -486,10 +486,10 @@ jQuery(function($) {
 
 
     /**
-     * Check if a post exists in the feed
+     * Check if a post exists in the stream
      */
     find_post: function (id) {
-      return this.$feed.find('#post-' + id);
+      return this.$stream.find('#post-' + id);
     },
     post_exists: function (id) {
       return this.find_post(id).length;
@@ -504,7 +504,7 @@ jQuery(function($) {
       if ( !className ) className = 'pinned';
       var that = this;
       this.pinned_inventory = [];
-      this.$feed.find('.stub').each( function (i) {
+      this.$stream.find('.stub').each( function (i) {
         if ( $(this).hasClass( className ) ) {
           that.pinned_inventory.push({
             id: $(this).attr('data-id'),
@@ -563,7 +563,7 @@ jQuery(function($) {
           if ( that.search_query.length > 2 ) {
 
             var request = {
-              action: 'fm_search',
+              action: 'sm_search',
               query: that.search_query
             };
 
@@ -577,17 +577,17 @@ jQuery(function($) {
                 var post = data.data[i];
                 that.$results.append([
                   '<li>',
-                    '<a class="fm-result" href="#" data-id="' + post.id + '">',
+                    '<a class="sm-result" href="#" data-id="' + post.id + '">',
                       post.title,
-                      ' <span class="fm-result-date" title="' + post.date + '">',
+                      ' <span class="sm-result-date" title="' + post.date + '">',
                         post.human_date + ' ago',
-                        that.post_exists( post.id ) ? ' - Already in feed' : '',
+                        that.post_exists( post.id ) ? ' - Already in stream' : '',
                       '</span>',
                     '</a>',
                   '</li>'].join('')
                 );
 
-                that.$results.find('li:nth-child(1) .fm-result').addClass('active');
+                that.$results.find('li:nth-child(1) .sm-result').addClass('active');
               }
             });
           } else {
@@ -604,7 +604,7 @@ jQuery(function($) {
         e.preventDefault();
         this.$results.show();
         var $active = this.$results.find('.active');
-        var $prev = $active.parent().prev().find('.fm-result');
+        var $prev = $active.parent().prev().find('.sm-result');
 
         if (!$prev.length) return;
 
@@ -615,7 +615,7 @@ jQuery(function($) {
         e.preventDefault();
         this.$results.show();
         var $active = this.$results.find('.active');
-        var $next = $active.parent().next().find('.fm-result');
+        var $next = $active.parent().next().find('.sm-result');
 
         if (!$next.length) return;
 
@@ -625,7 +625,7 @@ jQuery(function($) {
         // enter
         e.preventDefault();
         if ( !this.$results.is(':visible') ) return;
-        this.$results.find('.active').trigger('fm/select');
+        this.$results.find('.active').trigger('sm/select');
       }
     },
 
@@ -649,7 +649,7 @@ jQuery(function($) {
         // only move non-pinned item
         // @TODO: revisit this in the future
         if ( current.hasClass('pinned') ) {
-          setTimeout(function() { alert('This post is already pinned in the feed. To move it, please unpin it first.'); }, 0);
+          setTimeout(function() { alert('This post is already pinned in the stream. To move it, please unpin it first.'); }, 0);
           return false;
         }
         this.remove_single( id );
@@ -659,7 +659,7 @@ jQuery(function($) {
     },
 
     on_hide_results: function(e) {
-      if ( !$(e.target).closest('.fm-search-container').length ) {
+      if ( !$(e.target).closest('.sm-search-container').length ) {
         this.$results.hide();
       }
     },
@@ -669,21 +669,21 @@ jQuery(function($) {
 
 
 
-  feed.layouts = {
+  stream.layouts = {
 
     data: {},
 
     init: function() {
       this.$data_field = $('.layouts-data');
-      this.$container = $('#feed_box_zones');
+      this.$container = $('#stream_box_zones');
       this.data = JSON.parse( this.$data_field.val() );
-      $(document).on('fm/zone_update', $.proxy( this.on_zone_update, this ));
+      $(document).on('sm/zone_update', $.proxy( this.on_zone_update, this ));
 
       // this.$container.find('.add-zone, .add-layout').on('click', this.on_toggle_add );
       this.$container.find('.add-zone-input').on('keydown', $.proxy( this.on_add_keydown, this ));
       this.$container.find('.add-zone-button').on('click', $.proxy( this.on_click_add_button, this ));
       // this.$container.find('.active-layout').on('change', $.proxy( this.on_change_layout, this ));
-      feed.$feed.on({
+      stream.$stream.on({
         input   : $.proxy( this.on_zone_update, this ),
         keydown : this.on_zone_keydown
       }, '.zone .zone-header');
@@ -705,7 +705,7 @@ jQuery(function($) {
       var active = this.data.active;
       this.data.layouts[active].zones = [];
 
-      feed.$feed.find('.zone').each(function(index, el) {
+      stream.$stream.find('.zone').each(function(index, el) {
         that.data.layouts[active].zones.push({
           position: $(this).index(),
           title: $(this).find('.zone-header').val()
@@ -752,7 +752,7 @@ jQuery(function($) {
       //     zones: {}
       //   }
       //   this.data.active = slug;
-      //   $(document).trigger('fm/zone_update');
+      //   $(document).trigger('sm/zone_update');
       //   $input.val('');
       // }
     },
@@ -771,18 +771,18 @@ jQuery(function($) {
 
     insert_zones: function( zones ) {
       for ( i in zones ) {
-        feed.inject( zones[i].position, $([
+        stream.inject( zones[i].position, $([
           '<div class="stub zone pinned" data-position="' + i + '">',
             '<a href="#" title="Remove this zone" class="remove stub-action dashicons dashicons-no"></a>',
             '<input type="text" class="zone-header" value="' + zones[i].title.replace(/\"/g,'&quot;') + '">',
           '</div>'
         ].join("")) );
       }
-      $(document).trigger('fm/zone_update');
+      $(document).trigger('sm/zone_update');
     },
 
     remove_zones: function() {
-      feed.$feed.find('.zone').remove();
+      stream.$stream.find('.zone').remove();
     },
 
     // slugify: function(name) {
@@ -793,8 +793,8 @@ jQuery(function($) {
 
 
 
-  feed.init();
-  feed.layouts.init();
+  stream.init();
+  stream.layouts.init();
   
-  window.feed = feed;
+  window.stream = stream;
 });

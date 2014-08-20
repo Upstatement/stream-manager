@@ -2,7 +2,7 @@
 
         <a href="#" title="{{ post.pinned ? 'Unpin this post' : 'Pin this post' }}" class="pin-unpin stub-action dashicons dashicons-admin-post"></a>
 
-        <a href="#" title="Remove this post from the feed" class="remove stub-action dashicons dashicons-no"></a>
+        <a href="#" title="Remove this post from the stream" class="remove stub-action dashicons dashicons-no"></a>
 
         <div class="stub-details">
           {% if post.thumbnail and post.thumbnail.src %}
@@ -26,7 +26,7 @@
 
         <!-- Hidden Fields -->
         <span class="hidden">
-          <input id="fm-sort-{{ post.ID }}" type="hidden" name="fm_sort[]" value="{{ post.ID }}">
-          <input id="fm-pin-{{ post.ID }}"  class="fm-pin-checkbox" type="checkbox" name="fm_pin[{{ post.ID }}]" {{ post.pinned ? 'checked="checked"' }}>
+          <input id="sm-sort-{{ post.ID }}" type="hidden" name="sm_sort[]" value="{{ post.ID }}">
+          <input id="sm-pin-{{ post.ID }}"  class="sm-pin-checkbox" type="checkbox" name="sm_pin[{{ post.ID }}]" {{ post.pinned ? 'checked="checked"' }}>
         </span>
       </div>

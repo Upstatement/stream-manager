@@ -163,11 +163,11 @@ $stub-pinned: #F1F1F1;
 
 ////////////////////////////////////////////
 //
-//  Feed Queue UI
+//  Stream Queue UI
 //
 ////////////////////////////////////////////
 
-.fm-alert {
+.sm-alert {
   display: none;
   cursor: pointer;
   padding: 8px 12px;
@@ -183,20 +183,20 @@ $stub-pinned: #F1F1F1;
 //
 ////////////////////////////////////////////
 
-.fm-add {
+.sm-add {
 
-  .fm-search-container {
+  .sm-search-container {
     position: relative;
   }
 
-  .fm-search {
+  .sm-search {
     display: block;
     width: 100%;
     padding: 10px 14px;
     margin: 0;
   }
 
-  .fm-results {
+  .sm-results {
     padding: 5px 0;
     margin: 0;
     position: absolute;
@@ -211,7 +211,7 @@ $stub-pinned: #F1F1F1;
       margin: 0;
     }
 
-    .fm-result {
+    .sm-result {
       text-decoration: none;
       display: block;
       padding: 6px 15px;
@@ -222,7 +222,7 @@ $stub-pinned: #F1F1F1;
       }
     }
 
-    .fm-result-date {
+    .sm-result-date {
       font-size: 11px;
       opacity: .5;
       margin-left: 5px;
@@ -267,7 +267,7 @@ $stub-pinned: #F1F1F1;
 
 
 // Override WordPress edit page styles
-#feed_box_feed {
+#stream_box_stream {
   background: transparent;
   border: 0;
   @include prefixer(box-shadow, none);
@@ -281,12 +281,12 @@ $stub-pinned: #F1F1F1;
     margin: 0;
     padding: 0;
 
-    > .fm-posts {
+    > .sm-posts {
       border: 0;
     }
   }
 }
-.post-type-fm_feed {
+.post-type-sm_stream {
   #title {
     position: relative;
     z-index: 1;
