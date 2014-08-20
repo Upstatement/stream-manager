@@ -675,14 +675,14 @@ jQuery(function($) {
 
     init: function() {
       this.$data_field = $('.layouts-data');
-      this.$container = $('#feed_box_layout');
+      this.$container = $('#feed_box_zones');
       this.data = JSON.parse( this.$data_field.val() );
       $(document).on('fm/zone_update', $.proxy( this.on_zone_update, this ));
 
-      this.$container.find('.add-zone, .add-layout').on('click', this.on_toggle_add );
-      this.$container.find('.add-zone-input, .add-layout-input').on('keydown', $.proxy( this.on_add_keydown, this ));
-      this.$container.find('.add-zone-button, .add-layout-button').on('click', $.proxy( this.on_click_add_button, this ));
-      this.$container.find('.active-layout').on('change', $.proxy( this.on_change_layout, this ));
+      // this.$container.find('.add-zone, .add-layout').on('click', this.on_toggle_add );
+      this.$container.find('.add-zone-input').on('keydown', $.proxy( this.on_add_keydown, this ));
+      this.$container.find('.add-zone-button').on('click', $.proxy( this.on_click_add_button, this ));
+      // this.$container.find('.active-layout').on('change', $.proxy( this.on_change_layout, this ));
       feed.$feed.on({
         input   : $.proxy( this.on_zone_update, this ),
         keydown : this.on_zone_keydown
@@ -691,22 +691,25 @@ jQuery(function($) {
 
     on_toggle_add: function(e) {
       e.preventDefault();
-      if ( $(this).hasClass('add-zone') ) {
+      // if ( $(this).hasClass('add-zone') ) {
         $(this).siblings('.add-zone-container').toggle();
-      }
-      if ( $(this).hasClass('add-layout') ) {
-        $(this).siblings('.add-layout-container').toggle();
-      }
+      // }
+      // if ( $(this).hasClass('add-layout') ) {
+      //   $(this).siblings('.add-layout-container').toggle();
+      // }
     },
 
     on_zone_update: function() {
       var that = this;
       // Update the internal data
       var active = this.data.active;
-      this.data.layouts[active].zones = {};
+      this.data.layouts[active].zones = [];
 
       feed.$feed.find('.zone').each(function(index, el) {
-        that.data.layouts[active].zones[ $(this).index() ] = $(this).find('.zone-header').val();
+        that.data.layouts[active].zones.push({
+          position: $(this).index(),
+          title: $(this).find('.zone-header').val()
+        });
       });
 
       var $select = this.$container.find('.active-layout');
@@ -732,23 +735,26 @@ jQuery(function($) {
 
     on_click_add_button: function (e) {
       e.preventDefault();
-      if ( $(e.currentTarget).hasClass('add-zone-button') ) {
+      //if ( $(e.currentTarget).hasClass('add-zone-button') ) {
         var $input = $(e.currentTarget).siblings('.layouts-input');
-        this.insert_zones([ $input.val() ]);
+        this.insert_zones([{
+          position: 0,
+          title: $input.val()
+        }]);
         $input.val('');
-      }
+      //}
 
-      if ( $(e.currentTarget).hasClass('add-layout-button') ) {
-        var $input = $(e.currentTarget).siblings('.layouts-input');
-        var slug = this.slugify( $input.val() );
-        this.data.layouts[ slug ] = {
-          name: $input.val(),
-          zones: {}
-        }
-        this.data.active = slug;
-        $(document).trigger('fm/zone_update');
-        $input.val('');
-      }
+      // if ( $(e.currentTarget).hasClass('add-layout-button') ) {
+      //   var $input = $(e.currentTarget).siblings('.layouts-input');
+      //   var slug = this.slugify( $input.val() );
+      //   this.data.layouts[ slug ] = {
+      //     name: $input.val(),
+      //     zones: {}
+      //   }
+      //   this.data.active = slug;
+      //   $(document).trigger('fm/zone_update');
+      //   $input.val('');
+      // }
     },
     on_add_keydown: function (e) {
       if ( e.keyCode == '13' ) {
@@ -757,18 +763,18 @@ jQuery(function($) {
       }
     },
 
-    on_change_layout: function (e) {
-      this.data.active = $(e.currentTarget).val();
-      this.remove_zones();
-      this.insert_zones( this.data.layouts[ this.data.active ].zones );
-    },
+    // on_change_layout: function (e) {
+    //   this.data.active = $(e.currentTarget).val();
+    //   this.remove_zones();
+    //   this.insert_zones( this.data.layouts[ this.data.active ].zones );
+    // },
 
     insert_zones: function( zones ) {
       for ( i in zones ) {
-        feed.inject( i, $([
+        feed.inject( zones[i].position, $([
           '<div class="stub zone pinned" data-position="' + i + '">',
             '<a href="#" title="Remove this zone" class="remove stub-action dashicons dashicons-no"></a>',
-            '<input type="text" class="zone-header" value="' + zones[i].replace(/\"/g,'&quot;') + '">',
+            '<input type="text" class="zone-header" value="' + zones[i].title.replace(/\"/g,'&quot;') + '">',
           '</div>'
         ].join("")) );
       }
@@ -777,12 +783,11 @@ jQuery(function($) {
 
     remove_zones: function() {
       feed.$feed.find('.zone').remove();
-
     },
 
-    slugify: function(name) {
-      return name.toLowerCase().replace(/ /g,'-').replace(/[-]+/g, '-').replace(/[^\w-]+/g,'');
-    }
+    // slugify: function(name) {
+    //   return name.toLowerCase().replace(/ /g,'-').replace(/[-]+/g, '-').replace(/[^\w-]+/g,'');
+    // }
   };
 
 

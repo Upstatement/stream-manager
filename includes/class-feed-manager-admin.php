@@ -175,9 +175,9 @@ class FeedManagerAdmin {
 			'side'
 		);
 		add_meta_box(
-			'feed_box_layout',
-			'Layout',
-			array( $this, 'meta_box_layout' ),
+			'feed_box_zones',
+			'Zones',
+			array( $this, 'meta_box_zones' ),
 			$this->post_type_slug,
 			'side'
 		);
@@ -233,7 +233,7 @@ class FeedManagerAdmin {
 	 *
 	 * @param     object  $post  WordPress post object
 	 */
-	public function meta_box_layout( $post ) {
+	public function meta_box_zones( $post ) {
 		$feed_post = new TimberFeed( $post->ID );
 
 		$context = array(
@@ -242,7 +242,7 @@ class FeedManagerAdmin {
 			'layouts_json' => JSON_encode($feed_post->fm_layouts)
 		);
 
-		Timber::render('views/layout.twig', array_merge(Timber::get_context(), $context));
+		Timber::render('views/zones.twig', array_merge(Timber::get_context(), $context));
 	}
 
 
@@ -346,11 +346,13 @@ class FeedManagerAdmin {
 				if ( empty( $term ) ) unset( $terms[$i] );
 			}
 
-			$output[] = array(
-				'taxonomy' => $taxonomy,
-				'field' => 'id',
-				'terms' => is_array($terms) ? $terms : $this->parse_terms( $taxonomy, $terms )
-			);
+			if ( !empty($terms) ) {
+				$output[] = array(
+					'taxonomy' => $taxonomy,
+					'field' => 'id',
+					'terms' => $terms
+				);
+			}
 		}
 		return $output;
 	}
