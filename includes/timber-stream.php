@@ -20,6 +20,9 @@ class TimberStream extends TimberPost {
   /**
    * Stream post cache.
    *
+   * This will only be populated when TimberStream::get_posts
+   * is run without a $query argument.
+   *
    * @since    1.0.0
    *
    * @var      array
@@ -27,73 +30,45 @@ class TimberStream extends TimberPost {
   public $posts;
 
   /**
-   * Stream post limit.
-   * Will be overridden by database.
+   * Default stream options, used when creating a
+   * new stream.
    *
    * @since    1.0.0
    *
    * @var      array
    */
-  public $limit = 100;
+  public $default_options = array(
+    'query' => array(
+      'post_type'           => 'post',
+      'post_status'         => 'publish',
+      'has_password'        => false,
+      'ignore_sticky_posts' => true,
+      'posts_per_page'      => 100,
+      'orderby'             => 'post__in'
+    ),
 
-  /**
-   * WP_Query query array.
-   * Overridden by database.
-   *
-   * @since    1.0.0
-   *
-   * @var      array
-   */
-  public $sm_query = array(
-    'post_type' => 'post',
-    'post_status' => 'publish',
-    'has_password' => false,
-    'ignore_sticky_posts' => true,
-
-    'posts_per_page' => 100,
-    'orderby' => 'post__in'
-  );
-
-  /**
-   * Stream data.
-   * Overridden by database.
-   *
-   * @since    1.0.0
-   *
-   * @var      array
-   */
-  public $sm_stream = array(
-    'data' => array(),
-    'hidden' => array()
-  );
-
-  /**
-   * Stream rules.
-   * Overridden by database.
-   *
-   * @since    1.0.0
-   *
-   * @var      array
-   */
-  public $sm_rules = array();
-
-  /**
-   * Stream layouts & zones.
-   * Overridden by database.
-   *
-   * @since    1.0.0
-   *
-   * @var      array
-   */
-  public $sm_layouts = array(
-    'active'  => 'default',
+    'stream'  => array(),
     'layouts' => array(
-      'default' => array(
-        'name'  => 'Default',
-        'zones' => array()
+      'active' => 'default',
+      'layouts' => array(
+        'default' => array(
+          'name' => 'Default',
+          'zones' => array()
+        )
       )
     )
   );
+
+  /**
+   * Stream options.
+   * This is set by __construct based on what is stored
+   * in the database.
+   *
+   * @since    1.0.0
+   *
+   * @var      array
+   */
+  public $options = null;
 
   /**
    * Init Stream object
@@ -104,6 +79,10 @@ class TimberStream extends TimberPost {
    */
   public function __construct($pid = null) {
     parent::__construct($pid);
+
+    if ( !$this->post_content ) $this->post_content = serialize(array());
+    $this->options = array_merge( $this->default_options, unserialize($this->post_content) );
+    $this->options = apply_filters( 'stream-manager/options/id=' . $this->ID, $this->options, $this );
   }
 
   /**
@@ -122,18 +101,21 @@ class TimberStream extends TimberPost {
     if ( $cache && !empty($this->posts) ) return $this->posts;
 
     // Create an array of just post IDs
-    $query = array_merge( $this->sm_query, $query );
+    $query = array_merge( $this->get('query'), $query );
     $query['post__in'] = array();
-    foreach ( $this->sm_stream['data'] as $item ) {
+    foreach ( $this->get('stream') as $item ) {
       $query['post__in'][] = $item['id'];
     }
 
     // Remove any taxonomy limitations, since those would remove any
     // posts from the stream that were added by searching in the UI.
     unset($query['tax_query']);
-
     $posts = Timber::get_posts($query, $PostClass);
-
+    if (empty($posts)) {
+      // if the user has re-configured the feed we might need to blow out the saved items to make way for the fresh query;
+      unset($query['post__in']);
+      $posts = Timber::get_posts($query, $PostClass);
+    }
     $pinned = array_keys($this->filter_stream('pinned', true));
 
     foreach ($posts as &$post) {
@@ -156,7 +138,7 @@ class TimberStream extends TimberPost {
   public function filter_stream($attribute, $value) {
     $items = array();
 
-    foreach ( $this->sm_stream['data'] as $position => $item ) {
+    foreach ( $this->get('stream') as $position => $item ) {
       $item['position'] = $position;
       if ( $item[$attribute] == $value ) $items[$item['id']] = $item;
     }
@@ -178,14 +160,15 @@ class TimberStream extends TimberPost {
   public function repopulate_stream() {
 
     // Determine how many over/under we are
-    $difference = count($this->sm_stream['data']) - $this->limit;
+    $query = $this->get('query');
+    $difference = count( $this->get('stream') ) - $query['posts_per_page'];
 
     if ( $difference < 0 ) {
 
       // Under -- add pinned posts to the end
-      $query = $this->sm_query;
+      $query = $this->get('query');
       $ids = array();
-      foreach ( $this->sm_stream['data'] as $post ) {
+      foreach ( $this->get('stream') as $post ) {
         $ids[] = $post['id'];
       }
       $query['post__not_in'] = $ids;
@@ -195,7 +178,7 @@ class TimberStream extends TimberPost {
       $this->remove_pinned();
 
       foreach ( $posts as $post ) {
-        $this->sm_stream['data'][] = array(
+        $this->options['stream'][] = array(
           'id' => $post->ID,
           'pinned' => false
         );
@@ -208,7 +191,7 @@ class TimberStream extends TimberPost {
       // Over -- remove non-pinned posts at the end
       $this->remove_pinned();
       for ( $i = 1; $i <= $difference; $i++ ) {
-        array_pop( $this->sm_stream['data'] );
+        array_pop( $this->options['stream'] );
       }
       $this->reinsert_pinned();
 
@@ -226,7 +209,7 @@ class TimberStream extends TimberPost {
    * @return    array    returns the data saved in the stream, plus its position
    */
   public function check_post ( $post_id ) {
-    foreach ( $this->sm_stream['data'] as $position => $item ) {
+    foreach ( $this->get('stream') as $position => $item ) {
       if ( $item['id'] == $post_id ) {
         $item['position'] = $position;
         return $item;
@@ -250,7 +233,7 @@ class TimberStream extends TimberPost {
       $this->remove_pinned();
 
       // Remove non-pinned
-      unset($this->sm_stream['data'][$post['position']]);
+      unset($this->options['stream'][ $post['position'] ]);
 
       // Remove pinned
       foreach ( $this->pinned as $i => $pinned ) {
@@ -279,7 +262,7 @@ class TimberStream extends TimberPost {
 
     // Determine where it is in the original query (if at all),
     // minus any pinned items
-    $query = array_merge( $this->sm_query, array(
+    $query = array_merge( $this->get('query'), array(
       'post__not_in' => array_keys($this->filter_stream('pinned', true))
     ));
     $posts = Timber::get_posts( $query );
@@ -297,7 +280,7 @@ class TimberStream extends TimberPost {
     $this->remove_pinned();
 
     // ... then insert this post ...
-    array_splice( $this->sm_stream['data'], $in_stream, 0, array( array (
+    array_splice( $this->options['stream'], $in_stream, 0, array( array (
       'id' => $post_id,
       'pinned' => false
     ) ) );
@@ -317,7 +300,7 @@ class TimberStream extends TimberPost {
   public function remove_pinned() {
     $this->pinned = $this->filter_stream('pinned', true);
     foreach ( $this->pinned as $pin ) {
-      unset ( $this->sm_stream['data'][$pin['position']] );
+      unset ( $this->options['stream'][ $pin['position'] ] );
     }
   }
 
@@ -331,8 +314,17 @@ class TimberStream extends TimberPost {
     foreach ( $this->pinned as $pin ) {
       $position = $pin['position'];
       unset( $pin['position'] );
-      array_splice( $this->sm_stream['data'], $position, 0, array( $pin ) );
+      array_splice( $this->options['stream'], $position, 0, array( $pin ) );
     }
+  }
+
+
+  public function get( $key ) {
+    return apply_filters( 'stream-manager/get_option/id=' . $this->ID, $this->options[$key], $key, $this );
+  }
+
+  public function set( $key, $value ) {
+    $this->options[$key] = apply_filters( 'stream-manager/set_option/id=' . $this->ID, $value, $key, $this );
   }
 
 
@@ -342,10 +334,11 @@ class TimberStream extends TimberPost {
    * @since     1.0.0
    */
   public function save_stream() {
-    update_post_meta( $this->ID, 'sm_stream',  $this->sm_stream );
-    update_post_meta( $this->ID, 'sm_rules',   $this->sm_rules );
-    update_post_meta( $this->ID, 'sm_layouts', $this->sm_layouts );
-    update_post_meta( $this->ID, 'sm_query',   $this->sm_query );
+    $save_data = apply_filters( 'stream-manager/save/id=' . $this->ID, array(
+      'ID' => $this->ID,
+      'post_content' => serialize($this->options)
+    ), $this);
+    wp_update_post( $save_data );
   }
 
 }

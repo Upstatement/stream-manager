@@ -181,13 +181,13 @@ class StreamManagerAdmin {
 			$this->post_type_slug,
 			'side'
 		);
-		add_meta_box(
-			'stream_box_rules',
-			'Rules',
-			array( $this, 'meta_box_rules' ),
-			$this->post_type_slug,
-			'side'
-		);
+		// add_meta_box(
+		// 	'stream_box_rules',
+		// 	'Rules',
+		// 	array( $this, 'meta_box_rules' ),
+		// 	$this->post_type_slug,
+		// 	'side'
+		// );
 	}
 
 
@@ -202,7 +202,7 @@ class StreamManagerAdmin {
 		$stream_post = new TimberStream( $post->ID );
 	  $ids    = array_keys( $stream_post->filter_stream('pinned', false) );
 	  $pinned = array_keys( $stream_post->filter_stream('pinned', true ) );
-	  $layout = $stream_post->sm_layouts['layouts'][ $stream_post->sm_layouts['active'] ];
+	  $layout = $stream_post->get('layouts')['layouts'][ $stream_post->get('layouts')['active'] ];
 
 		Timber::render('views/stream.twig', array(
 			'posts' => $stream_post->get_posts( array( 'show_hidden' => true ) ),
@@ -235,11 +235,12 @@ class StreamManagerAdmin {
 	 */
 	public function meta_box_zones( $post ) {
 		$stream_post = new TimberStream( $post->ID );
+		$layouts = $stream_post->get('layouts');
 
 		$context = array(
 			'post'         => $stream_post,
-			'layouts'      => $stream_post->sm_layouts,
-			'layouts_json' => JSON_encode($stream_post->sm_layouts)
+			'layouts'      => $layouts,
+			'layouts_json' => JSON_encode( $layouts )
 		);
 
 		Timber::render('views/zones.twig', array_merge(Timber::get_context(), $context));
@@ -282,57 +283,51 @@ class StreamManagerAdmin {
     if( !isset( $_POST['sm_meta_box_nonce'] ) || !wp_verify_nonce( $_POST['sm_meta_box_nonce'], 'sm_nonce' ) ) return;
      
     // if our current user can't edit this post, bail
-    if( !current_user_can( 'edit_post' ) ) return;
+    if( !current_user_can( 'edit_post', $stream_id ) ) return;
 
     $stream = new TimberStream( $stream_id );
 
-  	$stream->sm_rules = array();
+  	// $stream->sm_rules = array();
 
-  	// Categories
-  	if ( $_POST['post_category'] ) {
-  		$stream->sm_rules['category'] = $_POST['post_category'];
-  	}
+  	// // Categories
+  	// if ( $_POST['post_category'] ) {
+  	// 	$stream->sm_rules['category'] = $_POST['post_category'];
+  	// }
 
-  	// Tags and all other taxonomies
-  	if ( $_POST['tax_input'] ) {
-  		foreach ( $_POST['tax_input'] as $taxonomy => $terms ) {
-  			$stream->sm_rules[$taxonomy] = $terms;
-  		}
-  	}
+  	// // Tags and all other taxonomies
+  	// if ( $_POST['tax_input'] ) {
+  	// 	foreach ( $_POST['tax_input'] as $taxonomy => $terms ) {
+  	// 		$stream->sm_rules[$taxonomy] = $terms;
+  	// 	}
+  	// }
 
-  	$stream->sm_query = array_merge($this->default_query, $stream->sm_query);
-  	$stream->sm_query['tax_query'] = $this->build_tax_query( $stream->sm_rules );
+  	// $stream->sm_query = array_merge($this->default_query, $stream->sm_query);
+  	// $stream->sm_query['tax_query'] = $this->build_tax_query( $stream->sm_rules );
 
   	// Sorting
     if ( isset( $_POST['sm_sort'] ) ) {
-	    $data   = array();
-	    $hidden = array();
+	    $data = array();
 
 	    foreach ( $_POST['sm_sort'] as $i => $post_id ) {
-	    	if ( isset($_POST['sm_hide'][$post_id]) ) {
-	    		$hidden[] = $post_id;
-	    	} else {
-		    	$data[] = array(
-		    		'id' => $post_id,
-		    		'pinned' => isset($_POST['sm_pin'][$post_id])
-		    	);
-		    }
+	    	$data[] = array(
+	    		'id' => $post_id,
+	    		'pinned' => isset($_POST['sm_pin'][$post_id])
+	    	);
 	    }
 
-	    $stream->sm_stream = array(
-	    	'data' => $data,
-	    	'hidden' => $hidden
-	    );
-
+	    $stream->set('stream', $data);
 	    $stream->repopulate_stream();
 	  }
 
 	  // Layouts
 	  if ( isset( $_POST['sm_layouts'] ) ) {
-	  	$stream->sm_layouts = JSON_decode( stripslashes($_POST['sm_layouts']), true );
+	  	$stream->set('layouts', JSON_decode( stripslashes($_POST['sm_layouts']), true ) );
 	  }
 
+	  // Save the stream, and prevent and infinite loop
+		remove_action( 'save_post', array( $this, 'save_stream' ) );
 	  $stream->save_stream();
+	  add_action( 'save_post', array( $this, 'save_stream' ) );
 	}
 
 	public function build_tax_query( $taxonomies ) {
