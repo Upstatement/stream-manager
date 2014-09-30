@@ -75,6 +75,7 @@ class StreamManager {
 
 		add_action( 'init', array( $this, 'define_post_types' ), 0 );
 		add_filter('post_updated_messages', array( $this, 'define_post_type_messages' ) );
+		add_filter('get_twig', array($this, 'add_timber_filters_functions'));
 	}
 
 	/**
@@ -214,6 +215,19 @@ class StreamManager {
 			'nopaging'  => true
 		));
 		return $this->streams = Timber::get_posts( $query, $PostClass );
+	}
+
+	function add_timber_filters_functions($twig) {
+		$twig->addFunction(new Twig_SimpleFunction('TimberStream', function ($pid, $StreamClass = 'TimberStream') {
+            if (is_array($pid) && !TimberHelper::is_array_assoc($pid)) {
+                foreach ($pid as &$p) {
+                    $p = new $StreamClass($p);
+                }
+                return $pid;
+            }
+            return new $StreamClass($pid);
+        }));
+        return $twig;
 	}
 
 }
