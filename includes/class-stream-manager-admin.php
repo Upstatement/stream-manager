@@ -283,7 +283,7 @@ class StreamManagerAdmin {
     if( !isset( $_POST['sm_meta_box_nonce'] ) || !wp_verify_nonce( $_POST['sm_meta_box_nonce'], 'sm_nonce' ) ) return;
      
     // if our current user can't edit this post, bail
-    if( !current_user_can( 'edit_post' ) ) return;
+    if( !current_user_can( 'edit_post', $stream_id ) ) return;
 
     $stream = new TimberStream( $stream_id );
 
