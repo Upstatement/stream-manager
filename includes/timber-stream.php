@@ -82,7 +82,7 @@ class TimberStream extends TimberPost {
 
     if ( !$this->post_content ) $this->post_content = serialize(array());
     $this->options = array_merge( $this->default_options, unserialize($this->post_content) );
-    $this->options = apply_filters( 'sm/options/key=' . $this->ID, $this->options, $this );
+    $this->options = apply_filters( 'stream-manager/options/id=' . $this->ID, $this->options, $this );
   }
 
   /**
@@ -110,9 +110,12 @@ class TimberStream extends TimberPost {
     // Remove any taxonomy limitations, since those would remove any
     // posts from the stream that were added by searching in the UI.
     unset($query['tax_query']);
-
     $posts = Timber::get_posts($query, $PostClass);
-
+    if (empty($posts)) {
+      // if the user has re-configured the feed we might need to blow out the saved items to make way for the fresh query;
+      unset($query['post__in']);
+      $posts = Timber::get_posts($query, $PostClass);
+    }
     $pinned = array_keys($this->filter_stream('pinned', true));
 
     foreach ($posts as &$post) {
@@ -317,11 +320,11 @@ class TimberStream extends TimberPost {
 
 
   public function get( $key ) {
-    return apply_filters( 'sm/get_option/key=' . $this->ID, $this->options[$key], $key, $this );
+    return apply_filters( 'stream-manager/get_option/id=' . $this->ID, $this->options[$key], $key, $this );
   }
 
   public function set( $key, $value ) {
-    $this->options[$key] = apply_filters( 'sm/set_option/key=' . $this->ID, $value, $key, $this );
+    $this->options[$key] = apply_filters( 'stream-manager/set_option/id=' . $this->ID, $value, $key, $this );
   }
 
 
@@ -331,7 +334,7 @@ class TimberStream extends TimberPost {
    * @since     1.0.0
    */
   public function save_stream() {
-    $save_data = apply_filters( 'sm/save/key=' . $this->ID, array(
+    $save_data = apply_filters( 'stream-manager/save/id=' . $this->ID, array(
       'ID' => $this->ID,
       'post_content' => serialize($this->options)
     ), $this);
