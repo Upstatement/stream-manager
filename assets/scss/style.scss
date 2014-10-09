@@ -98,7 +98,9 @@ $stub-pinned: #F1F1F1;
         display: inline-block;
         padding: 10px 10px 10px 5px;
         opacity: .1;
+        margin-bottom: 25px;
         @include prefixer(transition, .2s opacity);
+
 
         &.pin-unpin {
             float: left;
@@ -239,6 +241,9 @@ $stub-pinned: #F1F1F1;
     box-shadow: none;
     min-height: 0;
     background: transparent;
+    .stub-action {
+        margin-bottom: 0px;
+    }
     .zone-header {
         border-width: 0;
         background: transparent;
