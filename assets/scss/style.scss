@@ -76,88 +76,85 @@ $stub-pinned: #F1F1F1;
 ////////////////////////////////////////////
 
 .stub {
-  cursor: move;
-  padding: 10px;
-  background: #FFF;
-  margin: 0 1px 1px;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
-  @include prefixer(transition, .2s background);
-  @include clear;
-
-  a {
-    text-decoration: none;
-  }
-
-  .post-thumb {
-    float: left;
-    margin-right: 10px;
-  }
-
-  .stub-action {
-    display: inline-block;
-    padding: 10px 10px 10px 5px;
-    opacity: .1;
-    @include prefixer(transition, .2s opacity);
-
-    &.pin-unpin {
-      float: left;
+    cursor: move;
+    padding: 10px;
+    background: #FFF;
+    margin: 0 1px 1px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+    @include prefixer(transition, .2s background);
+    @include clear;
+    min-height: 72px;
+    a {
+        text-decoration: none;
     }
-    &.remove {
-      float: right;
-      opacity: 0;
+
+    .post-thumb {
+        float: right;
+        margin-right: 10px;
+        margin-left:10px;
     }
-  }
 
-  .date {
-    color: #AAA;
-    border: 0;
-  }
-  .row-actions {
-    opacity: 0;
-    display: inline;
-    visibility: visible;
-    @include prefixer(transition, .2s opacity);
-  }
-
-  &:hover {
-    background: $stub-hover;
-
-    .row-actions {
-      opacity: 1;
-    }
     .stub-action {
-      opacity: .5;
+        display: inline-block;
+        padding: 10px 10px 10px 5px;
+        opacity: .1;
+        @include prefixer(transition, .2s opacity);
+
+        &.pin-unpin {
+            float: left;
+        }
+        &.remove {
+            float: right;
+            opacity: 0;
+        }
     }
-  }
-  &.pinned {
-    background: $stub-pinned;
-    box-shadow: none;
+
+    .date {
+        color: #AAA;
+        border: 0;
+    }
+    .row-actions {
+        opacity: 0;
+        display: inline;
+        visibility: visible;
+        @include prefixer(transition, .2s opacity);
+    }
 
     &:hover {
-      background: darken($stub-pinned, 3%);
+        background: $stub-hover;
+        .row-actions {
+            opacity: 1;
+        }
+        .stub-action {
+            opacity: .5;
+        }
     }
-    .pin-unpin {
-      opacity: 1;
-      color: #D54E21;
-      &.animating {
-        -webkit-animation: pulse .5s ease-out;
+
+    &.pinned {
+        box-shadow: none;
+
+        &:hover {
+            background: darken($stub-pinned, 3%);
+        }
+        .pin-unpin {
+            opacity: 1;
+            color: #D54E21;
+            &.animating {
+                -webkit-animation: pulse .5s ease-out;
                 animation: pulse .5s ease-out;
-      }
+            }
+        }
     }
-    .stub-title {
-      color: #D54E21;
+    &.ui-sortable-helper {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
+        opacity: .9;
     }
-  }
-  &.ui-sortable-helper {
-    box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
-    opacity: .9;
-  }
-  &.inserted {
-    background: #FBF0C0;
-  }
-  &.removed {
-    background: #FBCFCA !important;
-  }
+    &.inserted {
+        background: #FBF0C0;
+    }
+    &.removed {
+        background: #FBCFCA !important;
+    }
 }
 
 
@@ -238,25 +235,26 @@ $stub-pinned: #F1F1F1;
 ////////////////////////////////////////////
 
 .zone {
-  margin: 0;
-  box-shadow: none;
-
-  .zone-header {
-    border-width: 0;
-    background: transparent;
-    box-shadow: none;
-    margin: 6px 1px;
-
-    &:focus {
-      background: #FFF;
-      border-width: 1px;
-      margin: 5px 0;
-    }
-  }
-
-  h3 {
     margin: 0;
-  }
+    box-shadow: none;
+    min-height: 0;
+    background: transparent;
+    .zone-header {
+        border-width: 0;
+        background: transparent;
+        box-shadow: none;
+        margin: 6px 1px;
+
+        &:focus {
+        background: #FFF;
+        border-width: 1px;
+        margin: 5px 0;
+        }
+    }
+
+    h3 {
+        margin: 0;
+    }
 }
 
 .add-layout-container,
