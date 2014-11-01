@@ -52,7 +52,9 @@ if ( !class_exists('Timber') ) {
 ////////////////////////////////////////////
 
 require_once( plugin_dir_path( __FILE__ ) . 'includes/class-stream-manager.php' );
+require_once( plugin_dir_path( __FILE__ ) . 'includes/class-stream-manager-factory.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'includes/timber-stream.php' );
+
 
 add_action( 'plugins_loaded', array( 'StreamManager', 'get_instance' ) );
 
@@ -67,4 +69,14 @@ if ( is_admin() ) {
 	require_once( plugin_dir_path( __FILE__ ) . 'includes/class-stream-manager-admin.php' );
   
 	add_action( 'plugins_loaded', array( 'StreamManagerAdmin', 'get_instance' ) );
+}
+
+function register_stream($slug, $args) {
+    $factory = new StreamManagerFactory($slug);
+    if (isset($args['post_type'])) {
+      $factory->set_post_type($args['post_type']);
+    }
+    if (isset($args['label'])) {
+      $factory->set_labels($args['label']);
+    }
 }
