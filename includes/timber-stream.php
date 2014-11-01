@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * TimberStream
  *
@@ -9,7 +9,7 @@
  * @copyright 2014 Upstatement
  *
  * Usage:
- * > $stream = new TimberStrean( $pid );
+ * > $stream = new TimberStream( $pid );
  * > foreach ( $stream->get_posts() as $post ) {
  * >   echo ( $post->title );
  * > }
