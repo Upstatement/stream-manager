@@ -68,7 +68,6 @@ class StreamManager {
 	 * @since     1.0.0
 	 */
 	private function __construct() {
-
 		// Ensure that Timber is loaded
 		if ( !self::check_dependencies() ) return;
 		require_once( plugin_dir_path( __FILE__ ) . 'timber-stream.php' );
@@ -162,7 +161,7 @@ class StreamManager {
 	    'show_in_menu'        => true,
 	    'show_in_nav_menus'   => false,
 	    'show_in_admin_bar'   => false,
-	    'menu_position'       => 5,
+	    'menu_position'       => 25,
 	    'menu_icon'           => 'dashicons-list-view',
 	    'can_export'          => true,
 	    'has_archive'         => false,

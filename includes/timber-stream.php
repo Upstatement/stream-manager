@@ -82,7 +82,9 @@ class TimberStream extends TimberPost {
 
     if ( !$this->post_content ) $this->post_content = serialize(array());
     $this->options = array_merge( $this->default_options, unserialize($this->post_content) );
+    $this->options = apply_filters( 'stream-manager/options/slug='.$this->slug, $this->options, $this );
     $this->options = apply_filters( 'stream-manager/options/id=' . $this->ID, $this->options, $this );
+
   }
 
   /**
