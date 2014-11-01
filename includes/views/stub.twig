@@ -1,32 +1,36 @@
-      <div id="post-{{ post.ID }}" class="stub{{ post.pinned ? ' pinned' }}" data-id="{{ post.ID }}">
+<div id="post-{{ post.ID }}" class="stub{{ post.pinned ? ' pinned' }}" data-id="{{ post.ID }}">
 
-        <a href="#" title="{{ post.pinned ? 'Unpin this post' : 'Pin this post' }}" class="pin-unpin stub-action dashicons dashicons-admin-post"></a>
+	<a href="#" title="{{ post.pinned ? 'Unpin this post' : 'Pin this post' }}" class="pin-unpin stub-action dashicons dashicons-admin-post"></a>
 
-        <a href="#" title="Remove this post from the stream" class="remove stub-action dashicons dashicons-no"></a>
+	<a href="#" title="Remove this post from the stream" class="remove stub-action dashicons dashicons-no"></a>
 
-        <div class="stub-details">
-          {% if post.thumbnail and post.thumbnail.src %}
-            <img src="{{ post.thumbnail.src|resize(72, 72) }}" class="post-thumb" alt=""/>
-          {% endif %}
+	<div class="stub-details">
+		{% if post.thumbnail and post.thumbnail.src %}
+			<img src="{{ post.thumbnail.src|resize(102, 72) }}" class="post-thumb" alt=""/>
+		{% endif %}
 
-          <a class="stub-title row-title" href="{{ post.edit_link }}" title="Edit Post" target="_blank">{{ post.title }}</a>
+		<a class="stub-title row-title" href="{{ post.edit_link }}" title="Edit Post" target="_blank">{{ post.title }}</a>
+		{#
+		<div class="post-intro">
+			{{post.get_preview(10, true, '')}}
+		</div>
+		#}
+		<div class="post-meta">
+			<abbr title="{{ post.post_date }}" class="date">
+			{{ function('human_time_diff', function('strtotime', post.post_date)) }} ago
+			</abbr>
 
-          <div class="post-meta">
-            <abbr title="{{ post.post_date }}" class="date">
-              {{ function('human_time_diff', function('strtotime', post.post_date)) }} ago
-            </abbr>
+			<span class="row-actions">
+			&nbsp; <a href="{{ post.edit_link }}" title="Edit Post" class="edit" target="_blank">Edit</a>
 
-            <span class="row-actions">
-              &nbsp; <a href="{{ post.edit_link }}" title="Edit Post" class="edit" target="_blank">Edit</a>
+			&nbsp; <a href="{{ post.link }}" title="View Post" rel="permalink" class="view" target="_blank">View</a>
+			</span>
+		</div>
+	</div>
 
-              &nbsp; <a href="{{ post.link }}" title="View Post" rel="permalink" class="view" target="_blank">View</a>
-            </span>
-          </div>
-        </div>
-
-        <!-- Hidden Fields -->
-        <span class="hidden">
-          <input id="sm-sort-{{ post.ID }}" type="hidden" name="sm_sort[]" value="{{ post.ID }}">
-          <input id="sm-pin-{{ post.ID }}"  class="sm-pin-checkbox" type="checkbox" name="sm_pin[{{ post.ID }}]" {{ post.pinned ? 'checked="checked"' }}>
-        </span>
-      </div>
+	<!-- Hidden Fields -->
+	<span class="hidden">
+	  <input id="sm-sort-{{ post.ID }}" type="hidden" name="sm_sort[]" value="{{ post.ID }}">
+	  <input id="sm-pin-{{ post.ID }}"  class="sm-pin-checkbox" type="checkbox" name="sm_pin[{{ post.ID }}]" {{ post.pinned ? 'checked="checked"' }}>
+	</span>
+</div>
