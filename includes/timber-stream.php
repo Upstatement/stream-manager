@@ -106,6 +106,10 @@ class TimberStream extends TimberPost {
     foreach ( $this->get('stream') as $item ) {
       $query['post__in'][] = $item['id'];
     }
+    if( isset( $query['post__not_in'] ) && is_array( $query['post__not_in'] ) ){
+      $query['post__in'] = array_diff( $query['post__in'], $query['post__not_in'] );
+      unset( $query['post__not_in'] );
+    }
 
     // Remove any taxonomy limitations, since those would remove any
     // posts from the stream that were added by searching in the UI.
