@@ -97,7 +97,12 @@ class StreamManagerAdmin {
 	}
 
 	public static function is_active() {
-		return get_current_screen()->id == "sm_stream";
+		if ( function_exists( 'get_current_screen' ) ) {
+			$current_screen = get_current_screen();
+			if ( isset($current_screen) ) {
+				return $current_screen->id == "sm_stream";
+			}
+		}
 	}
 
 	/**
