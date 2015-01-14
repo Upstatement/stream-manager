@@ -407,6 +407,12 @@ class StreamManagerAdmin {
 		}
 
 		if ( $old != 'publish' && $new == 'publish' ) {
+			//seems weird, but it's necessary for ACF
+			//and potentially other plugins
+			//we can't be sure what actions have been added
+			//so checking for infinite loop-type bugs isn't possible
+			do_action('save_post', $post->ID, $post, true );
+			remove_all_actions('save_post');
 			// Add to streams
 			$streams = $this->plugin->get_streams();
 			foreach ( $streams as $stream ) {
