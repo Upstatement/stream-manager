@@ -186,13 +186,6 @@ class StreamManagerAdmin {
 			$this->post_type_slug,
 			'side'
 		);
-		// add_meta_box(
-		// 	'stream_box_rules',
-		// 	'Rules',
-		// 	array( $this, 'meta_box_rules' ),
-		// 	$this->post_type_slug,
-		// 	'side'
-		// );
 	}
 
 
@@ -205,10 +198,10 @@ class StreamManagerAdmin {
 	 */
 	public function meta_box_stream( $post ) {
 		$stream_post = new TimberStream( $post->ID );
-	  $ids    = array_keys( $stream_post->filter_stream('pinned', false) );
-	  $pinned = array_keys( $stream_post->filter_stream('pinned', true ) );
-	  $layouts = $stream_post->get('layouts');
-	  $layout = $layouts['layouts'][ $layouts['active'] ];
+	  	$ids    = array_keys( $stream_post->filter_stream('pinned', false) );
+	  	$pinned = array_keys( $stream_post->filter_stream('pinned', true ) );
+	  	$layouts = $stream_post->get('layouts');
+	  	$layout = $layouts['layouts'][ $layouts['active'] ];
 
 		Timber::render('views/stream.twig', array(
 			'posts' => $stream_post->get_posts( array( 'show_hidden' => true ) ),
@@ -325,15 +318,15 @@ class StreamManagerAdmin {
 	    $stream->repopulate_stream();
 	  }
 
-	  // Layouts
-	  if ( isset( $_POST['sm_layouts'] ) ) {
-	  	$stream->set('layouts', JSON_decode( stripslashes($_POST['sm_layouts']), true ) );
-	  }
+		// Layouts
+		if ( isset( $_POST['sm_layouts'] ) ) {
+			$stream->set('layouts', JSON_decode( stripslashes($_POST['sm_layouts']), true ) );
+		}
 
-	  // Save the stream, and prevent and infinite loop
+	  	// Save the stream, and prevent and infinite loop
 		remove_action( 'save_post', array( $this, 'save_stream' ) );
-	  $stream->save_stream();
-	  add_action( 'save_post', array( $this, 'save_stream' ) );
+	  	$stream->save_stream();
+	  	add_action( 'save_post', array( $this, 'save_stream' ) );
 	}
 
 	public function build_tax_query( $taxonomies ) {
@@ -554,6 +547,8 @@ class StreamManagerAdmin {
 		if ( isset($_POST['exclude']) ) {
 			$query['post__not_in'] = $_POST['exclude'];
 		}
+		$query = apply_filters('stream-manager/query', $query);
+		$query = apply_filters('stream-manager/query/slug='.$stream->slug, $query);
 		$posts = Timber::get_posts($query);
 		foreach ( $posts as $post ) {
 			$output[] = Timber::compile('views/stub.twig', array( 'post' => $post ));
