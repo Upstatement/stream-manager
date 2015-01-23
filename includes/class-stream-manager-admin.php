@@ -207,7 +207,8 @@ class StreamManagerAdmin {
 		$stream_post = new TimberStream( $post->ID );
 	  $ids    = array_keys( $stream_post->filter_stream('pinned', false) );
 	  $pinned = array_keys( $stream_post->filter_stream('pinned', true ) );
-	  $layout = $stream_post->get('layouts')['layouts'][ $stream_post->get('layouts')['active'] ];
+	  $layouts = $stream_post->get('layouts');
+	  $layout = $layouts['layouts'][ $layouts['active'] ];
 
 		Timber::render('views/stream.twig', array(
 			'posts' => $stream_post->get_posts( array( 'show_hidden' => true ) ),
