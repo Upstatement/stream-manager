@@ -138,7 +138,19 @@ class StreamManagerAdmin {
 			array(),
 			StreamManager::VERSION
 		);
-	}
+
+		/*
+		 * this limits the number of visible stream items via css
+		 * when one is deleted, the stubs "move up", so they one at a time become visible
+		 * https://github.com/Upstatement/stream-manager/issues/28
+		 */
+		//+ 1 because css is greedy! (it encompasses the number, so we want the *next* element)
+		$display_limit = (int) apply_filters( $this->plugin_slug . '_stub_display_limit', 15 ) + 1;
+		$display_limit_css = ".sm-posts .stub:nth-child(n+{$display_limit}){
+			display:none;
+		}";
+		wp_add_inline_style( $this->plugin_slug .'-admin-styles', $display_limit_css );
+	 }
 
 	/**
 	 * Register and enqueue admin-specific JavaScript.
