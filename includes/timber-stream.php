@@ -79,7 +79,9 @@ class TimberStream extends TimberPost {
    */
   public function __construct($pid = null) {
     parent::__construct($pid);
-
+    if ($this->post_type !== 'sm_stream') {
+      throw new Exception("TimberStream of $pid is not of sm_stream post type");
+    }
     if ( !$this->post_content ) $this->post_content = serialize(array());
     $this->options = array_merge( $this->default_options, unserialize($this->post_content) );
     $this->options['query'] = apply_filters('stream-manager/query', $this->options['query']);

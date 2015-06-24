@@ -1,4 +1,4 @@
-<div id="post-{{ post.ID }}" class="stub{{ post.pinned ? ' pinned' }}" data-id="{{ post.ID }}">
+<div id="post-{{ post.ID }}" class="stub{{ post.pinned ? ' pinned' }} content post-type-{{post.post_type}}" data-id="{{ post.ID }}">
 
 	<a href="#" title="{{ post.pinned ? 'Unpin this post' : 'Pin this post' }}" class="pin-unpin stub-action dashicons dashicons-admin-post"></a>
 

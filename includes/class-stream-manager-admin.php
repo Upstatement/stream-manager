@@ -145,9 +145,9 @@ class StreamManagerAdmin {
 		 * https://github.com/Upstatement/stream-manager/issues/28
 		 */
 		//+ 1 because css is greedy! (it encompasses the number, so we want the *next* element)
-		$display_limit = (int) apply_filters( $this->plugin_slug . '_stub_display_limit', 15 ) + 1;
-		$display_limit_css = ".sm-posts .stub:nth-child(n+{$display_limit}){
-			display:none;
+		$display_limit = (int) apply_filters( $this->plugin_slug . '/stub_display_limit', 15 ) + 1;
+		$display_limit_css = ".sm-posts .stub.content:nth-of-type(n+{$display_limit}){
+			opacity:0.4;
 		}";
 		wp_add_inline_style( $this->plugin_slug .'-admin-styles', $display_limit_css );
 	 }
@@ -289,10 +289,10 @@ class StreamManagerAdmin {
 	public function save_stream( $stream_id ) {
     // Bail if we're doing an auto save
     if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
-     
+
     // if our nonce isn't there, or we can't verify it, bail
     if( !isset( $_POST['sm_meta_box_nonce'] ) || !wp_verify_nonce( $_POST['sm_meta_box_nonce'], 'sm_nonce' ) ) return;
-     
+
     // if our current user can't edit this post, bail
     if( !current_user_can( 'edit_post', $stream_id ) ) return;
 
@@ -466,7 +466,7 @@ class StreamManagerAdmin {
 		    ))
 		  )
 		);
-	  
+
 	  // Add the help tab.
 	  foreach ( $tabs as $tab ) {
 		  $screen->add_help_tab( $tab );
