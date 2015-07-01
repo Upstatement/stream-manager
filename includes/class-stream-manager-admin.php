@@ -146,7 +146,7 @@ class StreamManagerAdmin {
 		 */
 		//+ 1 because css is greedy! (it encompasses the number, so we want the *next* element)
 		$display_limit = (int) apply_filters( $this->plugin_slug . '/stub_display_limit', 15 ) + 1;
-		$display_limit_css = ".sm-posts .stub.content:nth-of-type(n+{$display_limit}){
+		$display_limit_css = ".sm-posts .content:nth-of-type(n+{$display_limit}){
 			opacity:0.4;
 		}";
 		wp_add_inline_style( $this->plugin_slug .'-admin-styles', $display_limit_css );
