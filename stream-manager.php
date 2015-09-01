@@ -3,10 +3,10 @@
  * Stream Manager
  *
  * @package   StreamManager
- * @author    Chris Voll + Upstatement
- * @license   GPL-2.0+
+ * @author    Upstatement
+ * @license   MIT
  * @link      http://upstatement.com
- * @copyright 2014 Upstatement
+ * @copyright 2015 Upstatement
  *
  * @wordpress-plugin
  * Plugin Name:       Stream Manager
@@ -19,7 +19,7 @@
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Domain Path:       /languages
- * GitHub Plugin URI: https://github.com/upstatement/not-feed-manager
+ * GitHub Plugin URI: https://github.com/upstatement/stream-manager
  */
 
 // If this file is called directly, abort.
@@ -31,6 +31,15 @@ if ( ! defined( 'WPINC' ) ) die;
 //  Dependencies
 //
 ////////////////////////////////////////////
+///
+if (   file_exists( $composer_autoload = __DIR__ . '/vendor/autoload.php' ) /* check in self */
+	|| file_exists( $composer_autoload = WP_CONTENT_DIR.'/vendor/autoload.php') /* check in wp-content */
+	|| file_exists( $composer_autoload = plugin_dir_path( __FILE__ ).'vendor/autoload.php') /* check in plugin directory */
+	|| file_exists( $composer_autoload = get_stylesheet_directory().'/vendor/autoload.php') /* check in child theme */
+	|| file_exists( $composer_autoload = get_template_directory().'/vendor/autoload.php') /* check in parent theme */
+	) {
+	require_once $composer_autoload;
+}
 
 // Check if Timber is installed, and include it before any stream manager
 // things are initiated. This is needed for the TimberStream class.
@@ -43,6 +52,7 @@ if ( !class_exists('Timber') ) {
     include_once( ABSPATH . 'wp-content/plugins/timber-library/timber.php' );
   }
 }
+
 
 
 ////////////////////////////////////////////

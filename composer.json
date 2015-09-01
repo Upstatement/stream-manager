@@ -1,0 +1,65 @@
+{
+  "name": "upstatement/stream-manager",
+  "type": "wordpress-plugin",
+  "description": "Plugin to manage streams of content in WordPress",
+  "keywords": [
+    "wordpress",
+    "timber",
+    "content management",
+    "cms"
+  ],
+  "homepage": "http://github.com/upstatement/stream-manager",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jared Novack",
+      "email": "jared@upstatement.com",
+      "homepage": "http://upstatement.com"
+    },
+    {
+      "name": "Chris Voll",
+      "email": "chirs.voll@upstatement.com",
+      "homepage": "http://upstatement.com"
+    },
+    {
+      "name": "Gus Wrezerek",
+      "email": "gus@upstatement.com",
+      "homepage": "http://upstatement.com"
+    },
+    {
+      "name": "Rowan Krishnan",
+      "email": "rowan@upstatement.com",
+      "homepage": "http://upstatement.com"
+    },
+    {
+      "name": "Mike Swartz",
+      "email": "mike@upstatement.com",
+      "homepage": "http://upstatement.com"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/upstataement/stream-manager/issues",
+    "wiki": "https://github.com/upstataement/stream-manager/wiki",
+    "source": "https://github.com/upstataement/stream-manager"
+  },
+  "require": {
+    "php": ">=5.3.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.0",
+    "jarednova/timber": "*",
+    "composer/installers": "~1.0",
+    "satooshi/php-coveralls": "dev-master"
+  },
+  "autoload": {
+    "classmap": [
+      "includes/"
+    ]
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "http://wpackagist.org"
+    }
+  ]
+}
