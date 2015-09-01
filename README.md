@@ -3,6 +3,8 @@ Stream Manager
 
 [![Build Status](https://magnum.travis-ci.com/Upstatement/stream-manager.svg?token=d8Cx5Kv4z1vKq3YdKbM2)](https://magnum.travis-ci.com/Upstatement/stream-manager)
 
+[![Coverage Status](https://coveralls.io/repos/Upstatement/stream-manager/badge.svg?branch=master&service=github&t=0LpO9W)](https://coveralls.io/github/Upstatement/stream-manager?branch=master)
+
 Curate streams of WordPress posts.
 
 ## Setup
