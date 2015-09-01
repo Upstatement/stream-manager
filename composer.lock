@@ -4,112 +4,9 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "439fb956f5a551028d21ac2646de322e",
+    "hash": "4c8d5641c5292d1fce8af269c90d09cc",
     "packages": [],
     "packages-dev": [
-        {
-            "name": "altorouter/altorouter",
-            "version": "v1.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/dannyvankooten/AltoRouter.git",
-                "reference": "09d9d946c546bae6d22a7654cdb3b825ffda54b4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/dannyvankooten/AltoRouter/zipball/09d9d946c546bae6d22a7654cdb3b825ffda54b4",
-                "reference": "09d9d946c546bae6d22a7654cdb3b825ffda54b4",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "type": "library",
-            "autoload": {
-                "classmap": [
-                    "AltoRouter.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Danny van Kooten",
-                    "email": "dannyvankooten@gmail.com",
-                    "homepage": "http://dannyvankooten.com/"
-                },
-                {
-                    "name": "Koen Punt",
-                    "homepage": "https://github.com/koenpunt"
-                },
-                {
-                    "name": "niahoo",
-                    "homepage": "https://github.com/niahoo"
-                }
-            ],
-            "description": "A lightning fast router for PHP",
-            "homepage": "https://github.com/dannyvankooten/AltoRouter",
-            "keywords": [
-                "lightweight",
-                "router",
-                "routing"
-            ],
-            "time": "2014-04-16 09:44:40"
-        },
-        {
-            "name": "asm89/twig-cache-extension",
-            "version": "1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/asm89/twig-cache-extension.git",
-                "reference": "92edc2ab522997fd0a2a02b6b9e89b3e08ac5c60"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/asm89/twig-cache-extension/zipball/92edc2ab522997fd0a2a02b6b9e89b3e08ac5c60",
-                "reference": "92edc2ab522997fd0a2a02b6b9e89b3e08ac5c60",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.2",
-                "twig/twig": "1.*"
-            },
-            "require-dev": {
-                "doctrine/cache": "1.*"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Asm89\\Twig\\CacheExtension\\": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Alexander",
-                    "email": "iam.asm89@gmail.com",
-                    "homepage": "http://asm89.github.io/"
-                }
-            ],
-            "description": "Caching template fragments with Twig.",
-            "homepage": "https://github.com/asm89/twig-cache-extension",
-            "keywords": [
-                "cache",
-                "extension",
-                "twig"
-            ],
-            "time": "2014-05-31 13:57:16"
-        },
         {
             "name": "composer/installers",
             "version": "v1.0.21",
@@ -353,62 +250,6 @@
                 "web service"
             ],
             "time": "2015-03-18 18:23:50"
-        },
-        {
-            "name": "jarednova/timber",
-            "version": "0.21.9",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/jarednova/timber.git",
-                "reference": "79d1d150543b3188a921402c82315a98013fc6b4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/jarednova/timber/zipball/79d1d150543b3188a921402c82315a98013fc6b4",
-                "reference": "79d1d150543b3188a921402c82315a98013fc6b4",
-                "shasum": ""
-            },
-            "require": {
-                "asm89/twig-cache-extension": "~1.0",
-                "composer/installers": "~1.0",
-                "php": ">=5.3.0",
-                "twig/twig": "1.*",
-                "upstatement/routes": "0.3"
-            },
-            "require-dev": {
-                "jarednova/markdowndocs": "dev-master",
-                "phpdocumentor/phpdocumentor": "2.*",
-                "phpunit/phpunit": "~4.0",
-                "satooshi/php-coveralls": "dev-master",
-                "wp-cli/wp-cli": "*",
-                "wpackagist-plugin/advanced-custom-fields": "4.*"
-            },
-            "type": "wordpress-plugin",
-            "autoload": {
-                "classmap": [
-                    "lib/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Jared Novack",
-                    "email": "jared@upstatement.com",
-                    "homepage": "http://upstatement.com"
-                }
-            ],
-            "description": "Plugin to write WordPress themes w Object-Oriented Code and the Twig Template Engine",
-            "homepage": "http://timber.upstatement.com",
-            "keywords": [
-                "templating",
-                "themes",
-                "timber",
-                "twig"
-            ],
-            "time": "2015-08-25 03:54:49"
         },
         {
             "name": "phpdocumentor/reflection-docblock",
@@ -1684,116 +1525,24 @@
             "time": "2015-07-28 14:07:07"
         },
         {
-            "name": "twig/twig",
-            "version": "v1.21.1",
+            "name": "wpackagist-plugin/timber-library",
+            "version": "0.21.9",
             "source": {
-                "type": "git",
-                "url": "https://github.com/twigphp/Twig.git",
-                "reference": "ca8d3aa90b6a01c82e07909fe815d6b443e75a23"
+                "type": "svn",
+                "url": "http://plugins.svn.wordpress.org/timber-library/",
+                "reference": "tags/0.21.9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/ca8d3aa90b6a01c82e07909fe815d6b443e75a23",
-                "reference": "ca8d3aa90b6a01c82e07909fe815d6b443e75a23",
-                "shasum": ""
+                "url": "https://downloads.wordpress.org/plugin/timber-library.0.21.9.zip",
+                "reference": null,
+                "shasum": null
             },
             "require": {
-                "php": ">=5.2.7"
+                "composer/installers": "~1.0"
             },
-            "require-dev": {
-                "symfony/debug": "~2.7",
-                "symfony/phpunit-bridge": "~2.7"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.21-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Twig_": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com",
-                    "homepage": "http://fabien.potencier.org",
-                    "role": "Lead Developer"
-                },
-                {
-                    "name": "Armin Ronacher",
-                    "email": "armin.ronacher@active-4.com",
-                    "role": "Project Founder"
-                },
-                {
-                    "name": "Twig Team",
-                    "homepage": "http://twig.sensiolabs.org/contributors",
-                    "role": "Contributors"
-                }
-            ],
-            "description": "Twig, the flexible, fast, and secure template language for PHP",
-            "homepage": "http://twig.sensiolabs.org",
-            "keywords": [
-                "templating"
-            ],
-            "time": "2015-08-26 08:58:31"
-        },
-        {
-            "name": "upstatement/routes",
-            "version": "0.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Upstatement/routes.git",
-                "reference": "40d003b69c0f5c52fb4b15e5d1fa4d5c522c9475"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Upstatement/routes/zipball/40d003b69c0f5c52fb4b15e5d1fa4d5c522c9475",
-                "reference": "40d003b69c0f5c52fb4b15e5d1fa4d5c522c9475",
-                "shasum": ""
-            },
-            "require": {
-                "altorouter/altorouter": "1.1.0",
-                "composer/installers": "~1.0",
-                "php": ">=5.3.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "3.7.*",
-                "satooshi/php-coveralls": "dev-master",
-                "wp-cli/wp-cli": "*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Routes": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Jared Novack",
-                    "email": "jared@upstatement.com",
-                    "homepage": "http://upstatement.com"
-                }
-            ],
-            "description": "Manage rewrites and routes in WordPress with this dead-simple plugin",
-            "homepage": "http://routes.upstatement.com",
-            "keywords": [
-                "redirects",
-                "rewrite",
-                "routes",
-                "routing"
-            ],
-            "time": "2015-03-07 13:41:29"
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/timber-library/"
         }
     ],
     "aliases": [],

@@ -12,7 +12,9 @@
 		</testsuite>
 	</testsuites>
 	<logging>
-		<log type="coverage-clover" target="build/logs/clover.xml"/>    </logging>
+		<log type="coverage-clover" target="build/logs/clover.xml"/>
+		<log type="coverage-html" target="build/logs/html"/>
+	</logging>
     <filter>
     	<whitelist processUncoveredFilesFromWhitelist="true">
     		<directory suffix=".php">includes</directory>

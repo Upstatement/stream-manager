@@ -47,15 +47,9 @@
   },
   "require-dev": {
     "phpunit/phpunit": "~4.0",
-    "jarednova/timber": "*",
+    "wpackagist-plugin/timber-library": "*",
     "composer/installers": "~1.0",
     "satooshi/php-coveralls": "dev-master"
-  },
-  "autoload": {
-    "classmap": [
-      "includes/"
-    ], 
-    "files": ["wp-content/plugins/timber/timber.php"]
   },
   "repositories": [
     {
