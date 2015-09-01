@@ -1,19 +1,18 @@
 <div class="sm-alert"></div>
 
 <div class="sm-posts" data-ids="{{ post_ids }}" data-pinned="{{ post_pinned }}">
-
     {% set j = 0 %}
 
     {% for i, post in posts %}
 
       {% for zone in layout.zones %}
         {% if zone.position == j %}
-          {% include "meta.twig" %}
+          {% include ["meta.twig", "views/meta.twig"] %}
           {% set j = j + 1 %}
         {% endif %}
       {% endfor %}
 
-      {% include "stub.twig" %}
+      {% include ["stub.twig", "views/stub.twig"] %}
 
       {% set j = j + 1 %}
 
