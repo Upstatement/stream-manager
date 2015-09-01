@@ -1,6 +1,8 @@
 Stream Manager
 ==============
 
+[![Build Status](https://magnum.travis-ci.com/Upstatement/stream-manager.svg?token=d8Cx5Kv4z1vKq3YdKbM2)](https://magnum.travis-ci.com/Upstatement/stream-manager)
+
 Curate streams of WordPress posts.
 
 ## Setup
