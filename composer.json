@@ -54,7 +54,8 @@
   "autoload": {
     "classmap": [
       "includes/"
-    ]
+    ], 
+    "files": ["wp-content/plugins/timber/timber.php"]
   },
   "repositories": [
     {
