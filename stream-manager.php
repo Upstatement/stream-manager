@@ -3,10 +3,10 @@
  * Stream Manager
  *
  * @package   StreamManager
- * @author    Chris Voll + Upstatement
- * @license   GPL-2.0+
+ * @author    Upstatement
+ * @license   MIT
  * @link      http://upstatement.com
- * @copyright 2014 Upstatement
+ * @copyright 2015 Upstatement
  *
  * @wordpress-plugin
  * Plugin Name:       Stream Manager
@@ -19,7 +19,7 @@
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Domain Path:       /languages
- * GitHub Plugin URI: https://github.com/upstatement/not-feed-manager
+ * GitHub Plugin URI: https://github.com/upstatement/stream-manager
  */
 
 // If this file is called directly, abort.
@@ -32,6 +32,7 @@ if ( ! defined( 'WPINC' ) ) die;
 //
 ////////////////////////////////////////////
 
+
 // Check if Timber is installed, and include it before any stream manager
 // things are initiated. This is needed for the TimberStream class.
 if ( !class_exists('Timber') ) {
@@ -43,6 +44,7 @@ if ( !class_exists('Timber') ) {
     include_once( ABSPATH . 'wp-content/plugins/timber-library/timber.php' );
   }
 }
+
 
 
 ////////////////////////////////////////////

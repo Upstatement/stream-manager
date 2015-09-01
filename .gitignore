@@ -1,2 +1,5 @@
 .DS_Store
 .sass-cache
+vendor
+wp-content
+build
