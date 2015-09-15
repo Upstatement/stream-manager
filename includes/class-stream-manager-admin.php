@@ -298,22 +298,28 @@ class StreamManagerAdmin {
 
     $stream = new TimberStream( $stream_id );
 
-  	// $stream->sm_rules = array();
+  	$stream->sm_rules = array();
 
   	// // Categories
   	// if ( $_POST['post_category'] ) {
   	// 	$stream->sm_rules['category'] = $_POST['post_category'];
   	// }
 
-  	// // Tags and all other taxonomies
-  	// if ( $_POST['tax_input'] ) {
-  	// 	foreach ( $_POST['tax_input'] as $taxonomy => $terms ) {
-  	// 		$stream->sm_rules[$taxonomy] = $terms;
-  	// 	}
-  	// }
+  	// Tags and all other taxonomies
 
-  	// $stream->sm_query = array_merge($this->default_query, $stream->sm_query);
-  	// $stream->sm_query['tax_query'] = $this->build_tax_query( $stream->sm_rules );
+  	$_POST['tax_input'] = array('theme' => array(32));
+
+  	if ( $_POST['tax_input'] ) {
+  		foreach ( $_POST['tax_input'] as $taxonomy => $terms ) {
+  			$stream->sm_rules[$taxonomy] = $terms;
+  		}
+  	}
+
+  	f$stream->sm_query = array_merge($this->default_query, $stream->sm_query);
+  	$stream->sm_query = $this->default_query;
+
+  	$stream->sm_query['tax_query'] = $this->build_tax_query( $stream->sm_rules );
+  	$stream->set('query',$stream->sm_query);
 
   	// Sorting
     if ( isset( $_POST['sm_sort'] ) ) {
@@ -355,7 +361,7 @@ class StreamManagerAdmin {
 			if ( !empty($terms) ) {
 				$output[] = array(
 					'taxonomy' => $taxonomy,
-					'field' => 'id',
+					'field' => 'term_id',
 					'terms' => $terms
 				);
 			}
@@ -519,7 +525,6 @@ class StreamManagerAdmin {
 	 */
 	public function ajax_retrieve_posts( $request ) {
 		if ( !isset( $_POST['queue'] ) ) $this->ajax_respond( 'error' );
-
 		$queue = $_POST['queue'];
 		$output = array();
 
@@ -555,6 +560,7 @@ class StreamManagerAdmin {
 		// Build the query
 		$query = ($stream && $stream->sm_query) ? $stream->sm_query : $this->default_query;
 		$query['tax_query'] = $this->build_tax_query( $_POST['taxonomies'] );
+
 
 		if ( isset($_POST['exclude']) ) {
 			$query['post__not_in'] = $_POST['exclude'];
