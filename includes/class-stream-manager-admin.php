@@ -307,15 +307,18 @@ class StreamManagerAdmin {
 
   	// Tags and all other taxonomies
 
-  	$_POST['tax_input'] = array('theme' => array(32));
+  	//$tax_input = $_POST['tax_input'];
+  	$tax_input = array();
 
-  	if ( $_POST['tax_input'] ) {
-  		foreach ( $_POST['tax_input'] as $taxonomy => $terms ) {
+  	$tax_input = apply_filters('stream-manager/taxonomy/'.$stream->slug, $tax_input);
+
+  	if ( $tax_input ) {
+  		foreach ( $tax_input as $taxonomy => $terms ) {
   			$stream->sm_rules[$taxonomy] = $terms;
   		}
   	}
 
-  	f$stream->sm_query = array_merge($this->default_query, $stream->sm_query);
+  	$stream->sm_query = array_merge($this->default_query, $stream->sm_query);
   	$stream->sm_query = $this->default_query;
 
   	$stream->sm_query['tax_query'] = $this->build_tax_query( $stream->sm_rules );

@@ -114,20 +114,12 @@ class TimberStream extends TimberPost {
       unset( $query['post__not_in'] );
     }
     
-    // get all posts including taxonomy rules
     $posts_orig = Timber::get_posts($query, $PostClass);
     $post_ids = array_map(create_function('$post', 'return $post->ID;'),$posts_orig);
 
-    // Remove any taxonomy limitations, since those would remove any
-    // posts from the stream that were added by searching in the UI.
-    unset($query['tax_query']);
-
-    //get all posts, including thoses that wouldn't have shown up in the first post due to taxonomy rules
-    $posts_with_tax = Timber::get_posts($query, $PostClass);
-    $posts_with_tax_id = array_map(create_function('$post', 'return $post->ID;'),$posts_with_tax);
-
     //get posts that have been added via search that fall outside the tax rules
-    $extra = array_diff($posts_with_tax_id, $post_ids);
+    $saved_posts = $this->get_posts_without_tax_query($query);
+    $extra = array_diff($saved_posts, $post_ids);
     $all_ids = array_merge($extra,$post_ids);
 
     //use the stream to put posts back in order
@@ -151,6 +143,23 @@ class TimberStream extends TimberPost {
     if ( $cache ) $this->posts = $posts;
 
     return $posts;
+  }
+
+  /**
+  * Get the ids of all saved posts, including any removed by the taxonomy query
+  *
+  */
+  public function get_posts_without_tax_query($query, $PostClass = 'TimberPost') {
+
+    // Remove any taxonomy limitations, since those would remove any
+    // posts from the stream that were added by searching in the UI.
+    unset($query['tax_query']);
+
+    $all_posts = Timber::get_posts($query, $PostClass);
+    $postids = array_map(create_function('$post', 'return $post->ID;'),$all_posts);
+
+    return $postids;
+
   }
 
   /**
