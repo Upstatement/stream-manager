@@ -34,14 +34,14 @@ class StreamManagerAdmin {
 	public $plugin = null;
 
 	public $default_query = array(
-    'post_type' => 'post',
-    'post_status' => 'publish',
-    'has_password' => false,
-    'ignore_sticky_posts' => true,
+    	'post_type' => 'post',
+    	'post_status' => 'publish',
+    	'has_password' => false,
+    	'ignore_sticky_posts' => true,
 
-    'posts_per_page' => 100,
-    'orderby' => 'post__in'
-  );
+    	'posts_per_page' => 100,
+    	'orderby' => 'post__in'
+  	);
 
 	/**
 	 * Initialize the plugin
@@ -281,63 +281,54 @@ class StreamManagerAdmin {
 	 * Save the stream metadata
 	 *
 	 * @since     1.0.0
-	 *
 	 * @param     integer  $stream_id  Stream Post ID
-	 *
 	 * @todo      Move Rules update to TimberStream::save_stream
 	 */
-	public function save_stream( $stream_id ) {
-    // Bail if we're doing an auto save
-    if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+	public function save_stream( $stream_id, $apply_security_checks = true ) {
+	    // Bail if we're doing an auto save
+	    if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 
-    // if our nonce isn't there, or we can't verify it, bail
-    if( !isset( $_POST['sm_meta_box_nonce'] ) || !wp_verify_nonce( $_POST['sm_meta_box_nonce'], 'sm_nonce' ) ) return;
+	    if ( $apply_security_checks ) {
 
-    // if our current user can't edit this post, bail
-    if( !current_user_can( 'edit_post', $stream_id ) ) return;
+	    	// if our nonce isn't there, or we can't verify it, bail
+		    if( !isset( $_POST['sm_meta_box_nonce'] ) || !wp_verify_nonce( $_POST['sm_meta_box_nonce'], 'sm_nonce' ) ) return;
 
-    $stream = new TimberStream( $stream_id );
+		    // if our current user can't edit this post, bail
+		    if( !current_user_can( 'edit_post', $stream_id ) ) return;
+		}
 
-  	$stream->sm_rules = array();
+	    $stream = new TimberStream( $stream_id );
 
-  	// // Categories
-  	// if ( $_POST['post_category'] ) {
-  	// 	$stream->sm_rules['category'] = $_POST['post_category'];
-  	// }
+	  	$stream->sm_rules = array();
 
-  	// Tags and all other taxonomies
+	  	$tax_input = apply_filters('stream-manager/taxonomy/'.$stream->slug, array());
 
-  	//$tax_input = $_POST['tax_input'];
-  	$tax_input = array();
+	  	if ( $tax_input ) {
+	  		foreach ( $tax_input as $taxonomy => $terms ) {
+	  			$stream->sm_rules[$taxonomy] = $terms;
+	  		}
+	  	}
 
-  	$tax_input = apply_filters('stream-manager/taxonomy/'.$stream->slug, $tax_input);
+	  	$stream->sm_query = array_merge($this->default_query, $stream->sm_query);
+	  	$stream->sm_query = $this->default_query;
 
-  	if ( $tax_input ) {
-  		foreach ( $tax_input as $taxonomy => $terms ) {
-  			$stream->sm_rules[$taxonomy] = $terms;
-  		}
-  	}
+	  	$stream->sm_query['tax_query'] = $this->build_tax_query( $stream->sm_rules );
+	  	$stream->set('query', $stream->sm_query);
 
-  	$stream->sm_query = array_merge($this->default_query, $stream->sm_query);
-  	$stream->sm_query = $this->default_query;
+	  	// Sorting
+	    if ( isset( $_POST['sm_sort'] ) ) {
+		    $data = array();
 
-  	$stream->sm_query['tax_query'] = $this->build_tax_query( $stream->sm_rules );
-  	$stream->set('query',$stream->sm_query);
+		    foreach ( $_POST['sm_sort'] as $i => $post_id ) {
+		    	$data[] = array(
+		    		'id' => $post_id,
+		    		'pinned' => isset($_POST['sm_pin'][$post_id])
+		    	);
+		    }
 
-  	// Sorting
-    if ( isset( $_POST['sm_sort'] ) ) {
-	    $data = array();
-
-	    foreach ( $_POST['sm_sort'] as $i => $post_id ) {
-	    	$data[] = array(
-	    		'id' => $post_id,
-	    		'pinned' => isset($_POST['sm_pin'][$post_id])
-	    	);
-	    }
-
-	    $stream->set('stream', $data);
-	    $stream->repopulate_stream();
-	  }
+		    $stream->set('stream', $data);
+		    $stream->repopulate_stream();
+	  	}
 
 		// Layouts
 		if ( isset( $_POST['sm_layouts'] ) ) {
@@ -352,7 +343,6 @@ class StreamManagerAdmin {
 
 	public function build_tax_query( $taxonomies ) {
 		$output = array('relation' => 'OR');
-
 		foreach ( $taxonomies as $taxonomy => $terms ) {
 			if ( !$terms ) continue;
 

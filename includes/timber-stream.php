@@ -23,18 +23,23 @@ class TimberStream extends TimberPost {
    * This will only be populated when TimberStream::get_posts
    * is run without a $query argument.
    *
-   * @since    1.0.0
+   * @since     1.0.0
    *
-   * @var      array
+   * @var       array
    */
   public $posts;
+
+  /**
+   * @since     1.0.0
+   * @var       array
+   */
+  public $sm_query = array();
 
   /**
    * Default stream options, used when creating a
    * new stream.
    *
    * @since    1.0.0
-   *
    * @var      array
    */
   public $default_options = array(
@@ -86,6 +91,12 @@ class TimberStream extends TimberPost {
     $this->options = array_merge( $this->default_options, unserialize($this->post_content) );
     $this->options['query'] = apply_filters('stream-manager/query', $this->options['query']);
     $this->options = apply_filters( 'stream-manager/options/id=' . $this->ID, $this->options, $this );
+    $this->options = apply_filters( 'stream-manager/options/'.$this->slug, $this->options, $this );
+    if (!isset($this->options['query']['tax_query'])) {
+      $this->options['query']['tax_query'] = array();
+    }
+    $this->options['query']['tax_query'] = apply_filters( 'stream-manager/taxonomy/'.$this->slug, $this->options['query']['tax_query'], $this );
+    //print_r($this->options);
   }
 
   /**
