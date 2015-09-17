@@ -2,7 +2,6 @@ Stream Manager
 ==============
 
 [![Build Status](https://magnum.travis-ci.com/Upstatement/stream-manager.svg?token=d8Cx5Kv4z1vKq3YdKbM2)](https://magnum.travis-ci.com/Upstatement/stream-manager)
-
 [![Coverage Status](https://coveralls.io/repos/Upstatement/stream-manager/badge.svg?branch=master&service=github&t=0LpO9W)](https://coveralls.io/github/Upstatement/stream-manager?branch=master)
 
 Curate streams of WordPress posts.
@@ -30,20 +29,20 @@ And add this to your twig file:
 ### Roadmap
 - [x] Define project requirements _Jared_
 - [x] Write a technical spec _Chris_
-- [ ] Create a WordPress plugin _Chris_
+- [x] Create a WordPress plugin _Chris_
 - [ ] Release WordPress plugin
-- [ ] Integrate on a site
+- [x] Integrate on a site
 
 ### Goals
-- [ ] Gives editors an easy and intutive way to manage streams of content on their site
+- [x] Gives editors an easy and intutive way to manage streams of content on their site
 - [ ] Has ways Upstatement or other developers can extend/customize for particular implemenetation or site
-- [ ] Doesn't require an editor to set after every update (ie. auto-insertion of published posts)
+- [x] Doesn't require an editor to set after every update (ie. auto-insertion of published posts)
 
 ### Requirements
-- [ ] Modeled after existing [feed manager](https://github.com/Upstatement/chainsaw-feed) for general UI and UX
-- [ ] Matches general WordPress UI
+- [x] Modeled after existing [feed manager](https://github.com/Upstatement/chainsaw-feed) for general UI and UX
+- [x] Matches general WordPress UI
 - [ ] Contains Upstatement mention/branding
 - [ ] Can handle multiple streams
-- [ ] Built upon normal WordPress post_type architecture
-- [ ] JavaScript / AJAX provides _enhancements_ as opposed to core UX
+- [x] Built upon normal WordPress post_type architecture
+- [x] JavaScript / AJAX provides _enhancements_ as opposed to core UX
 
