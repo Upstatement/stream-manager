@@ -23,18 +23,23 @@ class TimberStream extends TimberPost {
    * This will only be populated when TimberStream::get_posts
    * is run without a $query argument.
    *
-   * @since    1.0.0
+   * @since     1.0.0
    *
-   * @var      array
+   * @var       array
    */
   public $posts;
+
+  /**
+   * @since     1.0.0
+   * @var       array
+   */
+  public $sm_query = array();
 
   /**
    * Default stream options, used when creating a
    * new stream.
    *
    * @since    1.0.0
-   *
    * @var      array
    */
   public $default_options = array(
@@ -86,6 +91,17 @@ class TimberStream extends TimberPost {
     $this->options = array_merge( $this->default_options, unserialize($this->post_content) );
     $this->options['query'] = apply_filters('stream-manager/query', $this->options['query']);
     $this->options = apply_filters( 'stream-manager/options/id=' . $this->ID, $this->options, $this );
+    $this->options = apply_filters( 'stream-manager/options/'.$this->slug, $this->options, $this );
+
+    $taxes = apply_filters( 'stream-manager/taxonomy/'.$this->slug, array(), $this );
+    if (is_array($taxes) && !empty($taxes)) {
+      $taxes = StreamManagerAdmin::build_tax_query($taxes);
+      if (isset($this->options['query']['tax_query'])) {
+        $this->options['query']['tax_query'] = array_merge($this->options['query']['tax_query'], $taxes);
+      } else {
+        $this->options['query']['tax_query'] = $taxes;
+      }
+    }
   }
 
   /**
@@ -113,11 +129,22 @@ class TimberStream extends TimberPost {
       $query['post__in'] = array_diff( $query['post__in'], $query['post__not_in'] );
       unset( $query['post__not_in'] );
     }
+    
+    $posts_orig = Timber::get_posts($query, $PostClass);
+    $post_ids = array_map(create_function('$post', 'return $post->ID;'),$posts_orig);
 
-    // Remove any taxonomy limitations, since those would remove any
-    // posts from the stream that were added by searching in the UI.
-    unset($query['tax_query']);
-    $posts = Timber::get_posts($query, $PostClass);
+    //get posts that have been added via search that fall outside the tax rules
+    $saved_posts = $this->get_posts_without_tax_query($query);
+    $extra = array_diff($saved_posts, $post_ids);
+    $all_ids = array_merge($extra,$post_ids);
+
+    //use the stream to put posts back in order
+    foreach($this->get('stream') as $item) {
+      if(in_array($item['id'], $all_ids)) {
+        $posts[] = new TimberPost($item['id']);
+      }
+    }
+
     if (empty($posts)) {
       // if the user has re-configured the feed we might need to blow out the saved items to make way for the fresh query;
       unset($query['post__in']);
@@ -132,6 +159,23 @@ class TimberStream extends TimberPost {
     if ( $cache ) $this->posts = $posts;
 
     return $posts;
+  }
+
+  /**
+  * Get the ids of all saved posts, including any removed by the taxonomy query
+  *
+  */
+  public function get_posts_without_tax_query($query, $PostClass = 'TimberPost') {
+
+    // Remove any taxonomy limitations, since those would remove any
+    // posts from the stream that were added by searching in the UI.
+    unset($query['tax_query']);
+
+    $all_posts = Timber::get_posts($query, $PostClass);
+    $postids = array_map(create_function('$post', 'return $post->ID;'),$all_posts);
+
+    return $postids;
+
   }
 
   /**

@@ -34,14 +34,14 @@ class StreamManagerAdmin {
 	public $plugin = null;
 
 	public $default_query = array(
-    'post_type' => 'post',
-    'post_status' => 'publish',
-    'has_password' => false,
-    'ignore_sticky_posts' => true,
+    	'post_type' => 'post',
+    	'post_status' => 'publish',
+    	'has_password' => false,
+    	'ignore_sticky_posts' => true,
 
-    'posts_per_page' => 100,
-    'orderby' => 'post__in'
-  );
+    	'posts_per_page' => 100,
+    	'orderby' => 'post__in'
+  	);
 
 	/**
 	 * Initialize the plugin
@@ -281,54 +281,54 @@ class StreamManagerAdmin {
 	 * Save the stream metadata
 	 *
 	 * @since     1.0.0
-	 *
 	 * @param     integer  $stream_id  Stream Post ID
-	 *
 	 * @todo      Move Rules update to TimberStream::save_stream
 	 */
-	public function save_stream( $stream_id ) {
-    // Bail if we're doing an auto save
-    if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+	public function save_stream( $stream_id, $apply_security_checks = true ) {
+	    // Bail if we're doing an auto save
+	    if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 
-    // if our nonce isn't there, or we can't verify it, bail
-    if( !isset( $_POST['sm_meta_box_nonce'] ) || !wp_verify_nonce( $_POST['sm_meta_box_nonce'], 'sm_nonce' ) ) return;
+	    if ( $apply_security_checks ) {
 
-    // if our current user can't edit this post, bail
-    if( !current_user_can( 'edit_post', $stream_id ) ) return;
+	    	// if our nonce isn't there, or we can't verify it, bail
+		    if( !isset( $_POST['sm_meta_box_nonce'] ) || !wp_verify_nonce( $_POST['sm_meta_box_nonce'], 'sm_nonce' ) ) return;
 
-    $stream = new TimberStream( $stream_id );
+		    // if our current user can't edit this post, bail
+		    if( !current_user_can( 'edit_post', $stream_id ) ) return;
+		}
 
-  	// $stream->sm_rules = array();
+	    $stream = new TimberStream( $stream_id );
 
-  	// // Categories
-  	// if ( $_POST['post_category'] ) {
-  	// 	$stream->sm_rules['category'] = $_POST['post_category'];
-  	// }
+	  	$stream->sm_rules = array();
 
-  	// // Tags and all other taxonomies
-  	// if ( $_POST['tax_input'] ) {
-  	// 	foreach ( $_POST['tax_input'] as $taxonomy => $terms ) {
-  	// 		$stream->sm_rules[$taxonomy] = $terms;
-  	// 	}
-  	// }
+	  	$tax_input = apply_filters('stream-manager/taxonomy/'.$stream->slug, array());
 
-  	// $stream->sm_query = array_merge($this->default_query, $stream->sm_query);
-  	// $stream->sm_query['tax_query'] = $this->build_tax_query( $stream->sm_rules );
+	  	if ( $tax_input ) {
+	  		foreach ( $tax_input as $taxonomy => $terms ) {
+	  			$stream->sm_rules[$taxonomy] = $terms;
+	  		}
+	  	}
 
-  	// Sorting
-    if ( isset( $_POST['sm_sort'] ) ) {
-	    $data = array();
+	  	$stream->sm_query = array_merge($this->default_query, $stream->sm_query);
+	  	$stream->sm_query = $this->default_query;
 
-	    foreach ( $_POST['sm_sort'] as $i => $post_id ) {
-	    	$data[] = array(
-	    		'id' => $post_id,
-	    		'pinned' => isset($_POST['sm_pin'][$post_id])
-	    	);
-	    }
+	  	$stream->sm_query['tax_query'] = self::build_tax_query( $stream->sm_rules );
+	  	$stream->set('query', $stream->sm_query);
 
-	    $stream->set('stream', $data);
-	    $stream->repopulate_stream();
-	  }
+	  	// Sorting
+	    if ( isset( $_POST['sm_sort'] ) ) {
+		    $data = array();
+
+		    foreach ( $_POST['sm_sort'] as $i => $post_id ) {
+		    	$data[] = array(
+		    		'id' => $post_id,
+		    		'pinned' => isset($_POST['sm_pin'][$post_id])
+		    	);
+		    }
+
+		    $stream->set('stream', $data);
+		    $stream->repopulate_stream();
+	  	}
 
 		// Layouts
 		if ( isset( $_POST['sm_layouts'] ) ) {
@@ -341,13 +341,12 @@ class StreamManagerAdmin {
 	  	add_action( 'save_post', array( $this, 'save_stream' ) );
 	}
 
-	public function build_tax_query( $taxonomies ) {
+	public static function build_tax_query( $taxonomies ) {
 		$output = array('relation' => 'OR');
-
 		foreach ( $taxonomies as $taxonomy => $terms ) {
 			if ( !$terms ) continue;
 
-			$terms = is_array($terms) ? $terms : $this->parse_terms( $taxonomy, $terms );
+			$terms = is_array($terms) ? $terms : self::parse_terms( $taxonomy, $terms );
 			foreach ( $terms as $i => $term ) {
 				if ( empty( $term ) ) unset( $terms[$i] );
 			}
@@ -355,7 +354,7 @@ class StreamManagerAdmin {
 			if ( !empty($terms) ) {
 				$output[] = array(
 					'taxonomy' => $taxonomy,
-					'field' => 'id',
+					'field' => 'term_id',
 					'terms' => $terms
 				);
 			}
@@ -375,7 +374,7 @@ class StreamManagerAdmin {
 	 *
 	 * @return    array   array of term IDs
 	 */
-	public function parse_terms( $taxonomy, $terms, $return_objects = false ) {
+	public static function parse_terms( $taxonomy, $terms, $return_objects = false ) {
 		if ( !is_array($terms) ) $terms = explode( ",", $terms );
 
 		$output = array();
@@ -519,7 +518,6 @@ class StreamManagerAdmin {
 	 */
 	public function ajax_retrieve_posts( $request ) {
 		if ( !isset( $_POST['queue'] ) ) $this->ajax_respond( 'error' );
-
 		$queue = $_POST['queue'];
 		$output = array();
 
@@ -554,7 +552,8 @@ class StreamManagerAdmin {
 
 		// Build the query
 		$query = ($stream && $stream->sm_query) ? $stream->sm_query : $this->default_query;
-		$query['tax_query'] = $this->build_tax_query( $_POST['taxonomies'] );
+		$query['tax_query'] = self::build_tax_query( $_POST['taxonomies'] );
+
 
 		if ( isset($_POST['exclude']) ) {
 			$query['post__not_in'] = $_POST['exclude'];
