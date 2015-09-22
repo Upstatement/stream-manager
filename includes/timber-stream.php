@@ -92,11 +92,16 @@ class TimberStream extends TimberPost {
     $this->options['query'] = apply_filters('stream-manager/query', $this->options['query']);
     $this->options = apply_filters( 'stream-manager/options/id=' . $this->ID, $this->options, $this );
     $this->options = apply_filters( 'stream-manager/options/'.$this->slug, $this->options, $this );
-    if (!isset($this->options['query']['tax_query'])) {
-      $this->options['query']['tax_query'] = array();
+
+    $taxes = apply_filters( 'stream-manager/taxonomy/'.$this->slug, array(), $this );
+    if (is_array($taxes) && !empty($taxes)) {
+      $taxes = StreamManagerAdmin::build_tax_query($taxes);
+      if (isset($this->options['query']['tax_query'])) {
+        $this->options['query']['tax_query'] = array_merge($this->options['query']['tax_query'], $taxes);
+      } else {
+        $this->options['query']['tax_query'] = $taxes;
+      }
     }
-    $this->options['query']['tax_query'] = apply_filters( 'stream-manager/taxonomy/'.$this->slug, $this->options['query']['tax_query'], $this );
-    //print_r($this->options);
   }
 
   /**

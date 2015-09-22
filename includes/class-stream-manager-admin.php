@@ -312,7 +312,7 @@ class StreamManagerAdmin {
 	  	$stream->sm_query = array_merge($this->default_query, $stream->sm_query);
 	  	$stream->sm_query = $this->default_query;
 
-	  	$stream->sm_query['tax_query'] = $this->build_tax_query( $stream->sm_rules );
+	  	$stream->sm_query['tax_query'] = self::build_tax_query( $stream->sm_rules );
 	  	$stream->set('query', $stream->sm_query);
 
 	  	// Sorting
@@ -341,12 +341,12 @@ class StreamManagerAdmin {
 	  	add_action( 'save_post', array( $this, 'save_stream' ) );
 	}
 
-	public function build_tax_query( $taxonomies ) {
+	public static function build_tax_query( $taxonomies ) {
 		$output = array('relation' => 'OR');
 		foreach ( $taxonomies as $taxonomy => $terms ) {
 			if ( !$terms ) continue;
 
-			$terms = is_array($terms) ? $terms : $this->parse_terms( $taxonomy, $terms );
+			$terms = is_array($terms) ? $terms : self::parse_terms( $taxonomy, $terms );
 			foreach ( $terms as $i => $term ) {
 				if ( empty( $term ) ) unset( $terms[$i] );
 			}
@@ -374,7 +374,7 @@ class StreamManagerAdmin {
 	 *
 	 * @return    array   array of term IDs
 	 */
-	public function parse_terms( $taxonomy, $terms, $return_objects = false ) {
+	public static function parse_terms( $taxonomy, $terms, $return_objects = false ) {
 		if ( !is_array($terms) ) $terms = explode( ",", $terms );
 
 		$output = array();
@@ -552,7 +552,7 @@ class StreamManagerAdmin {
 
 		// Build the query
 		$query = ($stream && $stream->sm_query) ? $stream->sm_query : $this->default_query;
-		$query['tax_query'] = $this->build_tax_query( $_POST['taxonomies'] );
+		$query['tax_query'] = self::build_tax_query( $_POST['taxonomies'] );
 
 
 		if ( isset($_POST['exclude']) ) {
