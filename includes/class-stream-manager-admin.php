@@ -215,8 +215,11 @@ class StreamManagerAdmin {
 	  	$layouts = $stream_post->get('layouts');
 	  	$layout = $layouts['layouts'][ $layouts['active'] ];
 
+	  	$posts = $stream_post->get_posts( array( 'show_hidden' => true ) );
+	  	$stubs = self::render_stubs($posts, $stream_post);
+
 		Timber::render('views/stream.twig', array(
-			'posts' => $stream_post->get_posts( array( 'show_hidden' => true ) ),
+			'stubs' => $stubs,
 			'post_ids'    => implode( ',', $ids ),
 			'post_pinned' => implode( ',', $pinned ),
 			'nonce' => wp_nonce_field('sm_nonce', 'sm_meta_box_nonce', true, false),
@@ -525,11 +528,10 @@ class StreamManagerAdmin {
 			$post = new TimberPost( $item['id'] );
 			if ( !$post ) continue;
 			$post->pinned = false;
+			$stream = new TimberStream('home');
 			$output[ $item['id'] ] = array(
 				'position' => $item['position'],
-				'object' => Timber::compile('views/stub.twig', array(
-					'post' => $post
-				))
+				'object' => self::render_stub($post, $stream)
 			);
 		}
 		$this->ajax_respond( 'success', $output );
@@ -560,12 +562,32 @@ class StreamManagerAdmin {
 		}
 		$query = apply_filters('stream-manager/query', $query);
 		$query = apply_filters('stream-manager/query/slug='.$stream->slug, $query);
+		
 		$posts = Timber::get_posts($query);
-		foreach ( $posts as $post ) {
-			$output[] = Timber::compile('views/stub.twig', array( 'post' => $post ));
-		}
-
+		$output = self::render_stubs($posts, $html);
 		$this->ajax_respond( 'success', $output );
+	}
+
+	/**
+	 * @since  	1.2
+	 * @return  array of stub html
+	 */
+	protected static function render_stubs( $posts, $stream ) {
+		$output = array();
+		foreach ( $posts as $post ) {
+			$output[] = self::render_stub( $post, $stream );
+		}
+		return $output;
+	}
+
+	/**
+     * Render a stub
+	 * @param  TimberPost $post object
+	 * @return string rendered HTML
+	 */
+	protected static function render_stub( $post, $stream ) {
+		$html = apply_filters('stream-manager/stub/slug='.$stream->slug, '', $post->ID);
+		return Timber::compile('views/stub.twig', array( 'post' => $post, 'html' => $html ));
 	}
 
 

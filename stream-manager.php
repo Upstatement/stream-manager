@@ -12,7 +12,7 @@
  * Plugin Name:       Stream Manager
  * Plugin URI:        http://upstatement.com/stream-manager
  * Description:       Conquerer of Streams.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            Chris Voll + Upstatement
  * Author URI:        http://upstatement.com
  * Text Domain:       stream-manager
@@ -24,7 +24,6 @@
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) die;
-
 
 ////////////////////////////////////////////
 //
