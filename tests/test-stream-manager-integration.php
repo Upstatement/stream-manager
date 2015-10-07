@@ -17,4 +17,15 @@
 			$this->assertEquals($count, count($posts));
 		}
 
+		function testPostPublish() {
+			$stream = $this->buildStream();
+			$this->buildPosts(4);
+			$posts = $stream->get_posts();
+			$this->assertEquals(4, count($posts));
+			$post_id = $this->factory->post->create(array('post_status' => 'draft'));
+			wp_publish_post($post_id);
+			$posts = $stream->get_posts(array('post_type' => 'post'));
+			$this->assertEquals(5, count($posts));
+		}
+
 	}
