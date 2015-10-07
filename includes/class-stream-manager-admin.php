@@ -340,30 +340,39 @@ class StreamManagerAdmin {
 
 
 	/**
-	 * Convert comma-separated list of terms to term IDs
+
+	 * Update streams whenever any post status is changed
 	 *
 	 * @since     1.0.0
 	 *
-	 * @param     string   $taxonomy        taxonomy slug (category, post_tag, etc.)
-	 * @param     string   $terms           comma-separated list of term slugs
-	 * @param     boolean  $return_objects  return term objects if true, IDs if false
-	 *
-	 * @return    array   array of term IDs
+	 * @param     string  $new   new post status
+	 * @param     string  $old   old post status
+	 * @param     object  $post  WordPress post object
 	 */
-	public static function parse_terms( $taxonomy, $terms, $return_objects = false ) {
-		if ( !is_array($terms) ) $terms = explode( ",", $terms );
+	public function on_save_post( $new, $old, $post ) {
+		if ( $post->post_type == 'sm_stream' ) return;
 
-		$output = array();
-
-		foreach ( $terms as &$term ) {
-			$term = trim($term);
-			$term_object = get_term_by( 'name', $term, $taxonomy );
-			if ( !$term_object ) $term_object = get_term_by( 'slug', $term, $taxonomy );
-			if ( !$term_object ) continue;
-			$output[] = $term_object->term_id;
+		if ( $old == 'publish' && $new != 'publish' ) {
+			// Remove from streams
+			$streams = $this->plugin->get_streams();
+			foreach ( $streams as $stream ) {
+				$stream->remove_post( $post->ID );
+			}
 		}
 
-		return $return_objects ? $terms : $output;
+		if ( $old != 'publish' && $new == 'publish' ) {
+			//seems weird, but it's necessary for ACF
+			//and potentially other plugins
+			//we can't be sure what actions have been added
+			//so checking for infinite loop-type bugs isn't possible
+			do_action('save_post', $post->ID, $post, true );
+			remove_all_actions('save_post');
+			// Add to streams
+			$streams = $this->plugin->get_streams();
+			foreach ( $streams as $stream ) {
+				$stream->insert_post( $post->ID );
+			}
+		}
 	}
 
 
