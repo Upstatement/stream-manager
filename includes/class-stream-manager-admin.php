@@ -343,34 +343,6 @@ class StreamManagerAdmin {
 
 
 	/**
-	 * Convert comma-separated list of terms to term IDs
-	 *
-	 * @since     1.0.0
-	 *
-	 * @param     string   $taxonomy        taxonomy slug (category, post_tag, etc.)
-	 * @param     string   $terms           comma-separated list of term slugs
-	 * @param     boolean  $return_objects  return term objects if true, IDs if false
-	 *
-	 * @return    array   array of term IDs
-	 */
-	public static function parse_terms( $taxonomy, $terms, $return_objects = false ) {
-		if ( !is_array($terms) ) $terms = explode( ",", $terms );
-
-		$output = array();
-
-		foreach ( $terms as &$term ) {
-			$term = trim($term);
-			$term_object = get_term_by( 'name', $term, $taxonomy );
-			if ( !$term_object ) $term_object = get_term_by( 'slug', $term, $taxonomy );
-			if ( !$term_object ) continue;
-			$output[] = $term_object->term_id;
-		}
-
-		return $return_objects ? $terms : $output;
-	}
-
-
-	/**
 	 * Update streams whenever any post status is changed
 	 *
 	 * @since     1.0.0
