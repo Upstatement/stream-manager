@@ -13,6 +13,7 @@
  * @package StreamManagerAdmin
  * @author  Chris Voll + Upstatement
  */
+
 class StreamManagerAdmin {
 
 	/**
@@ -75,8 +76,12 @@ class StreamManagerAdmin {
 		add_action( 'save_post', array( $this, 'save_stream' ) );
 
 		// Saving Posts (= updating streams)
-		add_action( 'transition_post_status',  array( $this, 'on_save_post' ), 10, 3 );
-
+		add_action( 'transition_post_status', array( $this, 'on_save_post' ), 10, 3 );
+		add_action( 'publish_future_post', function($post_id) {
+			$post = get_post($post_id);
+			$this->on_save_post('publish', 'future', $post);
+		}, 10, 1);
+		//add_action( 'publish_post', array( $this, 'on_save_post' ), 10, 3 );
 
 		// AJAX Helpers
 		// ------------
