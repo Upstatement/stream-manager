@@ -66,8 +66,8 @@ add_action( 'plugins_loaded', array( 'StreamManager', 'get_instance' ) );
 //
 ////////////////////////////////////////////
 
-// if ( is_admin() ) {
+ if ( is_admin() ) {
 	require_once( plugin_dir_path( __FILE__ ) . 'includes/class-stream-manager-admin.php' );
   
 	add_action( 'plugins_loaded', array( 'StreamManagerAdmin', 'get_instance' ) );
-//}
+}
