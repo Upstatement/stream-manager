@@ -389,42 +389,6 @@ class StreamManagerAdmin {
 
 
 	/**
-	 * Update streams whenever any post status is changed
-	 *
-	 * @since     1.0.0
-	 *
-	 * @param     string  $new   new post status
-	 * @param     string  $old   old post status
-	 * @param     object  $post  WordPress post object
-	 */
-	public function on_save_post( $new, $old, $post ) {
-		if ( $post->post_type == 'sm_stream' ) return;
-
-		if ( $old == 'publish' && $new != 'publish' ) {
-			// Remove from streams
-			$streams = $this->plugin->get_streams();
-			foreach ( $streams as $stream ) {
-				$stream->remove_post( $post->ID );
-			}
-		}
-
-		if ( $old != 'publish' && $new == 'publish' ) {
-			//seems weird, but it's necessary for ACF
-			//and potentially other plugins
-			//we can't be sure what actions have been added
-			//so checking for infinite loop-type bugs isn't possible
-			do_action('save_post', $post->ID, $post, true );
-			remove_all_actions('save_post');
-			// Add to streams
-			$streams = $this->plugin->get_streams();
-			foreach ( $streams as $stream ) {
-				$stream->insert_post( $post->ID );
-			}
-		}
-	}
-
-
-	/**
 	 * Add help text to stream edit page
 	 *
 	 * @since     1.0.0
