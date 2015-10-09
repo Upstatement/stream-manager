@@ -13,6 +13,7 @@
  * @package StreamManagerAdmin
  * @author  Chris Voll + Upstatement
  */
+
 class StreamManagerAdmin {
 
 	/**
@@ -312,7 +313,7 @@ class StreamManagerAdmin {
 	  	$stream->sm_query = array_merge($this->default_query, $stream->sm_query);
 	  	$stream->sm_query = $this->default_query;
 
-	  	$stream->sm_query['tax_query'] = StreamManagerUtilties::build_tax_query( $stream->sm_rules );
+	  	$stream->sm_query['tax_query'] = StreamManagerUtilities::build_tax_query( $stream->sm_rules );
 	  	$stream->set('query', $stream->sm_query);
 
 	  	// Sorting
