@@ -13,6 +13,7 @@
  * @package StreamManagerAdmin
  * @author  Chris Voll + Upstatement
  */
+
 class StreamManagerAdmin {
 
 	/**
@@ -73,10 +74,6 @@ class StreamManagerAdmin {
 
 		// Saving Streams
 		add_action( 'save_post', array( $this, 'save_stream' ) );
-
-		// Saving Posts (= updating streams)
-		add_action( 'transition_post_status',  array( $this, 'on_save_post' ), 10, 3 );
-
 
 		// AJAX Helpers
 		// ------------
@@ -388,42 +385,6 @@ class StreamManagerAdmin {
 		}
 
 		return $return_objects ? $terms : $output;
-	}
-
-
-	/**
-	 * Update streams whenever any post status is changed
-	 *
-	 * @since     1.0.0
-	 *
-	 * @param     string  $new   new post status
-	 * @param     string  $old   old post status
-	 * @param     object  $post  WordPress post object
-	 */
-	public function on_save_post( $new, $old, $post ) {
-		if ( $post->post_type == 'sm_stream' ) return;
-
-		if ( $old == 'publish' && $new != 'publish' ) {
-			// Remove from streams
-			$streams = $this->plugin->get_streams();
-			foreach ( $streams as $stream ) {
-				$stream->remove_post( $post->ID );
-			}
-		}
-
-		if ( $old != 'publish' && $new == 'publish' ) {
-			//seems weird, but it's necessary for ACF
-			//and potentially other plugins
-			//we can't be sure what actions have been added
-			//so checking for infinite loop-type bugs isn't possible
-			do_action('save_post', $post->ID, $post, true );
-			remove_all_actions('save_post');
-			// Add to streams
-			$streams = $this->plugin->get_streams();
-			foreach ( $streams as $stream ) {
-				$stream->insert_post( $post->ID );
-			}
-		}
 	}
 
 
