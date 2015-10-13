@@ -340,7 +340,6 @@ class StreamManagerAdmin {
 
 
 	/**
-
 	 * Update streams whenever any post status is changed
 	 *
 	 * @since     1.0.0
@@ -501,7 +500,7 @@ class StreamManagerAdmin {
 
 		// Build the query
 		$query = ($stream && $stream->sm_query) ? $stream->sm_query : $this->default_query;
-		$query['tax_query'] = StreamManagerUtilties::build_tax_query( $_POST['taxonomies'] );
+		$query['tax_query'] = StreamManagerUtilities::build_tax_query( $_POST['taxonomies'] );
 
 
 		if ( isset($_POST['exclude']) ) {
