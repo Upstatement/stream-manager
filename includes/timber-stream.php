@@ -95,7 +95,7 @@ class TimberStream extends TimberPost {
 
     $taxes = apply_filters( 'stream-manager/taxonomy/'.$this->slug, array(), $this );
     if (is_array($taxes) && !empty($taxes)) {
-      $taxes = StreamManagerAdmin::build_tax_query($taxes);
+      $taxes = StreamManagerUtilities::build_tax_query($taxes);
       if (isset($this->options['query']['tax_query'])) {
         $this->options['query']['tax_query'] = array_merge($this->options['query']['tax_query'], $taxes);
       } else {
