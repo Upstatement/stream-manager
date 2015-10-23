@@ -141,7 +141,7 @@ class TimberStream extends TimberPost {
     //use the stream to put posts back in order
     foreach($this->get('stream') as $item) {
       if(in_array($item['id'], $all_ids)) {
-        $posts[] = new TimberPost($item['id']);
+        $posts[] = new $PostClass($item['id']);
       }
     }
 
