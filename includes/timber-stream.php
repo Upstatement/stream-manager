@@ -379,17 +379,27 @@ class TimberStream extends TimberPost {
   }
 
 
+
   /**
    * Save the stream metadata
    *
    * @since     1.0.0
    */
+
+  
   public function save_stream() {
     $save_data = apply_filters( 'stream-manager/save/id=' . $this->ID, array(
       'ID' => $this->ID,
       'post_content' => serialize($this->options)
     ), $this);
+
+    // Fix conflict with yoast premium
+    add_filter('wpseo_premium_post_redirect_slug_change', '__return_true');
+    
     wp_update_post( $save_data );
+
+    remove_filter('wpseo_premium_post_redirect_slug_change', '__return_true');
+
   }
 
 }
