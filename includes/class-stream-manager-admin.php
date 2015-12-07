@@ -323,13 +323,7 @@ class StreamManagerAdmin {
 	  	$stream->sm_query = $this->default_query;
 
 	  	$stream->sm_query['tax_query'] = StreamManagerUtilities::build_tax_query( $stream->sm_rules );
-	  	//$stream->sm_query['posts_per_page'] = $_POST['stream_length'];
-	  	$options = array('posts_per_page' => $_POST['stream_length']);
-	  	add_filter('stream-manager/options/id='.$stream_id, function($defaults, $stream) use ($options) {
-			$defaults['query'] = array_merge($defaults['query'], $options);
-			return $defaults;
-			error_log($defaults);
-		}, 10, 2);
+	  	$stream->sm_query['posts_per_page'] = $_POST['stream_length'];
 	  	$stream->set('query', $stream->sm_query);
 
 	  	// Sorting
