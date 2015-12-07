@@ -195,6 +195,13 @@ class StreamManagerAdmin {
 			$this->post_type_slug,
 			'side'
 		);
+		add_meta_box(
+			'stream_box_length',
+			'Stream Length',
+			array( $this, 'meta_box_stream_length' ),
+			$this->post_type_slug,
+			'side'
+		);
 	}
 
 
@@ -273,6 +280,12 @@ class StreamManagerAdmin {
 		Timber::render('views/rules.twig', array_merge(Timber::get_context(), $context));
 	}
 
+	public function meta_box_stream_length( $post ) {
+		$stream_post = new TimberStream( $post->ID ); 
+		$context = array('query' => $stream_post->options['query']);
+		Timber::render('views/stream-length.twig', array_merge(Timber::get_context(), $context));
+	} 
+
 
 	/**
 	 * Save the stream metadata
@@ -310,6 +323,7 @@ class StreamManagerAdmin {
 	  	$stream->sm_query = $this->default_query;
 
 	  	$stream->sm_query['tax_query'] = StreamManagerUtilities::build_tax_query( $stream->sm_rules );
+	  	$stream->sm_query['posts_per_page'] = $_POST['stream_length'];
 	  	$stream->set('query', $stream->sm_query);
 
 	  	// Sorting
