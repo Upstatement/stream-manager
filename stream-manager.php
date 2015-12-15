@@ -57,6 +57,7 @@ require_once( plugin_dir_path( __FILE__ ) . 'includes/class-stream-manager-utili
 require_once( plugin_dir_path( __FILE__ ) . 'includes/class-stream-manager.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'includes/timber-stream.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'includes/class-stream-manager-manager.php');
+require_once( plugin_dir_path( __FILE__ ) . 'includes/stream-api.php');
 
 
 
@@ -77,23 +78,4 @@ add_action( 'plugins_loaded', array( 'StreamManagerManager', 'get_instance' ) );
 	add_action( 'plugins_loaded', array( 'StreamManagerAdmin', 'get_instance' ) );
 }
 
-/**
- * Creating a new stream programatically, with the option to pass a query array to filter the stream
- *
- * @param string $slug
- * @param string $title
- * @param array $query_array
- *
- */
 
-function stream_manager_insert_stream( $slug, $title = NULL, $query_array = NULL) {
-	$post_title = $title?: $slug;
-	$pid = wp_insert_post(array('post_type' => 'sm_stream', 'post_name' => $slug, 'post_title' => $post_title ));
-	if ( $query_array ) {
-		add_filter('stream-manager/options/'.$slug, function($defaults) use ($query_array) {
-		  $defaults['query'] = array_merge( $defaults['query'], $query_array );
-		  return $defaults;
-		});
-	}	
-	return $pid;
-}
