@@ -1,7 +1,21 @@
 <?php 
 
 /**
- * Insert a new stream, with the option to pass a wp_query array to filter the stream
+ * Check if a stream is in the database
+ *
+ * @param string $slug
+ * 
+ * @return bool 
+ */
+function sm_stream_exists( $slug ) {
+	$posts = get_posts( array( 'post_type' => 'sm_stream', 'name' => $slug ) );
+	if ( count( $posts ) ) { return true; }
+	else { return false; }
+}
+
+/**
+ * Insert a new stream, with the option to pass a wp_query array to filter the stream.
+ * Returns false if the stream already exists.
  *
  * @param string $slug
  * @param string $title
@@ -9,7 +23,12 @@
  *
  * @return int $pid ID of new stream
  */
-function sm_insert_stream( $slug, $title = NULL, $query_array = NULL) {
+function sm_insert_stream( $slug, $title = NULL, $query_array = NULL ) {
+
+	if( sm_stream_exists( $slug ) ) {
+		return false;
+	}
+
 	$post_title = $title?: $slug;
 	$args = array(
 		'post_type' 	=> 'sm_stream',
@@ -38,20 +57,13 @@ function sm_insert_stream( $slug, $title = NULL, $query_array = NULL) {
  */
 function sm_delete_stream( $slug ) {
 	$posts = get_posts( array( 'post_type' => 'sm_stream', 'name' => $slug ) );
-	$post = $posts[0];
-	$deleted = wp_delete_post( $post->ID );
-	return $deleted;
+	if( $posts ) {
+		$post = $posts[0];
+		$deleted = wp_delete_post( $post->ID );
+		return $deleted;
+	}	
 }
 
-/**
- * Retrieve post objects for all streams
- * 
- * @return array $stream array of post objects
- */
-function sm_get_streams() {
-	$streams = get_posts( array( 'post_type' => 'sm_stream', 'status' => 'publish' ) );
-	return $streams;
-}
 
 
 
