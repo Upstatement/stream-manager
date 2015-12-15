@@ -24,15 +24,6 @@ And add this to your twig file:
 {% endfor %}
 ```
 
-## Filters
-
-#### stream-manager/options/id={stream-id}
-
-#### stream-manager/options/{stream-slug}
-
-#### stream-manager/taxonomy/
-
-## Zones
 
 
 
