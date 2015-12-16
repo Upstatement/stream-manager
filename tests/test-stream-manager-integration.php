@@ -54,4 +54,19 @@
 			$this->assertEquals($first, $posts[4]->ID);
 		}	
 
+		function testRemovePinnedPost() {
+			$stream = $this->buildStream();
+			$postids = $this->buildPosts(5);
+			foreach($postids as $id) {
+				$data[] = array('id' => $id, 'pinned' => 1);
+			}
+			$stream->set('stream', $data);
+			$posts = $stream->get_posts();
+			$first = $posts[0]->ID;
+			$stream->remove_post($first);
+			$stream = new TimberStream($stream->ID);
+			$posts = $stream->get_posts();
+			$this->assertEquals($first, $posts[4]->ID);
+		}
+
 	}
