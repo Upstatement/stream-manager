@@ -28,4 +28,30 @@
 			$this->assertEquals(5, count($posts));
 		}
 
+		function testPostUnpublish() {
+			$stream = $this->buildStream();
+			$post_id = $this->factory->post->create();
+			$posts = $stream->get_posts();
+			$this->assertEquals(1, count($posts));
+			wp_update_post(array( 'ID' => $post_id, 'post_status' => 'draft' ));
+			$stream = new TimberStream( $stream->ID );
+			$posts = $stream->get_posts();
+			$this->assertEquals(0, count($posts));
+		}
+
+		function testRemovePost() {
+			$stream = $this->buildStream();
+			$postids = $this->buildPosts(5);
+			foreach($postids as $id) {
+				$data[] = array('id' => $id, 'pinned' => '');
+			}
+			$stream->set('stream', $data);
+			$posts = $stream->get_posts();
+			$first = $posts[0]->ID;
+			$stream->remove_post($first);
+			$stream = new TimberStream($stream->ID);
+			$posts = $stream->get_posts();
+			$this->assertEquals($first, $posts[4]->ID);
+		}	
+
 	}
