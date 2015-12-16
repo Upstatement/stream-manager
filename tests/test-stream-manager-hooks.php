@@ -42,11 +42,11 @@
 			$jive_term_id = $this->factory->term->create(array('name' => 'Jiveing'));
 			$stream = $this->buildStream('Sample Stream', array('post_type' => 'post', 'tax_query' => array('relation' => 'OR', array('taxonomy' => 'post_tag', 'field' => 'term_id', 'terms' => array($jump_term_id, $jive_term_id)))));
 			$this->buildPosts(5);
-			$jumping_post = $this->factory->post->create(array('tags_input' => 'jumping', 'post_title' => 'Jumping & Jiving'));
-			$jiving_post = $this->factory->post->create(array('tags_input' => 'jumping', 'post_title' => 'Jiving n Jumping'));
+			$jumping_post = $this->factory->post->create(array('tags_input' => 'jumping', 'post_title' => 'Jumping & Jiving', 'post_date' => '2014-12-15 12:00:00'));
+			$jiving_post = $this->factory->post->create(array('tags_input' => 'jumping', 'post_title' => 'Jiving n Jumping', 'post_date' => '2014-12-25 12:00:00'));
 			$posts = $stream->get_posts();
 			$this->assertEquals( 2, count($posts) );
-			$this->assertEquals( $jumping_post, $posts[0]->ID );
+			$this->assertEquals( $jiving_post, $posts[0]->ID );
 		}
 
 		function testSinglePostTaxonomyHook() {
