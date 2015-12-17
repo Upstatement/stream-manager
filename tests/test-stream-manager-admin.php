@@ -20,4 +20,21 @@
 			$this->assertEquals(5, count($stream->options['stream']));
 		}
 
+		function testManagerManagerGetInstance() {
+			$manager = StreamManagerManager::get_instance();
+			$this->assertObjectHasAttribute('plugin', $manager);
+		}
+
+		function testStreamManagerInit() {
+			$manager = StreamManager::get_instance();
+			$this->assertObjectHasAttribute('streams', $manager);
+		}
+
+		function testDefinePostTypes() {
+			$manager = StreamManager::get_instance();
+			$manager->define_post_types();
+			$post_types = get_post_types();
+			$this->assertTrue(in_array($manager->get_post_type_slug(), $post_types);
+		}
+
 	}
