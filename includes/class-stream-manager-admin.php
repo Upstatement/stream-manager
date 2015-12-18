@@ -296,21 +296,20 @@ class StreamManagerAdmin {
 
 	    $stream = new TimberStream( $stream_id );
 
-	  	$stream->sm_rules = array();
+	  	// $stream->sm_rules = array();
 
-	  	$tax_input = apply_filters('stream-manager/taxonomy/'.$stream->slug, array());
+	  	// $tax_input = apply_filters('stream-manager/taxonomy/'.$stream->slug, array());
+	  	// if ( $tax_input ) {
+	  	// 	foreach ( $tax_input as $taxonomy => $terms ) {
+	  	// 		$stream->sm_rules[$taxonomy] = $terms;
+	  	// 	}
+	  	// }
 
-	  	if ( $tax_input ) {
-	  		foreach ( $tax_input as $taxonomy => $terms ) {
-	  			$stream->sm_rules[$taxonomy] = $terms;
-	  		}
-	  	}
+	  	// $stream->sm_query = array_merge($this->default_query, $stream->sm_query);
+	  	// $stream->sm_query = $this->default_query;
 
-	  	$stream->sm_query = array_merge($this->default_query, $stream->sm_query);
-	  	$stream->sm_query = $this->default_query;
-
-	  	$stream->sm_query['tax_query'] = StreamManagerUtilities::build_tax_query( $stream->sm_rules );
-	  	$stream->set('query', $stream->sm_query);
+	  	// $stream->sm_query['tax_query'] = StreamManagerUtilities::build_tax_query( $stream->sm_rules );
+	  	// $stream->set('query', $stream->sm_query);
 
 	  	// Sorting
 	    if ( isset( $_POST['sm_sort'] ) ) {
