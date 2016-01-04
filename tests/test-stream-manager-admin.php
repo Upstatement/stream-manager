@@ -20,21 +20,30 @@
 			$this->assertEquals(5, count($stream->options['stream']));
 		}
 
-		function testManagerManagerGetInstance() {
-			$manager = StreamManagerManager::get_instance();
-			$this->assertObjectHasAttribute('plugin', $manager);
-		}
+		// function testManagerManagerGetInstance() {
+		// 	$manager = StreamManagerManager::get_instance();
+		// 	$this->assertObjectHasAttribute('plugin', $manager);
+		// }
 
-		function testStreamManagerInit() {
-			$manager = StreamManager::get_instance();
-			$this->assertObjectHasAttribute('streams', $manager);
+		// function testStreamManagerInit() {
+		// 	$manager = StreamManager::get_instance();
+		// 	$this->assertObjectHasAttribute('streams', $manager);
+		// }
+
+		function testAddHelpText() {
+			set_current_screen( 'sm_stream' );
+			$admin = StreamManagerAdmin::get_instance();
+			$admin->add_help_text();
+			$screen = get_current_screen();
+			$tabs = $screen->get_help_tabs();
+			$this->assertEquals(3, count($tabs));
 		}
 
 		function testDefinePostTypes() {
 			$manager = StreamManager::get_instance();
 			$manager->define_post_types();
 			$post_types = get_post_types();
-			$this->assertTrue(in_array($manager->get_post_type_slug(), $post_types);
+			$this->assertTrue(in_array($manager->get_post_type_slug(), $post_types));
 		}
 
 	}
