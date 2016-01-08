@@ -57,7 +57,7 @@ require_once( plugin_dir_path( __FILE__ ) . 'includes/class-stream-manager-utili
 require_once( plugin_dir_path( __FILE__ ) . 'includes/class-stream-manager.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'includes/timber-stream.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'includes/class-stream-manager-manager.php');
-require_once( plugin_dir_path( __FILE__ ) . 'includes/class-stream-api.php');
+require_once( plugin_dir_path( __FILE__ ) . 'includes/class-stream-manager-api.php');
 
 
 
