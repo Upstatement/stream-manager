@@ -40,7 +40,7 @@ class StreamManagerApi {
 	 */
 	static function insert_stream( $slug, $title = NULL, $query_array = NULL ) {
 
-		if( sm_stream_exists( $slug ) ) {
+		if( self::stream_exists( $slug ) ) {
 			return false;
 		}
 
