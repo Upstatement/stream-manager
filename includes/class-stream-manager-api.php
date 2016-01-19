@@ -24,8 +24,10 @@ class StreamManagerApi {
 	 */
 	static function stream_exists( $slug ) {
 		$posts = get_posts( array( 'post_type' => 'sm_stream', 'name' => $slug ) );
-		if ( count( $posts ) ) { return true; }
-		else { return false; }
+		if ( count( $posts ) ) { 
+			return true; 
+		}
+		return false;
 	}
 
 	/**
