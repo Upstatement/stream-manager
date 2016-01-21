@@ -20,16 +20,6 @@
 			$this->assertEquals(5, count($stream->options['stream']));
 		}
 
-		// function testManagerManagerGetInstance() {
-		// 	$manager = StreamManagerManager::get_instance();
-		// 	$this->assertObjectHasAttribute('plugin', $manager);
-		// }
-
-		// function testStreamManagerInit() {
-		// 	$manager = StreamManager::get_instance();
-		// 	$this->assertObjectHasAttribute('streams', $manager);
-		// }
-
 		function testAddHelpText() {
 			set_current_screen( 'sm_stream' );
 			$admin = StreamManagerAdmin::get_instance();

@@ -1,8 +1,27 @@
 <?php
 
 	class TestStreamManagerApi extends StreamManager_UnitTestCase {
+
+		function testStreamExistsTrue() {
+			$sid = StreamManagerApi::insert_stream( 'test_stream' );
+			$exists = StreamManagerApi::stream_exists( 'test_stream' );
+			$this->assertTrue($exists);
+		}
+
+		function testStreamExistsFalse() {
+			$exists = StreamManagerApi::stream_exists( 'test_stream' );
+			$this->assertFalse($exists);
+		}
 		
 		function testInsertStream() {
+			$sid = StreamManagerApi::insert_stream( 'test_stream' );
+			$streams = get_posts( array( 'post_type' => 'sm_stream' ) ); 
+			$this->assertEquals( 1, count( $streams ) );
+			$this->assertEquals( $streams[0]->post_name, 'test_stream');
+		}
+
+		function testInsertStreamIfExists() {
+			$sid = StreamManagerApi::insert_stream( 'test_stream' );
 			$sid = StreamManagerApi::insert_stream( 'test_stream' );
 			$streams = get_posts( array( 'post_type' => 'sm_stream' ) ); 
 			$this->assertEquals( 1, count( $streams ) );
@@ -27,9 +46,15 @@
 			$streams = get_posts( array( 'post_type' => 'sm_stream' ) );
 			$stream = $streams[0];
 			$this->assertEquals( 1, count( $streams ) );
-			StreamManagerApi::delete_stream( $stream->post_name );
+			$deleted = StreamManagerApi::delete_stream( $stream->post_name );
 			$streams = get_posts( array( 'post_type' => 'sm_stream' ) );
 			$this->assertEquals( 0, count( $streams ) );
+			$this->assertEquals($sid, $deleted);
+		}
+
+		function testDeleteStreamIfDoesntExist() {
+			$deleted = StreamManagerApi::delete_stream( 'test' );
+			$this->assertFalse($deleted);
 		}
 
 	}

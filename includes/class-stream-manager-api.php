@@ -69,15 +69,18 @@ class StreamManagerApi {
 	 * Delete a stream by slug
 	 *
 	 * @param string $slug
+	 * @param bool $force_delete bypass trash and force deletion
 	 * 
 	 * @return int $deleted ID of deleted stream
 	 */
-	static function delete_stream( $slug ) {
+	static function delete_stream( $slug, $force_delete = true ) {
 		$posts = get_posts( array( 'post_type' => 'sm_stream', 'name' => $slug ) );
 		if( $posts ) {
 			$post = $posts[0];
-			$deleted = wp_delete_post( $post->ID );
-			return $deleted;
+			$deleted = wp_delete_post( $post->ID, $force_delete );
+			return $deleted->ID;
+		} else {
+			return false;
 		}	
 	}
 }
