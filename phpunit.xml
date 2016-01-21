@@ -18,7 +18,7 @@
     <filter>
     	<whitelist processUncoveredFilesFromWhitelist="true">
     		<directory suffix=".php">includes</directory>
-    		<file>steam-manager.php</file>
+    		<file>stream-manager.php</file>
   		</whitelist>
 	</filter>
 </phpunit>
