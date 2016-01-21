@@ -1,5 +1,4 @@
-Stream Manager
-==============
+![](https://github.com/Upstatement/stream-manager/blob/master/assets/stream_manager-readme_banner.png)
 
 [![Build Status](https://magnum.travis-ci.com/Upstatement/stream-manager.svg?token=d8Cx5Kv4z1vKq3YdKbM2)](https://magnum.travis-ci.com/Upstatement/stream-manager)
 [![Coverage Status](https://coveralls.io/repos/Upstatement/stream-manager/badge.svg?branch=master&service=github&t=0LpO9W)](https://coveralls.io/github/Upstatement/stream-manager?branch=master)
@@ -24,26 +23,33 @@ And add this to your twig file:
 {% endfor %}
 ```
 
+## User Guide
 
+### Adding posts to a stream
 
+To add a post to the stream, start typing the title of the post in the 'Add Post' box.  When the post you want to add appears, click it.  The post should automatically be added to the top of the stream.
 
-### Roadmap
-- [x] Define project requirements _Jared_
-- [x] Write a technical spec _Chris_
-- [x] Create a WordPress plugin _Chris_
-- [ ] Release WordPress plugin
-- [x] Integrate on a site
+![](https://github.com/Upstatement/stream-manager/blob/master/assets/screenshot-add.png)
 
-### Goals
-- [x] Gives editors an easy and intutive way to manage streams of content on their site
-- [ ] Has ways Upstatement or other developers can extend/customize for particular implemenetation or site
-- [x] Doesn't require an editor to set after every update (ie. auto-insertion of published posts)
+### Removing posts from a stream
 
-### Requirements
-- [x] Modeled after existing [feed manager](https://github.com/Upstatement/chainsaw-feed) for general UI and UX
-- [x] Matches general WordPress UI
-- [ ] Contains Upstatement mention/branding
-- [ ] Can handle multiple streams
-- [x] Built upon normal WordPress post_type architecture
-- [x] JavaScript / AJAX provides _enhancements_ as opposed to core UX
+To remove a post from the stream, hover over the post and click the x in the upper right.  Note that the post won't be deleted entirely -- instead, it will be removed from its current position and appended to the bottom of the stream.
+
+![](https://github.com/Upstatement/stream-manager/blob/master/assets/screenshot-remove.png)
+
+### Pinning posts
+
+Pinning a post will fix in in its current spot in the stream, even if new posts are added.  For example, if you were to pin a post in the top slot, the next new post to be published will go to the second slot and the original post will remain at the top.  Pin a post to its current spot by clicking on the thumbtack icon to the left of the post title.  If the thumbtack is red, the post is pinned.  Unpin a post by clicking the thumbtack a second time.
+
+![](https://github.com/Upstatement/stream-manager/blob/master/assets/screenshot-pin.png)
+
+### Reordering a stream
+
+Posts in the stream can be reordered via drag and drop.  Make sure to click 'Update Post' after making changes to the stream.
+
+### Using zones
+
+Zones are a useful tool for visualizing where posts are going to display on the page.  For example, if the first post in the stream appears in a special featured slot, you might demarcate that using a zone title 'Featured Post.'  To add a zone, type the name of the zone in the 'Zones' box on the right and click 'Add Zone.'  The zone will be added to the the top of the stream, after which it can be dragged and dropped to the desired location.
+
+![](https://github.com/Upstatement/stream-manager/blob/master/assets/screenshot-zones.png)
 
