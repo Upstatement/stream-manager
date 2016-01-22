@@ -1,5 +1,5 @@
 === Stream Manager ===
-Contributors: chrisvoll
+Contributors: chrisvoll, lggorman, jarednova
 Tags: posts
 Requires at least: 3.8
 Tested up to: 3.9.1
@@ -7,106 +7,43 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Here is a short description of the plugin.  This should be no more than 150 characters.  No markup here.
+Easily curate streams of recent posts.  Pin, remove, or add posts to a stream via a drag and drop interface.
 
 == Description ==
 
-This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
+Traditionally, feeds of featured posts on the homepage or elsewhere are populated automatically with new content in reverse chronological order, or else selected manually.  Stream Manager combines the best of both worlds by creating streams that automatically pull in new content, but can be easily modified from the WordPres admin.  Stream Manager is designed to work with Twig Templating plugin Timber.
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
-
-A few notes about the sections above:
-
-*   "Contributors" is a comma separated list of wp.org/wp-plugins.org usernames
-*   "Tags" is a comma separated list of tags that apply to the plugin
-*   "Requires at least" is the lowest version that the plugin will work on
-*   "Tested up to" is the highest version that you've *successfully used to test the plugin*. Note that it might work on
-higher versions... this is just the highest one you've verified.
-*   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
-stable.
-
-    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
-if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
-for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
-is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
-your in-development version, without having that information incorrectly disclosed about the current stable version
-that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
-
-    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
-you put the stable version, in order to eliminate any doubt.
+= Links =
+* [Github repo](http://github.com/Upstatement/stream-manager) (includes user guide)
+* [Developer docs](https://upstatement.github.io/stream-manager/)
+* [Timber](https://wordpress.org/plugins/timber-library/) 
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
+1. Install and activate Timber, then install and activate this plugin.
+2. Create a new stream from the WordPress admin.
+3. Add the following to your template file, replacing 'new-stream' with the slug of your stream.
+`
+$context['stream'] = new TimberStream('new-stream');
+`
+4. Finally, add this to your twig file.
+`
+{% for post in stream.get_posts %}
 
-e.g.
+    {{ post.title }}
 
-= Using The WordPress Dashboard =
-
-1. Navigate to the 'Add New' in the plugins dashboard
-2. Search for 'plugin-name'
-3. Click 'Install Now'
-4. Activate the plugin on the Plugin dashboard
-
-= Uploading in WordPress Dashboard =
-
-1. Navigate to the 'Add New' in the plugins dashboard
-2. Navigate to the 'Upload' area
-3. Select `plugin-name.zip` from your computer
-4. Click 'Install Now'
-5. Activate the plugin in the Plugin dashboard
-
-= Using FTP =
-
-1. Download `plugin-name.zip`
-2. Extract the `plugin-name` directory to your computer
-3. Upload the `plugin-name` directory to the `/wp-content/plugins/` directory
-4. Activate the plugin in the Plugin dashboard
-
+{% endfor %}
+`
 
 == Frequently Asked Questions ==
 
-= A question that someone might have =
+= Can streams be filtered by post type or category? =
 
-An answer to that question.
+Yes! Streams can be filtered by post type, taxonomy, or just about anything else that can be passed into a wp_query array.  Check out the [github readme](http://github.com/Upstatement/stream-manager) for details on filter hooks.
 
-= What about foo bar? =
-
-Answer to foo bar dilemma.
 
 == Screenshots ==
 
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-2. This is the second screen shot
+1. Adding a new stream.
+2. Pinning a stream to the top of 
 
-== Changelog ==
-
-= 1.0 =
-* A change since the previous version.
-* Another change.
-
-= 0.5 =
-* List versions from most recent at top to oldest at bottom.
-
-== Upgrade Notice ==
-
-= 1.0 =
-Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
-
-= 0.5 =
-This version fixes a security related bug.  Upgrade immediately.
-
-== Arbitrary section ==
-
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
-
-== Updates ==
-
-The basic structure of this plugin was cloned from the [WordPress-Plugin-Boilerplate](https://github.com/tommcfarlin/WordPress-Plugin-Boilerplate) project.
-This plugin supports the [GitHub Updater](https://github.com/afragen/github-updater) plugin, so if you install that, this plugin becomes automatically updateable direct from GitHub. Any submission to WP.org repo will make this redundant.
