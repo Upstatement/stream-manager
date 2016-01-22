@@ -163,7 +163,7 @@ class StreamManager {
 	    'show_in_nav_menus'   => false,
 	    'show_in_admin_bar'   => false,
 	    'menu_position'       => 5,
-	    'menu_icon'           => 'dashicons-list-view',
+	   	'menu_icon'           => 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI+PGRlZnM+PHN0eWxlPi5he2ZpbGw6I2ZmZjt9PC9zdHlsZT48L2RlZnM+PHRpdGxlPnN0cmVhbV9tYW5hZ2VyLWljb25fMTZ4MTYtd2hpdGU8L3RpdGxlPjxwYXRoIGNsYXNzPSJhIiBkPSJNOSwxMGExLDEsMCwxLDEtMiwwQTMuMjUsMy4yNSwwLDAsMSw4LDguMzMsMy4zLDMuMywwLDAsMSw5LDEwWiIvPjxwYXRoIGNsYXNzPSJhIiBkPSJNOCw0LjE3UzQuNSw3LjQ1LDQuNSwxMGEzLjUsMy41LDAsMSwwLDcsMEMxMS41LDcuNDYsOCw0LjE3LDgsNC4xN1pNOCwxMmEyLDIsMCwwLDEtMi0yQzYsOC41NSw4LDYuNjcsOCw2LjY3UzEwLDguNTUsMTAsMTBBMiwyLDAsMCwxLDgsMTJaIi8+PHBhdGggY2xhc3M9ImEiIGQ9Ik04LDBTMiw1LjYzLDIsMTBhNiw2LDAsMSwwLDEyLDBDMTQsNS42NSw4LDAsOCwwWk04LDE0LjVBNC41LDQuNSwwLDAsMSwzLjUsMTBDMy41LDYuNzMsOCwyLjUsOCwyLjVzNC41LDQuMjQsNC41LDcuNUE0LjQ5LDQuNDksMCwwLDEsOCwxNC41WiIvPjwvc3ZnPg==',
 	    'can_export'          => true,
 	    'has_archive'         => false,
 	    'exclude_from_search' => true,
