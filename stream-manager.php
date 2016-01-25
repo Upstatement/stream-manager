@@ -54,6 +54,7 @@ if ( !class_exists('Timber') ) {
 ////////////////////////////////////////////
 
 require_once( plugin_dir_path( __FILE__ ) . 'includes/class-stream-manager-utilities.php' );
+require_once( plugin_dir_path( __FILE__ ) . 'includes/class-stream-manager-ajax-helper.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'includes/class-stream-manager.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'includes/timber-stream.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'includes/class-stream-manager-manager.php');
