@@ -16,6 +16,15 @@
 
 class StreamManagerAjaxHelper { 
 
+	/**
+	 * Retrieves and compiles templates for from queue
+	 *
+	 * @since     1.0.0
+	 *
+	 * @param     array   $queue  postid and position of post to be added
+	 *
+	 * @return    array   $output post positions, rendered stubs
+	 */
 	public static function retrieve_posts($queue) {
 		$output = array();
 
@@ -33,6 +42,15 @@ class StreamManagerAjaxHelper {
 		return $output;
 	}
 
+	/**
+	 * Searches posts for 'Add New' autocomplete
+	 *
+	 * @since     1.0.0
+	 *
+	 * @param     string   $query  search term
+	 *
+	 * @return    array   $output  posts w/ ids, date, title, human time diff 
+	 */
 	public static function search_posts($query) {
 		$posts = Timber::get_posts(array(
 			's' => $query,
