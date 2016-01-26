@@ -11,7 +11,7 @@ Easily curate streams of recent posts.  Pin, remove, or add posts to a stream vi
 
 == Description ==
 
-Traditionally, feeds of featured posts on the homepage or elsewhere are populated automatically with new content in reverse chronological order, or else selected manually.  Stream Manager combines the best of both worlds by creating streams that automatically pull in new content, but can be easily modified from the WordPres admin.  Stream Manager is designed to work with Twig Templating plugin Timber.
+Traditionally, feeds of featured posts on the homepage or elsewhere are populated automatically with new content in reverse chronological order, or else selected manually.  Stream Manager combines the best of both worlds by creating streams that automatically pull in new content, but can be easily modified from the WordPress admin.  Stream Manager is designed to work with Twig Templating plugin Timber.
 
 = Links =
 * [Github repo](http://github.com/Upstatement/stream-manager) (includes user guide)

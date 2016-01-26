@@ -53,3 +53,72 @@ Zones are a useful tool for visualizing where posts are going to display on the 
 
 ![](https://github.com/Upstatement/stream-manager/blob/master/assets/screenshot-zones.png)
 
+## Filter Hooks
+
+Stream Manager includes several filter hooks that can be used to modify the options array attached to a stream. A common use case is to modify the query that populates the stream.
+
+## Default Options
+
+```php
+$default = array(
+    'query' => array(
+      'post_type'           => 'post',
+      'post_status'         => 'publish',
+      'has_password'        => false,
+      'ignore_sticky_posts' => true,
+      'posts_per_page'      => 100,
+      'orderby'             => 'post__in'
+    ),
+
+    'stream'  => array(),
+    'layouts' => array(
+      'active' => 'default',
+      'layouts' => array(
+        'default' => array(
+          'name' => 'Default',
+          'zones' => array()
+        )
+      )
+    )
+  );
+``` 
+* * *
+
+### stream-manager/options/id={stream-id}
+
+Restrict stream #3 to posts of the 'event' post type.
+
+```php
+add_filter('stream-manager/options/id=3', function($defaults) {
+  $defaults['query'] = array_merge($defaults['query'], array('post_type' => array('event')));
+  return $defaults;
+});
+```
+
+* * *
+
+### stream-manager/options/{stream-slug}
+
+Restrict the 'homepage' stream to posts in the 'local-news' category.
+
+```php
+add_filter('stream-manager/options/homepage', function($defaults) {
+  $defaults['query'] = array_merge($defaults['query'], array('category_name' => 'local-news'));
+  return $defaults;
+});
+```
+
+* * *
+
+### stream-manager/taxonomy/{stream-slug}
+
+Restrict the 'classifieds' stream to the posts with the tags with term ids of 12 and 13
+
+```php
+add_filter('stream-manager/taxonomy/classifieds', function($defaults) {
+	$defaults['relation'] = "OR";
+	$defaults['post_tag'] = array( 12,13 );
+	return $defaults;
+});
+```
+
