@@ -36,14 +36,14 @@ if ( ! defined( 'WPINC' ) ) die;
 // Check if Timber is installed, and include it before any stream manager
 // things are initiated. This is needed for the TimberStream class.
 if ( !class_exists('Timber') ) {
-  if ( !is_dir( ABSPATH . 'wp-content/plugins/timber-library' ) ) {
+  if ( !is_dir( plugin_dir_path(__DIR__).'timber-library' ) ) {
     add_action('admin_notices', function() {
       echo('<div class="error"><p>Please install <a href="http://upstatement.com/timber/">Timber</a> to use Stream Manager.</p></div>');
     });
   } else {
-    include_once( ABSPATH . 'wp-content/plugins/timber-library/timber.php' );
+    include_once( plugin_dir_path(__DIR__).'timber-library/timber.php' );
   }
-}
+} 
 
 
 
