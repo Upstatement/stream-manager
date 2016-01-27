@@ -254,26 +254,6 @@ class StreamManagerAdmin {
 		Timber::render('views/zones.twig', array_merge(Timber::get_context(), $context));
 	}
 
-
-	/**
-	 * Render Rules metabox
-	 *
-	 * @since     1.0.0
-	 *
-	 * @param     object  $post  WordPress post object
-	 */
-	public function meta_box_rules( $post ) {
-		$stream_post = new TimberStream( $post->ID );
-
-		$context = array(
-			'post'    => $stream_post,
-			'rules'   => $stream_post->sm_rules,
-		);
-
-		Timber::render('views/rules.twig', array_merge(Timber::get_context(), $context));
-	}
-
-
 	/**
 	 * Save the stream metadata
 	 *
@@ -295,21 +275,6 @@ class StreamManagerAdmin {
 		}
 
 	    $stream = new TimberStream( $stream_id );
-
-	  	// $stream->sm_rules = array();
-
-	  	// $tax_input = apply_filters('stream-manager/taxonomy/'.$stream->slug, array());
-	  	// if ( $tax_input ) {
-	  	// 	foreach ( $tax_input as $taxonomy => $terms ) {
-	  	// 		$stream->sm_rules[$taxonomy] = $terms;
-	  	// 	}
-	  	// }
-
-	  	// $stream->sm_query = array_merge($this->default_query, $stream->sm_query);
-	  	// $stream->sm_query = $this->default_query;
-
-	  	// $stream->sm_query['tax_query'] = StreamManagerUtilities::build_tax_query( $stream->sm_rules );
-	  	// $stream->set('query', $stream->sm_query);
 
 	  	// Sorting
 	    if ( isset( $_POST['sm_sort'] ) ) {
@@ -434,36 +399,6 @@ class StreamManagerAdmin {
 		$this->ajax_respond( 'success', $output );
 	}
 
-
-	// not currently used -- rules metabox is not being rendered
-	/**
-	 * Retrieve rendered post stubs when reloading all posts in
-	 * in the admin UI
-	 *
-	 * @since     1.0.0
-	 *
-	 * @param     array   $request   AJAX request (uses $_POST instead)
-	 */
-	// public function ajax_retrieve_reload_posts( $request ) {
-	// 	if ( !isset( $_POST['stream_id'] ) || !isset( $_POST['taxonomies'] ) ) $this->ajax_respond( 'error' );
-	// 	$stream = new TimberPost( $_POST['stream_id'] );
-	// 	$output = array();
-	// 	// Build the query
-	// 	$query = ($stream && $stream->sm_query) ? $stream->sm_query : $this->default_query;
-	// 	$query['tax_query'] = StreamManagerUtilities::build_tax_query( $_POST['taxonomies'] );
-	// 	if ( isset($_POST['exclude']) ) {
-	// 		$query['post__not_in'] = $_POST['exclude'];
-	// 	}
-	// 	$query = apply_filters('stream-manager/query', $query);
-	// 	$query = apply_filters('stream-manager/query/slug='.$stream->slug, $query);
-	// 	$posts = Timber::get_posts($query);
-	// 	foreach ( $posts as $post ) {
-	// 		$output[] = Timber::compile('views/stub.twig', array( 'post' => $post ));
-	// 	}
-	// 	$this->ajax_respond( 'success', $output );
-	// }
-
-
 	/**
 	 * Retrieve search results
 	 *
@@ -477,26 +412,6 @@ class StreamManagerAdmin {
 
 		$this->ajax_respond( 'success', $output );
 	}
-
-	// Not currently used -- rules metabox is not being rendered
-
-	// public function ajax_search_terms( $request ) {
-	// 	if ( !isset( $_POST['query'] ) || !isset( $_POST['taxonomy'] ) ) $this->ajax_respond( 'error' );
-	// 	// Search terms!
-	// 	$terms = Timber::get_terms( $_POST['taxonomy'], array(
-	// 		'name__like' => $_POST['query']
-	// 	));
-	// 	$output = array();
-	// 	foreach ( $terms as $term ) {
-	// 		$output[] = array(
-	// 			'id' => $term->term_id,
-	// 			'slug' => $term->slug,
-	// 			'name' => $term->name
-	// 		);
-	// 	}
-	// 	$this->ajax_respond( 'success', $output );
-	// }
-
 
 	/**
 	 * Send AJAX response
