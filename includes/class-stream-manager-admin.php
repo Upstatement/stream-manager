@@ -319,12 +319,25 @@ class StreamManagerAdmin {
 	  	array(
 		    'id'      => 'sm_stream_1',
 		    'title'   => 'About Streams',
-		    'content' => '<h3>About Streams</h3><p>Help content</p>',
+		    'content' => implode("\n", array(
+		    	'<h3>About Streams</h3>',
+		    	'<p>Streams are feeds of content, updated automatically as new posts are created.', 
+		    	'Any changes made to the stream from this page will be reflected where the stream is output in the theme, on the homepage or elsewhere.</p>'
+		    ))
 		  ),
 	  	array(
 		    'id'      => 'sm_stream_2',
 		    'title'   => 'How to Use',
-		    'content' => '<h3>How to Use</h3><p>Help content</p>',
+		    'content' => implode("\n", array(
+		    	'<h3>How to Use</h3>',
+		    	'<p><b>Reordering: </b>',
+		    	'Drag and drop posts into the desired order, then click the "Update" button.</p>',
+		    	'<p><b>Adding a Post: </b>',
+		    	'Type the name of the post in the "Add Post" box and select the intended post when it appears in the dropdown.</p>',
+		    	'<p><b>Removing a Post: </b>',
+		    	'To remove a post from the stream, hover over the post and click the x in the upper right. Note that the post will not be deleted entirely; instead, it will be removed from its current position and appended to the bottom of the stream.</b>',
+		    	'<p>For more detailed instructions, consult the <a target="_blank" href="https://github.com/upstatement/stream-manager#user-guide">User Guide</a> in the Github project readme.</p>'
+		    ))
 		  ),
 	  	array(
 		    'id'      => 'sm_stream_3',
@@ -335,7 +348,7 @@ class StreamManagerAdmin {
 		    		'<pre>$context[\'stream\'] = new TimberStream(' . get_the_ID() . ');</pre>',
 		    	'</p>',
 		    	'<p>In your view file (twig):</p>',
-		    	'<p><pre>{% for post in stream %}',
+		    	'<p><pre>{% for post in stream.get_posts %}',
 		    	'  {{ post.title }}',
 		    	'{% endfor %}</pre></p>'
 		    ))

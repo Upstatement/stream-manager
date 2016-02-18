@@ -57,7 +57,7 @@ Zones are a useful tool for visualizing where posts are going to display on the 
 
 Stream Manager includes several filter hooks that can be used to modify the options array attached to a stream. A common use case is to modify the query that populates the stream.
 
-## Default Options
+### Default Options
 
 ```php
 $default = array(

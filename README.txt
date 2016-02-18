@@ -11,12 +11,16 @@ Easily curate streams of recent posts.  Pin, remove, or add posts to a stream vi
 
 == Description ==
 
-Traditionally, feeds of featured posts on the homepage or elsewhere are populated automatically with new content in reverse chronological order, or else selected manually.  Stream Manager combines the best of both worlds by creating streams that automatically pull in new content, but can be easily modified from the WordPress admin.  Stream Manager is designed to work with Twig Templating plugin Timber.
+We created Stream Manager with news editors in mind.  Admins wanted the latest headlines to show up on the front page automatically, but didn’t want to give up the flexibility of pinning a major story in a featured spot or pushing a smaller item down below the fold.  
+
+Stream Manager provides a simple interface for curating feeds of new posts from the WordPress Admin.  New posts show up automatically at the top of a stream, but content can easily be added, removed, or repositioned on the page via the stream editor.  Admins also have the option of pinning a post, which will lock it in its current position regardless of new content.
+
+Stream Manager is designed to work with Twig templating plugin [Timber](https://wordpress.org/plugins/timber-library/), as detailed in the installation instructions. Check out the [Timber project page](http://upstatement.com/timber/) for more info.
 
 = Links =
 * [Github repo](http://github.com/Upstatement/stream-manager) (includes user guide)
 * [Developer docs](https://upstatement.github.io/stream-manager/)
-* [Timber](https://wordpress.org/plugins/timber-library/) 
+* [Timber docs](http://jarednova.github.io/timber/) 
 
 == Installation ==
 
