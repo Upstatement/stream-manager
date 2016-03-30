@@ -25,6 +25,8 @@ And add this to your twig file:
 
 ## User Guide
 
+<iframe src="https://player.vimeo.com/video/160133857" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+
 ### Adding posts to a stream
 
 To add a post to the stream, start typing the title of the post in the 'Add Post' box.  When the post you want to add appears, click it.  The post should automatically be added to the top of the stream.
