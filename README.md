@@ -25,7 +25,7 @@ And add this to your twig file:
 
 ## User Guide
 
-<iframe src="https://player.vimeo.com/video/160133857" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+[Walkthrough Screencast](https://vimeo.com/160133857/025e8af0ae)
 
 ### Adding posts to a stream
 
