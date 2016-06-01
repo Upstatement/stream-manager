@@ -36,16 +36,26 @@ if ( ! defined( 'WPINC' ) ) die;
 // Check if Timber is installed, and include it before any stream manager
 // things are initiated. This is needed for the TimberStream class.
 if ( !class_exists('Timber') ) {
-  if ( !is_dir( plugin_dir_path(__DIR__).'timber-library' ) && !is_dir( plugin_dir_path(__DIR__).'timber' ) ) {
+
+  // WP plugin repo version
+  if ( is_dir( plugin_dir_path(__DIR__).'timber-library') ) {
+    include_once( plugin_dir_path(__DIR__).'timber-library/timber.php' );
+  } 
+  // old development copy
+  elseif( is_dir( plugin_dir_path(__DIR__).'timber' ) ) {
+    include_once( plugin_dir_path(__DIR__).'timber/timber.php' );
+  } 
+  // included directly in the theme via composer
+  elseif ( is_dir( get_template_directory() . '/vendor/timber' ) ) {
+    include_once( get_template_directory() . '/vendor/autoload.php');
+  } 
+
+  // Timber is nowhere to be found, throw a notice and return
+  else {
     add_action('admin_notices', function() {
       echo('<div class="error"><p>Please install <a href="http://upstatement.com/timber/">Timber</a> to use Stream Manager.</p></div>');
     });
-  } else {
-  	if(is_dir( plugin_dir_path(__DIR__).'timber-library')) {
-  		include_once( plugin_dir_path(__DIR__).'timber-library/timber.php' );
-  	} else {
-  		include_once( plugin_dir_path(__DIR__).'timber/timber.php' );
-  	}
+    return;
   }
 } 
 
