@@ -19,6 +19,7 @@ Stream Manager is designed to work with Twig templating plugin [Timber](https://
 
 = Links =
 * [Github repo](http://github.com/Upstatement/stream-manager) (includes user guide)
+* [Walkthough Screencast](https://vimeo.com/160133857/025e8af0ae)
 * [Developer docs](https://upstatement.github.io/stream-manager/)
 * [Timber docs](http://jarednova.github.io/timber/) 
 
