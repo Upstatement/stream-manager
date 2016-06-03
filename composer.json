@@ -56,5 +56,8 @@
       "type": "composer",
       "url": "http://wpackagist.org"
     }
-  ]
+  ],
+  "config": {
+    "secure-http": false
+  }
 }
