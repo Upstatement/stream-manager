@@ -76,7 +76,7 @@ class TimberStream extends TimberPost {
   public $options = null;
 
   /**
-   * Init Stream object
+   * Construct Timber\Post, kick off stream init
    *
    * @param integer|boolean|string  $pid  Post ID or slug
    *
@@ -84,24 +84,34 @@ class TimberStream extends TimberPost {
    */
   public function __construct($pid = null) {
     parent::__construct($pid);
-    if ($this->post_type !== 'sm_stream') {
-      throw new Exception("TimberStream of $pid is not of sm_stream post type");
-    }
-    if ( !$this->post_content ) $this->post_content = serialize(array());
-    $this->options = array_merge( $this->default_options, unserialize($this->post_content) );
-    $this->options['query'] = apply_filters('stream-manager/query', $this->options['query']);
-    $this->options = apply_filters( 'stream-manager/options/id=' . $this->ID, $this->options, $this );
-    $this->options = apply_filters( 'stream-manager/options/'.$this->slug, $this->options, $this );
+    $this->init_stream($pid);
+  }
 
-    $taxes = apply_filters( 'stream-manager/taxonomy/'.$this->slug, array(), $this );
-    if (is_array($taxes) && !empty($taxes)) {
-      $taxes = StreamManagerUtilities::build_tax_query($taxes);
-      if (isset($this->options['query']['tax_query'])) {
-        $this->options['query']['tax_query'] = array_merge($this->options['query']['tax_query'], $taxes);
-      } else {
-        $this->options['query']['tax_query'] = $taxes;
+  /**
+   * Init Stream object
+   *
+   * @param integer|boolean|string  $pid  Post ID or slug
+   *
+   */
+  public function init_stream($pid) {
+    if ($this->post_type === 'sm_stream') {
+      if ( !$this->post_content ) $this->post_content = serialize(array());
+      $this->options = array_merge( $this->default_options, unserialize($this->post_content) );
+      $this->options['query'] = apply_filters('stream-manager/query', $this->options['query']);
+      $this->options = apply_filters( 'stream-manager/options/id=' . $this->ID, $this->options, $this );
+      $this->options = apply_filters( 'stream-manager/options/'.$this->slug, $this->options, $this );
+
+      $taxes = apply_filters( 'stream-manager/taxonomy/'.$this->slug, array(), $this );
+      if (is_array($taxes) && !empty($taxes)) {
+        $taxes = StreamManagerUtilities::build_tax_query($taxes);
+        if (isset($this->options['query']['tax_query'])) {
+          $this->options['query']['tax_query'] = array_merge($this->options['query']['tax_query'], $taxes);
+        } else {
+          $this->options['query']['tax_query'] = $taxes;
+        }
       }
     }
+   
   }
 
   /**
