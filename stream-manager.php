@@ -12,8 +12,8 @@
  * Plugin Name:       Stream Manager
  * Plugin URI:        http://upstatement.com/stream-manager
  * Description:       Conquerer of Streams.
- * Version:           1.0.1
- * Author:            Chris Voll + Upstatement
+ * Version:           1.0.2
+ * Author:            Upstatement
  * Author URI:        http://upstatement.com
  * Text Domain:       stream-manager
  * License:           GPL-2.0+
