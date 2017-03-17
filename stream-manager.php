@@ -10,7 +10,6 @@
  *
  * @wordpress-plugin
  * Plugin Name:       Stream Manager
- * Plugin URI:        http://upstatement.com/stream-manager
  * Description:       Conquerer of Streams.
  * Version:           1.3.1
  * Author:            Upstatement
