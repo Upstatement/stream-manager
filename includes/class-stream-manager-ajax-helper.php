@@ -48,16 +48,21 @@ class StreamManagerAjaxHelper {
 	 * @since     1.0.0
 	 *
 	 * @param     string   $query  search term
+	 * @param 	  int      $stream_id  post id of current stream
 	 *
 	 * @return    array   $output  posts w/ ids, date, title, human time diff 
 	 */
-	public static function search_posts($query) {
-		$posts = Timber::get_posts(array(
+	public static function search_posts( $query, $stream_id ) {
+		$defaults = array(
 			's' => $query,
 			'post_type' => 'post',
 			'post_status' => 'publish',
 			'posts_per_page' => 10
-		));
+		);
+		$stream = new TimberStream($stream_id);
+		$args = array_merge( $defaults, $stream->get( 'query' ) );
+
+		$posts = Timber::get_posts( $args );
 
 		$output = array();
 
