@@ -30,19 +30,29 @@
 		}
 
 		function testSearchPosts() {
+			$pid = $this->buildStream();
 			$bagel_post = $this->factory->post->create(array('post_title' => 'Bagels'));
 			$croissant_post = $this->factory->post->create(array('post_title' => 'Croissants'));
 			$pastries_post = $this->factory->post->create(array('post_title' => 'Croissants and Bagels'));
-			$output = StreamManagerAjaxHelper::search_posts('bagel');
+			$output = StreamManagerAjaxHelper::search_posts('bagel', $pid);
 			$this->assertEquals(2, count($output));
 			$this->assertEquals('1 min', $output[0]['human_date']);
 		}
 
-		function testSearchPostsNoMatches() {
-			$bagel_post = $this->factory->post->create(array('post_title' => 'Bagels'));
-			$output = StreamManagerAjaxHelper::search_posts('muffin');
-			$this->assertEquals(0, count($output));
+		function testSearchPostsAppliesFilter() {
+			$pid = $this->buildStream('Test Stream', array('post_type' => 'pastry'));
+			$this->factory->post->create(array('post_title' => 'bagel1'));
+			$this->factory->post->create(array('post_title' => 'bagel2'));
+			$this->factory->post->create(array('post_title' => 'bagel3', 'post_type' => 'pastry'));
+			$output = StreamManagerAjaxHelper::search_posts('bagel', $pid);
+			$this->assertEquals(1, count($output));
 		}
 
+		function testSearchPostsNoMatches() {
+			$pid = $this->buildStream();
+			$bagel_post = $this->factory->post->create(array('post_title' => 'Bagels'));
+			$output = StreamManagerAjaxHelper::search_posts('muffin', $pid);
+			$this->assertEquals(0, count($output));
+		}
 
 	}
