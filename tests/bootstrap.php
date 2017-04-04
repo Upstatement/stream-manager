@@ -17,6 +17,7 @@ require_once $_tests_dir . '/includes/functions.php';
  * Manually load the plugin being tested.
  */
 function _manually_load_plugin() {
+	require dirname( __FILE__ ) . '/../wp-content/plugins/timber-library/timber.php';
 	require dirname( dirname( __FILE__ ) ) . '/stream-manager.php';
 	require dirname( __FILE__ ) . '/../includes/class-stream-manager-admin.php';	
 }
