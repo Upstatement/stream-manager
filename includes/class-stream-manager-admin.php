@@ -420,8 +420,8 @@ class StreamManagerAdmin {
 	 * @param     array   $request   AJAX request (uses $_POST instead)
 	 */
 	public function ajax_search_posts( $request ) {
-		if ( !isset( $_POST['query'] ) ) $this->ajax_respond( 'error' );
-		$output = StreamManagerAjaxHelper::search_posts($_POST['query']);
+		if ( !isset( $_POST['query'] ) || !isset( $_POST['stream_id'] ) ) $this->ajax_respond( 'error' );
+		$output = StreamManagerAjaxHelper::search_posts($_POST['query'], $_POST['stream_id']);
 
 		$this->ajax_respond( 'success', $output );
 	}

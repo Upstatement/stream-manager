@@ -564,7 +564,8 @@ jQuery(function($) {
 
             var request = {
               action: 'sm_search',
-              query: that.search_query
+              query: that.search_query,
+              stream_id: $('#post_ID').val()
             };
 
             $.post(ajaxurl, request, function(results) {
