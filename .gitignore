@@ -2,5 +2,5 @@
 .sass-cache
 vendor
 wp-content
-build
+assets/build
 node_modules
