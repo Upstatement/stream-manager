@@ -1,6 +1,56 @@
-const gulp 	= require('gulp');
-const $ 	= require('gulp-load-plugins')();
-const config = require('./package.json');
+const gulp 		= require('gulp');
+const $ 		= require('gulp-load-plugins')();
+const config 	= require('./package.json');
+
+//////////////////////////////////////////////
+//
+//	Front-end build tasks
+// 
+////////////////////////////////////////////////
+
+// ----------------------------------------
+//
+//   Styles: Compile scss to css and minify.
+//   
+// ----------------------------------------
+
+gulp.task('styles', function() {
+  gulp.src('./assets/src/scss/*.scss')
+    .pipe($.sass())
+    .pipe($.cleanCss())
+    .on('error', $.sass.logError)
+    .pipe( gulp.dest('./assets/build/css/') );
+});
+
+// ----------------------------------------
+//
+//   Scripts: Minify js.
+//   
+// ----------------------------------------
+gulp.task('scripts', function() {
+  return gulp.src('./assets/src/js/*.js')
+    .pipe($.uglify())
+    .pipe(gulp.dest('./assets/build/js/'));
+});
+
+// ----------------------------------------
+//
+//   Watch/Default: Watch asset folders for 
+//   changes and rerun tasks as needed. 
+//   
+// ----------------------------------------
+gulp.task('watch', function() {
+	gulp.watch('./assets/src/scss/**/*.scss', ['styles']);
+	gulp.watch('./assets/src/js/**/*.js', ['scripts']);
+});
+
+gulp.task('default', ['styles', 'scripts', 'watch']);
+
+//////////////////////////////////////////////
+//
+// Automated deployment to wp.org plugin repo
+//
+//////////////////////////////////////////////
 
 const WP_REPO = 'http://plugins.svn.wordpress.org/stream-manager/';
 const ENTRY_FILE = 'stream-manager.php';

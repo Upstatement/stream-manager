@@ -131,7 +131,7 @@ class StreamManagerAdmin {
 
 		wp_enqueue_style(
 			$this->plugin_slug .'-admin-styles',
-			plugins_url( '../assets/css/style.css', __FILE__ ),
+			plugins_url( '../assets/build/css/style.css', __FILE__ ),
 			array(),
 			StreamManager::VERSION
 		);
@@ -161,7 +161,7 @@ class StreamManagerAdmin {
 
 		wp_enqueue_script(
 			$this->plugin_slug . '-admin-script',
-			plugins_url( '../assets/js/script.js', __FILE__ ),
+			plugins_url( '../assets/build/js/script.js', __FILE__ ),
 			array( 'jquery', 'underscore' ),
 			StreamManager::VERSION
 		);
