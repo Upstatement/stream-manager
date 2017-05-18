@@ -46,6 +46,8 @@ gulp.task('watch', function() {
 
 gulp.task('default', ['styles', 'scripts', 'watch']);
 
+gulp.task('build', ['styles', 'scripts']);
+
 //////////////////////////////////////////////
 //
 // Automated deployment to wp.org plugin repo
@@ -143,7 +145,7 @@ gulp.task('svn:delete', function() {
 		.pipe($.clean());
 });
 
-gulp.task('svn:copy', function() {
+gulp.task('svn:copy', ['build'], function() {
 	return gulp.src(BUILD_FILES, { base: './' })
 		.pipe(gulp.dest('./svn/tags/' + config.version))
 		.pipe(gulp.dest('./svn/trunk'));

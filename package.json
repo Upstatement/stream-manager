@@ -1,6 +1,6 @@
 {
   "name": "stream-manager",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "WordPress plugin to curate streams of the latests posts.",
   "main": "index.js",
   "directories": {
