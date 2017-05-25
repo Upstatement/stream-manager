@@ -47,6 +47,9 @@ if ( !class_exists('Timber') ) {
   // included directly in the theme via composer
   elseif ( is_dir( get_template_directory() . '/vendor/timber' ) ) {
     include_once( get_template_directory() . '/vendor/autoload.php');
+
+    // initialize Timber class to run backwards compatibility methods
+    new Timber\Timber();
   } 
 
   // Timber is nowhere to be found, throw a notice and return
