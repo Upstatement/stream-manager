@@ -141,7 +141,9 @@ class TimberStream extends TimberPost {
     }
     
     $posts_orig = Timber::get_posts($query, $PostClass);
-    $post_ids = array_map(create_function('$post', 'return $post->ID;'),$posts_orig);
+    $post_ids = array_map(function($post) {
+      return $post->ID;
+    }, $posts_orig);
 
     //get posts that have been added via search that fall outside the tax rules
     $saved_posts = $this->get_posts_without_tax_query($query);
@@ -182,7 +184,9 @@ class TimberStream extends TimberPost {
     unset($query['tax_query']);
 
     $all_posts = Timber::get_posts($query, $PostClass);
-    $postids = array_map(create_function('$post', 'return $post->ID;'),$all_posts);
+    $postids = array_map(function($post) {
+      return $post->ID;
+    }, $all_posts);
 
     return $postids;
 
