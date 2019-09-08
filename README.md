@@ -52,7 +52,7 @@ Posts in the stream can be reordered via drag and drop.  Make sure to click 'Upd
 
 ### Using zones
 
-Zones are a useful tool for visualizing where posts are going to display on the page.  For example, if the first post in the stream appears in a special featured slot, you might demarcate that using a zone title 'Featured Post.'  To add a zone, type the name of the zone in the 'Zones' box on the right and click 'Add Zone.'  The zone will be added to the the top of the stream, after which it can be dragged and dropped to the desired location.
+Zones are a useful tool for visualizing where posts are going to display on the page.  For example, if the first post in the stream appears in a special featured slot, you might demarcate that using a zone title 'Featured Post.'  To add a zone, type the name of the zone in the 'Zones' box on the right and click 'Add Zone.'  The zone will be added to the top of the stream, after which it can be dragged and dropped to the desired location.
 
 ![](https://github.com/Upstatement/stream-manager/blob/master/assets/screenshot-zones.png)
 
